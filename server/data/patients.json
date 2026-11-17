@@ -1,0 +1,341 @@
+[
+    {
+        "id": "PAT-2026-00101",
+        "cin": {
+            "numero": "BK456789",
+            "type": "CIN",
+            "dateExpiration": "2029-08-20",
+            "estVerifiee": true,
+            "methodeVerification": "IA_OCR"
+        },
+        "nom": "MARTIN",
+        "prenom": "Sophie",
+        "name": "Sophie Martin",
+        "dateNaissance": "1992-04-12",
+        "age": 34,
+        "gender": "F",
+        "sexe": "F",
+        "bloodType": "A+",
+        "phone": "06 12 34 56 78",
+        "email": "s.martin@email.test",
+        "address": "15 Rue de Paris, Casablanca",
+        "ville": "Casablanca",
+        "insurance": "CNOPS (80%)",
+        "allergies": [
+            "Pénicilline",
+            "Arachides"
+        ],
+        "chronic": [
+            "Asthme léger"
+        ],
+        "height": "168 cm",
+        "weight": "62 kg",
+        "status": "Externe",
+        "doctorId": "doc-001",
+        "lastVisit": "12/02/2026",
+        "vitals": {
+            "bp": "120/80",
+            "temp": "37.1°C",
+            "heart": "72 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": false,
+            "uploadDate": "2025-01-10"
+        },
+        "pointages": [
+            {
+                "date": "2026-02-12T08:45:00Z",
+                "mode": "saisie_cin",
+                "rdvId": "RDV-001"
+            }
+        ]
+    },
+    {
+        "id": "PAT-2026-00102",
+        "cin": {
+            "numero": "A123456",
+            "type": "CIN",
+            "dateExpiration": "2027-05-10",
+            "estVerifiee": true,
+            "methodeVerification": "Manuel"
+        },
+        "nom": "BERNARD",
+        "prenom": "Thomas",
+        "name": "Thomas Bernard",
+        "dateNaissance": "1974-06-18",
+        "age": 52,
+        "gender": "M",
+        "sexe": "M",
+        "bloodType": "O+",
+        "phone": "07 98 76 54 32",
+        "email": "t.bernard@email.test",
+        "address": "42 Av Hassan II, Rabat",
+        "ville": "Rabat",
+        "insurance": "CNSS (70%)",
+        "allergies": [],
+        "chronic": [
+            "Hypertension",
+            "Diabète type 2"
+        ],
+        "height": "175 cm",
+        "weight": "89 kg",
+        "status": "Hospitalisé",
+        "doctorId": "doc-001",
+        "lastVisit": "01/03/2026",
+        "vitals": {
+            "bp": "145/95",
+            "temp": "36.8°C",
+            "heart": "80 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": true,
+            "uploadDate": "2024-11-20"
+        },
+        "pointages": [
+            {
+                "date": "2026-03-01T09:10:00Z",
+                "mode": "scan_cin",
+                "rdvId": "RDV-002"
+            }
+        ]
+    },
+    {
+        "id": "PAT-2026-00103",
+        "cin": {
+            "numero": "CD789012",
+            "type": "CIN",
+            "dateExpiration": "2023-12-31",
+            "estVerifiee": false,
+            "methodeVerification": "Non_verifie"
+        },
+        "nom": "KADDOUR",
+        "prenom": "Leïla",
+        "name": "Leïla Kaddour",
+        "dateNaissance": "1998-09-03",
+        "age": 28,
+        "gender": "F",
+        "sexe": "F",
+        "bloodType": "B-",
+        "phone": "06 55 44 33 22",
+        "email": "l.kaddour@email.test",
+        "address": "8 Rue Zerktouni, Marrakech",
+        "ville": "Marrakech",
+        "insurance": "Saham Assurance (100%)",
+        "allergies": [
+            "Aspirine"
+        ],
+        "chronic": [],
+        "height": "162 cm",
+        "weight": "55 kg",
+        "status": "Urgence",
+        "doctorId": "doc-002",
+        "lastVisit": "05/03/2026",
+        "vitals": {
+            "bp": "110/70",
+            "temp": "38.5°C",
+            "heart": "95 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": false,
+            "uploadDate": "2024-05-15"
+        },
+        "pointages": []
+    },
+    {
+        "id": "PAT-2026-00104",
+        "cin": {
+            "numero": "T456123",
+            "type": "CIN",
+            "dateExpiration": "2028-03-15",
+            "estVerifiee": true,
+            "methodeVerification": "IA_OCR"
+        },
+        "nom": "TAHIRI",
+        "prenom": "Karim",
+        "name": "Karim Tahiri",
+        "dateNaissance": "1981-03-15",
+        "age": 45,
+        "gender": "M",
+        "sexe": "M",
+        "bloodType": "A-",
+        "phone": "06 77 88 99 00",
+        "email": "k.tahiri@email.test",
+        "address": "120 Bd Zerktouni, Casablanca",
+        "ville": "Casablanca",
+        "insurance": "CNOPS (80%)",
+        "allergies": [
+            "Pénicilline"
+        ],
+        "chronic": [
+            "Hypertension"
+        ],
+        "height": "180 cm",
+        "weight": "78 kg",
+        "status": "Externe",
+        "doctorId": "doc-001",
+        "lastVisit": "28/02/2026",
+        "vitals": {
+            "bp": "130/85",
+            "temp": "36.9°C",
+            "heart": "68 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": true,
+            "uploadDate": "2025-06-20"
+        },
+        "pointages": [
+            {
+                "date": "2026-02-28T08:52:00Z",
+                "mode": "saisie_cin",
+                "rdvId": "RDV-003"
+            },
+            {
+                "date": "2026-01-15T09:03:00Z",
+                "mode": "qr_code",
+                "rdvId": "RDV-005"
+            }
+        ]
+    },
+    {
+        "id": "PAT-2026-00105",
+        "cin": {
+            "numero": "BE345678",
+            "type": "CIN",
+            "dateExpiration": "2030-11-05",
+            "estVerifiee": true,
+            "methodeVerification": "Manuel"
+        },
+        "nom": "ALAMI",
+        "prenom": "Mohamed",
+        "name": "Mohamed Alami",
+        "dateNaissance": "1980-05-12",
+        "age": 46,
+        "gender": "M",
+        "sexe": "M",
+        "bloodType": "O-",
+        "phone": "06 11 22 33 44",
+        "email": "m.alami@email.test",
+        "address": "55 Rue de Fès, Meknès",
+        "ville": "Meknès",
+        "insurance": "Wafa Assurance (90%)",
+        "allergies": [
+            "Latex"
+        ],
+        "chronic": [],
+        "height": "170 cm",
+        "weight": "75 kg",
+        "status": "Observation",
+        "doctorId": "doc-002",
+        "lastVisit": "03/03/2026",
+        "vitals": {
+            "bp": "115/72",
+            "temp": "37.0°C",
+            "heart": "74 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": false,
+            "uploadDate": "2025-03-10"
+        },
+        "pointages": []
+    },
+    {
+        "id": "PAT-2026-00106",
+        "cin": {
+            "numero": "GH234567",
+            "type": "CIN",
+            "dateExpiration": "2027-09-22",
+            "estVerifiee": true,
+            "methodeVerification": "IA_OCR"
+        },
+        "nom": "ALAMI",
+        "prenom": "Mohamed",
+        "name": "Mohamed Alami",
+        "dateNaissance": "1995-11-03",
+        "age": 31,
+        "gender": "M",
+        "sexe": "M",
+        "bloodType": "AB+",
+        "phone": "06 99 88 77 66",
+        "email": "m.alami2@email.test",
+        "address": "3 Place Mohammed V, Tanger",
+        "ville": "Tanger",
+        "insurance": "CNSS (70%)",
+        "allergies": [
+            "Codéine"
+        ],
+        "chronic": [
+            "Insuffisance cardiaque",
+            "Diabète type 2"
+        ],
+        "height": "172 cm",
+        "weight": "85 kg",
+        "status": "Hospitalisé",
+        "doctorId": "doc-001",
+        "lastVisit": "04/03/2026",
+        "vitals": {
+            "bp": "155/100",
+            "temp": "37.3°C",
+            "heart": "88 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": true,
+            "uploadDate": "2025-08-01"
+        },
+        "pointages": [
+            {
+                "date": "2026-03-04T10:15:00Z",
+                "mode": "scan_cin",
+                "rdvId": "RDV-006"
+            }
+        ]
+    },
+    {
+        "id": "PAT-2026-00107",
+        "cin": {
+            "numero": "BK987654",
+            "type": "CIN",
+            "dateExpiration": "2026-01-15",
+            "estVerifiee": true,
+            "methodeVerification": "Manuel"
+        },
+        "nom": "EL MANSOURI",
+        "prenom": "Youssef",
+        "name": "Youssef El Mansouri",
+        "dateNaissance": "1959-07-28",
+        "age": 67,
+        "gender": "M",
+        "sexe": "M",
+        "bloodType": "B+",
+        "phone": "06 44 55 66 77",
+        "email": "y.mansouri@email.test",
+        "address": "22 Rue Allal Ben Abdellah, Fès",
+        "ville": "Fès",
+        "insurance": "CNOPS (80%)",
+        "allergies": [],
+        "chronic": [
+            "Insuffisance rénale"
+        ],
+        "height": "176 cm",
+        "weight": "80 kg",
+        "status": "Externe",
+        "doctorId": "doc-002",
+        "lastVisit": "25/02/2026",
+        "vitals": {
+            "bp": "140/90",
+            "temp": "36.7°C",
+            "heart": "76 bpm"
+        },
+        "scanCIN": {
+            "recto": true,
+            "verso": false,
+            "uploadDate": "2024-12-01"
+        },
+        "pointages": []
+    }
+]

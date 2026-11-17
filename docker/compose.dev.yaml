@@ -1,0 +1,36 @@
+# Développement : base + API avec rechargement automatique ; le front tourne avec « npm run dev » (proxy Vite → 127.0.0.1:3001).
+# Préparer une base neuve selon server/database/INSTALLATION.md avant de lancer l'API.
+#   docker compose -f docker/compose.yaml -f docker/compose.dev.yaml up -d
+# Arrêter d'abord tout serveur Node local qui occupe le port 3001.
+
+# Projet distinct : volumes (base, fichiers) séparés de ceux de la production, même sur la même machine
+name: nextclinic-dev
+
+services:
+  db:
+    ports:
+      # Accès local uniquement (3307 : le 3306 est souvent pris par XAMPP)
+      - "127.0.0.1:${DB_DEV_PORT:-3307}:3306"
+
+  api:
+    environment:
+      NODE_ENV: development
+      # API exposée directement (sans Caddy) : ne pas croire l'en-tête X-Forwarded-For
+      TRUST_PROXY: ""
+    command: ["node", "--watch", "index.js"]
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ../server:/app
+      - /app/node_modules
+      - uploads:/app/uploads
+    read_only: false
+
+  proxy:
+    # Inutile en développement (Vite sert le front) : activable avec --profile proxy
+    profiles: [proxy]
+
+networks:
+  # En développement seulement : Docker ne publie aucun port d'un réseau interne (accès local 127.0.0.1:3307 voulu)
+  db:
+    internal: false

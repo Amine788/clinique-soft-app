@@ -1,0 +1,114 @@
+[
+    {
+        "id": "doc-001",
+        "userId": "usr-001",
+        "name": "Dr. Ahmed Benali",
+        "specialty": "Médecine Générale",
+        "phone": "06 60 00 11 22",
+        "email": "dr.benali@clinic.test",
+        "consultationFee": 250,
+        "urgencyFee": 400,
+        "schedule": {
+            "monday": {
+                "morning": "08:00-12:00",
+                "afternoon": "14:00-18:00"
+            },
+            "tuesday": {
+                "morning": "08:00-12:00",
+                "afternoon": "14:00-18:00"
+            },
+            "wednesday": {
+                "morning": "08:00-12:00",
+                "afternoon": null
+            },
+            "thursday": {
+                "morning": "08:00-12:00",
+                "afternoon": "14:00-18:00"
+            },
+            "friday": {
+                "morning": "08:00-12:00",
+                "afternoon": "14:00-17:00"
+            },
+            "saturday": {
+                "morning": "09:00-13:00",
+                "afternoon": null
+            },
+            "sunday": null
+        },
+        "stats": {
+            "totalConsultations": 124,
+            "avgPerDay": 6.2,
+            "presenceRate": 94.3,
+            "noShows": 7,
+            "monthlyRevenue": 43200,
+            "prevMonthRevenue": 38500
+        },
+        "absences": {
+            "annual": {
+                "used": 7,
+                "total": 25
+            },
+            "sick": {
+                "used": 3,
+                "total": 30
+            },
+            "training": {
+                "used": 2,
+                "total": 5
+            }
+        }
+    },
+    {
+        "id": "doc-002",
+        "userId": null,
+        "name": "Dr. Sarah Cohen",
+        "specialty": "Cardiologie",
+        "phone": "06 70 00 33 44",
+        "email": "dr.cohen@clinic.test",
+        "consultationFee": 400,
+        "urgencyFee": 600,
+        "schedule": {
+            "monday": {
+                "morning": "09:00-13:00",
+                "afternoon": "14:30-17:30"
+            },
+            "tuesday": {
+                "morning": "09:00-13:00",
+                "afternoon": "14:30-17:30"
+            },
+            "wednesday": null,
+            "thursday": {
+                "morning": "09:00-13:00",
+                "afternoon": "14:30-17:30"
+            },
+            "friday": {
+                "morning": "09:00-13:00",
+                "afternoon": null
+            },
+            "saturday": null,
+            "sunday": null
+        },
+        "stats": {
+            "totalConsultations": 89,
+            "avgPerDay": 5.6,
+            "presenceRate": 96.1,
+            "noShows": 3,
+            "monthlyRevenue": 52800,
+            "prevMonthRevenue": 48200
+        },
+        "absences": {
+            "annual": {
+                "used": 4,
+                "total": 25
+            },
+            "sick": {
+                "used": 1,
+                "total": 30
+            },
+            "training": {
+                "used": 3,
+                "total": 5
+            }
+        }
+    }
+]

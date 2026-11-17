@@ -1,0 +1,194 @@
+{
+    "products": [
+        {
+            "id": "MED-0521",
+            "name": "Paracétamol 1g",
+            "dci": "Paracétamol",
+            "form": "Comprimés",
+            "category": "Médicaments",
+            "unit": "Boîte",
+            "stock": 1250,
+            "threshold": 500,
+            "buyPrice": 1.50,
+            "sellPrice": 2.50,
+            "supplier": "Pharma5",
+            "storage": "Température ambiante"
+        },
+        {
+            "id": "MED-0522",
+            "name": "Amoxicilline 500mg",
+            "dci": "Amoxicilline",
+            "form": "Gélules",
+            "category": "Médicaments",
+            "unit": "Boîte",
+            "stock": 42,
+            "threshold": 100,
+            "buyPrice": 2.80,
+            "sellPrice": 4.20,
+            "supplier": "Sothema",
+            "storage": "Température ambiante"
+        },
+        {
+            "id": "MED-0523",
+            "name": "Sérum Physiologique",
+            "dci": "Chlorure de sodium",
+            "form": "Poche 500ml",
+            "category": "Consommables",
+            "unit": "Unité",
+            "stock": 8,
+            "threshold": 50,
+            "buyPrice": 1.00,
+            "sellPrice": 1.80,
+            "supplier": "Laprophan",
+            "storage": "Température ambiante"
+        },
+        {
+            "id": "MED-0524",
+            "name": "Bétadine Dermique",
+            "dci": "Povidone iodée",
+            "form": "Flacon 125ml",
+            "category": "Antiseptiques",
+            "unit": "Flacon",
+            "stock": 215,
+            "threshold": 150,
+            "buyPrice": 2.00,
+            "sellPrice": 3.15,
+            "supplier": "Cooper Pharma",
+            "storage": "Température ambiante"
+        },
+        {
+            "id": "MED-0525",
+            "name": "Adrénaline 1mg/ml",
+            "dci": "Epinéphrine",
+            "form": "Ampoules",
+            "category": "Médicaments",
+            "unit": "Boîte",
+            "stock": 45,
+            "threshold": 50,
+            "buyPrice": 8.00,
+            "sellPrice": 12.00,
+            "supplier": "Pharma5",
+            "storage": "2-8°C (Réfrigéré)"
+        },
+        {
+            "id": "MED-0526",
+            "name": "Insuline Lantus",
+            "dci": "Insuline glargine",
+            "form": "Stylo injectable",
+            "category": "Médicaments",
+            "unit": "Boîte",
+            "stock": 30,
+            "threshold": 20,
+            "buyPrice": 180.00,
+            "sellPrice": 220.00,
+            "supplier": "Sanofi",
+            "storage": "2-8°C (Réfrigéré)"
+        },
+        {
+            "id": "CON-0101",
+            "name": "Seringues 5ml",
+            "dci": null,
+            "form": "Seringue stérile",
+            "category": "Consommables stériles",
+            "unit": "Boîte/100",
+            "stock": 35,
+            "threshold": 20,
+            "buyPrice": 45.00,
+            "sellPrice": 60.00,
+            "supplier": "Médis",
+            "storage": "Température ambiante"
+        },
+        {
+            "id": "CON-0102",
+            "name": "Compresses stériles",
+            "dci": null,
+            "form": "Compresse 10x10cm",
+            "category": "Matériel pansement",
+            "unit": "Boîte/100",
+            "stock": 120,
+            "threshold": 50,
+            "buyPrice": 25.00,
+            "sellPrice": 35.00,
+            "supplier": "Médis",
+            "storage": "Température ambiante"
+        }
+    ],
+    "lots": [
+        {
+            "id": "LOT-001",
+            "productId": "MED-0521",
+            "lotNumber": "PA2025-A1",
+            "quantity": 500,
+            "manufactureDate": "01/06/2025",
+            "expiryDate": "01/06/2027",
+            "supplier": "Pharma5"
+        },
+        {
+            "id": "LOT-002",
+            "productId": "MED-0522",
+            "lotNumber": "AX2025-B3",
+            "quantity": 42,
+            "manufactureDate": "15/09/2025",
+            "expiryDate": "15/03/2026",
+            "supplier": "Sothema"
+        },
+        {
+            "id": "LOT-003",
+            "productId": "MED-0523",
+            "lotNumber": "SP2025-C1",
+            "quantity": 8,
+            "manufactureDate": "01/01/2026",
+            "expiryDate": "01/01/2028",
+            "supplier": "Laprophan"
+        },
+        {
+            "id": "LOT-004",
+            "productId": "MED-0525",
+            "lotNumber": "AD2025-D2",
+            "quantity": 45,
+            "manufactureDate": "01/11/2025",
+            "expiryDate": "01/04/2026",
+            "supplier": "Pharma5"
+        }
+    ],
+    "dispensations": [
+        {
+            "id": "DSP-001",
+            "patientId": "PAT-2026-00102",
+            "patientName": "Thomas Bernard",
+            "doctorId": "doc-001",
+            "doctorName": "Dr. Ahmed Benali",
+            "pharmacistId": "usr-002",
+            "pharmacistName": "Fatima Idrissi",
+            "items": [
+                {
+                    "productId": "MED-0521",
+                    "name": "Paracétamol 1g",
+                    "quantity": 2,
+                    "lotNumber": "PA2025-A1"
+                }
+            ],
+            "date": "01/03/2026",
+            "status": "Délivré"
+        },
+        {
+            "id": "DSP-002",
+            "patientId": "PAT-2026-00104",
+            "patientName": "Karim Tahiri",
+            "doctorId": "doc-001",
+            "doctorName": "Dr. Ahmed Benali",
+            "pharmacistId": "usr-002",
+            "pharmacistName": "Fatima Idrissi",
+            "items": [
+                {
+                    "productId": "MED-0522",
+                    "name": "Amoxicilline 500mg",
+                    "quantity": 1,
+                    "lotNumber": "AX2025-B3"
+                }
+            ],
+            "date": "02/03/2026",
+            "status": "Délivré"
+        }
+    ]
+}

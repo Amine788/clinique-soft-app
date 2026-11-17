@@ -1,0 +1,20 @@
+# Surcouche de test pour la pile complète docker/compose.yaml (mode « docker » de run.sh).
+# Ajoute Mailpit (capture SMTP, aucun envoi réel) et l'expose à l'hôte local.
+# Toujours lancé avec le nom de projet nextclinic-smoke : volumes distincts de la pile réelle.
+services:
+  mailpit:
+    image: axllent/mailpit:v1.27.11
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_TLS_CERT: "sans:mailpit"
+      MP_SMTP_TLS_KEY: "sans:mailpit"
+    ports: ["127.0.0.1:8026:8025"]
+    networks: [web]
+
+  # La base garde la configuration de production (journal binaire actif) : installation par root
+  # (DB_MIGRATION_USER), API avec le compte limité créé par db-app-account, comme en production.
+
+  api:
+    environment:
+      # TEST UNIQUEMENT : Mailpit présente un certificat auto-signé pour STARTTLS
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"

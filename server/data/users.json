@@ -1,0 +1,27 @@
+[
+    {
+        "id": "usr-001",
+        "email": "dr.benali@clinic.test",
+        "password": "$2a$10$xJ8Kq1VQ0Yw1Zz1Zz1Zz1uQ1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q",
+        "name": "Dr. Ahmed Benali",
+        "role": "doctor",
+        "doctorId": "doc-001",
+        "avatar": "AB"
+    },
+    {
+        "id": "usr-002",
+        "email": "pharm.idrissi@clinic.test",
+        "password": "$2a$10$xJ8Kq1VQ0Yw1Zz1Zz1Zz1uQ1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q",
+        "name": "Fatima Idrissi",
+        "role": "pharmacist",
+        "avatar": "FI"
+    },
+    {
+        "id": "usr-003",
+        "email": "sec.amrani@clinic.test",
+        "password": "$2a$10$xJ8Kq1VQ0Yw1Zz1Zz1Zz1uQ1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q",
+        "name": "Nadia Amrani",
+        "role": "secretary",
+        "avatar": "NA"
+    }
+]

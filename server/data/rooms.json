@@ -1,0 +1,105 @@
+[
+    {
+        "id": "B2-14",
+        "type": "Suite Privée",
+        "building": "B2",
+        "floor": 1,
+        "beds": 1,
+        "status": "Occupée",
+        "dailyRate": 1500,
+        "patient": {
+            "id": "PAT-2026-00102",
+            "name": "Thomas Bernard",
+            "doctorId": "doc-001",
+            "doctorName": "Dr. Ahmed Benali",
+            "admissionDate": "01/03/2026",
+            "expectedExit": "08/03/2026"
+        },
+        "equipment": [
+            "TV",
+            "WiFi Premium",
+            "SDB individuelle",
+            "Salon privé",
+            "Frigo"
+        ]
+    },
+    {
+        "id": "B2-15",
+        "type": "Chambre Privée",
+        "building": "B2",
+        "floor": 1,
+        "beds": 1,
+        "status": "Disponible",
+        "dailyRate": 900,
+        "patient": null,
+        "equipment": [
+            "TV",
+            "WiFi",
+            "SDB individuelle"
+        ]
+    },
+    {
+        "id": "B2-16",
+        "type": "Chambre Privée",
+        "building": "B2",
+        "floor": 1,
+        "beds": 1,
+        "status": "Occupée",
+        "dailyRate": 900,
+        "patient": {
+            "id": "PAT-2026-00106",
+            "name": "Youssef El Mansouri",
+            "doctorId": "doc-001",
+            "doctorName": "Dr. Ahmed Benali",
+            "admissionDate": "04/03/2026",
+            "expectedExit": "12/03/2026"
+        },
+        "equipment": [
+            "TV",
+            "WiFi",
+            "SDB individuelle"
+        ]
+    },
+    {
+        "id": "B2-17",
+        "type": "Soins Intensifs",
+        "building": "B2",
+        "floor": 2,
+        "beds": 1,
+        "status": "Hors service",
+        "dailyRate": 2500,
+        "patient": null,
+        "equipment": [
+            "Monitoring continu",
+            "Matériel réanimation"
+        ]
+    },
+    {
+        "id": "B3-01",
+        "type": "Chambre Double",
+        "building": "B3",
+        "floor": 0,
+        "beds": 2,
+        "status": "Disponible",
+        "dailyRate": 500,
+        "patient": null,
+        "equipment": [
+            "TV commune",
+            "SDB partagée"
+        ]
+    },
+    {
+        "id": "B3-02",
+        "type": "Chambre Double",
+        "building": "B3",
+        "floor": 0,
+        "beds": 2,
+        "status": "Disponible",
+        "dailyRate": 500,
+        "patient": null,
+        "equipment": [
+            "TV commune",
+            "SDB partagée"
+        ]
+    }
+]

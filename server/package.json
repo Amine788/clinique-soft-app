@@ -1,0 +1,39 @@
+{
+    "name": "clinicsoft-server",
+    "version": "1.0.0",
+    "type": "module",
+    "engines": {
+        "node": ">=20"
+    },
+    "scripts": {
+        "dev": "node --watch index.js",
+        "start": "node index.js",
+        "seed": "node seed.js",
+        "migrate:access": "node database/migrations/010_access_columns.js",
+        "db:install": "node database/install.js",
+        "db:seed-examens": "node database/seedExamens.js",
+        "check:services": "node scripts/checkServices.js",
+        "test": "node --test --test-concurrency=1 \"tests/*.test.js\""
+    },
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.78.0",
+        "bcryptjs": "^2.4.3",
+        "cls-hooked": "^4.2.2",
+        "cors": "^2.8.5",
+        "docx": "^9.7.1",
+        "dotenv": "^17.3.1",
+        "express": "^4.21.0",
+        "jsonwebtoken": "^9.0.2",
+        "multer": "^2.1.1",
+        "mysql2": "^3.18.2",
+        "nodemailer": "^10.2.1",
+        "pg": "^8.20.0",
+        "pg-hstore": "^2.3.4",
+        "resend": "^6.10.0",
+        "sequelize": "^6.37.7",
+        "socket.io": "^4.8.3"
+    },
+    "devDependencies": {
+        "socket.io-client": "^4.8.4"
+    }
+}

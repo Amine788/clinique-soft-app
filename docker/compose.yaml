@@ -1,0 +1,196 @@
+# NextClinic ERP — pile Docker (production par défaut).
+# Première installation du schéma : server/database/INSTALLATION.md (profil install).
+# Après préparation de la base :
+#   docker compose -f docker/compose.yaml up -d --build
+# Variables : docker/.env (copier docker/.env.example ; jamais commité).
+# L'API doit rester à UNE seule instance : rappels horaires et connexions temps réel sont gérés en mémoire.
+
+name: nextclinic
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  db:
+    image: mysql:8.4.13
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:?DB_NAME requis}
+      # Sur base neuve, ce compte reçoit tous les droits de la base. Il est
+      # distinct du compte limité de l'API (repli historique pour bases existantes).
+      MYSQL_USER: ${DB_BOOTSTRAP_USER:-${DB_USER:?DB_USER requis}}
+      MYSQL_PASSWORD: ${DB_BOOTSTRAP_PASSWORD:-${DB_PASSWORD:?DB_PASSWORD requis}}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD requis}
+      # Même fuseau que l'ancienne base (dates calculées en SQL)
+      TZ: ${TZ:-Africa/Casablanca}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+    networks: [db]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  api:
+    build: ../server
+    image: nextclinic-api:${APP_VERSION:-local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      TZ: ${TZ:-Africa/Casablanca}
+      CLINIC_TZ: ${TZ:-Africa/Casablanca}
+      # Une seule couche de proxy (Caddy) : IP réelle du client pour la limitation des connexions
+      TRUST_PROXY: "1"
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET requis}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL requis}
+      GMAIL_USER: ${GMAIL_USER:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      ADMIN_NOTIFICATION_EMAIL: ${ADMIN_NOTIFICATION_EMAIL:-}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_MAX_TOKENS: ${AI_MAX_TOKENS:-1024}
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-20000}
+      AI_RATE_LIMIT_PER_USER: ${AI_RATE_LIMIT_PER_USER:-}
+      AI_CACHE_DURATION_MINUTES: ${AI_CACHE_DURATION_MINUTES:-}
+    volumes:
+      # Photos, logos, résultats d'examens, scans de CIN : à sauvegarder avec la base
+      - uploads:/app/uploads
+    networks: [db, web]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  # Installation explicite, avec un compte distinct. Jamais lancée par `up`.
+  db-install:
+    extends:
+      service: api
+    profiles: [install]
+    restart: "no"
+    environment:
+      DB_USER: ${DB_MIGRATION_USER:-}
+      DB_PASSWORD: ${DB_MIGRATION_PASSWORD:-}
+    healthcheck:
+      disable: true
+    command:
+      - sh
+      - -ec
+      - 'test -n "$$DB_USER" && test -n "$$DB_PASSWORD" || { echo "DB_MIGRATION_USER et DB_MIGRATION_PASSWORD requis" >&2; exit 1; }; exec npm run db:install'
+
+  # Compte applicatif limité de l'API (DB_USER / DB_PASSWORD), droits par table. Jamais lancé par `up`.
+  # docker compose -f docker/compose.yaml --profile install run --rm db-app-account
+  db-app-account:
+    image: mysql:8.4.13
+    profiles: [install]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      APP_USER: ${DB_USER}
+      APP_PASSWORD: ${DB_PASSWORD}
+    entrypoint: ["sh", "/scripts/create-app-account.sh"]
+    volumes:
+      - ./create-app-account.sh:/scripts/create-app-account.sh:ro
+    networks: [db]
+
+  proxy:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+    image: nextclinic-web:${APP_VERSION:-local}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [web]
+    security_opt: [no-new-privileges:true]
+    logging: *logging
+
+  # Sauvegarde ponctuelle de la base : docker compose -f docker/compose.yaml --profile backup run --rm backup
+  # Fichiers créés en 600 (umask 077) : données de santé, lisibles par le seul propriétaire.
+  backup:
+    image: mysql:8.4.13
+    profiles: [backup]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      TZ: ${TZ:-Africa/Casablanca}
+    entrypoint: ["sh", "-c"]
+    command:
+      - set -o pipefail; umask 077; f="/backups/$$DB_NAME-$$(date +%Y%m%d-%H%M%S).sql.gz"; mysqldump -h db -uroot --single-transaction --routines --triggers --no-tablespaces "$$DB_NAME" | gzip > "$$f" && ls -l "$$f"
+    volumes:
+      - ./backups:/backups
+    networks: [db]
+
+  # Sauvegarde des fichiers téléversés (photos, logos, résultats d'examens, scans de CIN) :
+  # docker compose -f docker/compose.yaml --profile backup run --rm backup-uploads
+  backup-uploads:
+    image: alpine:3.22.7
+    profiles: [backup]
+    environment:
+      TZ: ${TZ:-Africa/Casablanca}
+    entrypoint: ["sh", "-c"]
+    command:
+      - umask 077; f="/backups/uploads-$$(date +%Y%m%d-%H%M%S).tar.gz"; tar czf "$$f" -C /uploads . && ls -l "$$f"
+    volumes:
+      - uploads:/uploads:ro
+      - ./backups:/backups
+    network_mode: none
+
+volumes:
+  db_data:
+  uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  # Base de données : réseau interne, sans accès à Internet ni au proxy
+  db:
+    internal: true
+  # Proxy ↔ API ; l'API y garde l'accès sortant (SMTP, API d'IA)
+  web:

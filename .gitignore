@@ -1,0 +1,72 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Secrets — NE PAS publier sur GitHub
+.env
+server/.env
+*.env.local
+*.env.production
+
+# Sauvegardes de la base (Docker) : données de santé
+docker/backups/
+
+# Uploads (fichiers utilisateurs — trop lourds pour Git)
+server/uploads/
+uploads/
+
+# Données personnelles (scans CIN) et journaux locaux
+server/storage/
+client_log.txt
+login.json
+
+# Documents hors code (restent sur le disque, non suivis)
+*.docx
+*.pptx
+*.pdf
+
+# Référence de lint locale (étape 0 du plan de corrections)
+lint-baseline.json
+
+.vercel
+
+# ── Ne jamais publier (dépôt public) ──
+# Toute variante de fichier d'environnement, sauf les modèles
+.env.*
+!.env.example
+# Builds, clés et certificats
+build/
+*.pem
+*.key
+*.p12
+*.pfx
+# Dumps et sauvegardes de base (données de santé) ; les *.sql du schéma restent suivis
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+backups/
+dumps/
+# Couverture de tests
+coverage/

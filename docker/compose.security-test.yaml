@@ -1,0 +1,58 @@
+# Pile autonome : ne jamais combiner avec compose.yaml ou compose.dev.yaml.
+name: nextclinic-security-test
+
+services:
+  mysql-test:
+    image: mysql:8.4.13
+    hostname: nextclinic-security-test-db
+    # Instance jetable : pas de réplication ni journal binaire ; création des triggers
+    # possible avec le compte limité à l'unique base (sans privilège global SUPER).
+    command: ["--skip-log-bin"]
+    environment:
+      MYSQL_DATABASE: nextclinic_security_test
+      MYSQL_USER: security_test_runner
+      MYSQL_PASSWORD: disposable-test-password
+      MYSQL_ROOT_PASSWORD: disposable-root-password
+    volumes:
+      - security_test_db:/var/lib/mysql
+    networks: [security_test]
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -h 127.0.0.1 -u$$MYSQL_USER -D nextclinic_security_test -e 'SELECT 1'"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  tests:
+    build:
+      context: ../server
+      dockerfile: Dockerfile.security-test
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV: test
+      CLINIC_TZ: Africa/Casablanca
+      TEST_DB_HOST: mysql-test
+      TEST_DB_PORT: "3306"
+      TEST_DB_NAME: nextclinic_security_test
+      TEST_DB_USER: security_test_runner
+      TEST_DB_PASSWORD: disposable-test-password
+      # Doit être fourni explicitement à chaque lancement ; pas de valeur par défaut.
+      TEST_DB_AUTHORIZED_TARGET: ${TEST_DB_AUTHORIZED_TARGET:?Autoriser explicitement mysql-test:3306/nextclinic_security_test}
+    networks: [security_test]
+    tmpfs:
+      - /app/uploads:uid=1000,gid=1000,mode=0700
+      - /app/storage:uid=1000,gid=1000,mode=0700
+      - /tmp
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: ["npm", "test"]
+
+volumes:
+  security_test_db:
+    name: nextclinic-security-test-db
+
+networks:
+  security_test:
+    internal: true

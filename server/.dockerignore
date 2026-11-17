@@ -1,0 +1,30 @@
+# Contexte de l'image de l'API : uniquement le code nécessaire à l'exécution.
+node_modules
+npm-debug.log*
+
+# Secrets : jamais dans une image (fournis par docker/.env au lancement)
+.env
+.env.*
+!.env.example
+
+# Données des utilisateurs : montées par volume, jamais copiées dans l'image
+uploads
+storage
+
+# Hors exécution
+tests
+seed.js
+*.docx
+*.pdf
+
+# Clés, dumps et sauvegardes : jamais dans une image
+*.pem
+*.key
+*.p12
+*.pfx
+*.sql.gz
+*.dump
+*.bak
+backups
+dumps
+coverage

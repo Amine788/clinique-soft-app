@@ -1,0 +1,392 @@
+@import "tailwindcss";
+
+/* ── Variables CSS (sidebar, radius, etc.) ── */
+:root {
+  --primary: #004AAD;
+  --primary-hover: #003D8F;
+  --primary-light: #EEF4FC;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-600: #4b5563;
+  --gray-900: #111827;
+  --bg-sidebar: #ffffff;
+  --sidebar-width: 260px;
+  --radius: 10px;
+  /* Interface interne : fond, bordures et texte harmonisés */
+  --app-bg: #f4f6fa;
+  --app-border: #e6eaf0;
+  --app-text: #0f172a;
+  --app-text-soft: #475569;
+  --app-text-muted: #94a3b8;
+  /* Variables déjà utilisées par des pages (Rendez-vous, Chambres) mais jamais définies */
+  --border: var(--app-border);
+  --text-secondary: #64748b;
+  --bg-color: #f8fafc;
+  --bg-card: #ffffff;
+  --shadow-xl: 0 24px 48px -12px rgb(15 23 42 / 0.25);
+}
+
+/* ── Couleurs Tailwind (OBLIGATOIRE pour bg-primary, text-primary, etc.) ── */
+@theme {
+  /* Primaire : bleu du logo (#004AAD = brand-600) */
+  --color-primary:        #004AAD;
+  --color-primary-hover:  #003D8F;
+  --color-primary-light:  #EEF4FC;
+  --color-primary-dark:   #00255A;
+
+  /* Secondaire */
+  --color-secondary:      #0760C4;
+  --color-secondary-hover:#003D8F;
+  --color-secondary-light:#EEF4FC;
+
+  /* États sémantiques */
+  --color-success:        #2ECC71;
+  --color-success-light:  #E8F8F0;
+  --color-danger:         #EF4444;
+  --color-danger-light:   #FEF2F2;
+  --color-warning:        #F59E0B;
+  --color-warning-light:  #FFFBEB;
+  --color-info:           #004AAD;
+  --color-info-light:     #EEF4FC;
+
+  /* Neutrals */
+  --color-muted:          #6B7280;
+  --color-border:         #e5e7eb;
+  --color-card:           #FFFFFF;
+  --color-bg:             #f4f6fa;
+
+  /* ── Landing : échelle de marque alignée sur le logo (bleu roi #004AAD = brand-600) ── */
+  --color-brand-50:  #EEF4FC;
+  --color-brand-100: #D9E6F8;
+  --color-brand-200: #B3CDF1;
+  --color-brand-300: #7FAAE6;
+  --color-brand-400: #3F7FD6;
+  --color-brand-500: #0760C4; /* bleu clair du symbole */
+  --color-brand-600: #004AAD; /* bleu du logo, couleur principale */
+  --color-brand-700: #003D8F;
+  --color-brand-800: #003172;
+  --color-brand-900: #00255A;
+  --color-brand-950: #001838;
+
+  /* ── Landing : accent violet du logo (usage limité) ── */
+  --color-accent-500: #930DBC; /* violet clair du logo */
+  --color-accent-600: #5F169B; /* violet profond du logo */
+
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out 1s infinite;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-aurora: aurora 20s ease-in-out infinite;
+  --animate-aurora-slow: aurora 28s ease-in-out -8s infinite reverse;
+  --animate-shimmer: shimmer 5s ease-in-out infinite alternate;
+  --animate-scan: scan 2.6s ease-in-out infinite;
+  --animate-border-spin: border-spin 5s linear infinite;
+  --animate-shine: shine 0.9s ease-out;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Landing : animations ── */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes aurora {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%      { transform: translate(6%, -8%) scale(1.15) rotate(20deg); }
+  66%      { transform: translate(-8%, 6%) scale(0.92) rotate(-15deg); }
+}
+
+@keyframes shimmer {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+
+@keyframes scan {
+  0%, 100% { top: 12%; }
+  50%      { top: 84%; }
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
+}
+
+@keyframes shine {
+  from { transform: translateX(0) skewX(-20deg); }
+  to   { transform: translateX(500%) skewX(-20deg); }
+}
+
+/* Dégradé de marque animé (titres) — sans animation, affiche le dégradé d'origine. */
+@utility text-brand-gradient-animated {
+  background-image: linear-gradient(90deg, #0760C4, #004AAD, #5F169B, #930DBC, #5F169B, #004AAD, #0760C4);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Halo qui suit le pointeur (variables --mx / --my posées en JS). */
+@utility bg-spotlight {
+  background-image: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(0 74 173 / 0.09), transparent 45%);
+}
+
+/* Faisceau lumineux qui tourne autour d'une bordure. */
+@utility border-beam {
+  background: conic-gradient(from var(--border-angle), transparent 0%, transparent 62%, #7FAAE6 76%, #930DBC 88%, transparent 100%);
+}
+
+@utility mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ── Landing : dégradé de marque unique (soulignement du logo) ── */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(90deg, #0760C4 0%, #004AAD 35%, #5F169B 75%, #930DBC 100%);
+}
+
+@utility text-brand-gradient {
+  background-image: linear-gradient(90deg, #0760C4 0%, #004AAD 35%, #5F169B 75%, #930DBC 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* ── Landing : fond quadrillé discret ── */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-slate-200) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-slate-200) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, black 30%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* ── Base ── */
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  overflow-x: hidden;
+}
+
+::selection { background: rgb(0 74 173 / 0.14); }
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--app-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: transform 0.25s ease;
+}
+
+/* Sous 1024px : barre latérale en tiroir, ouverte par le bouton menu de l'en-tête */
+@media (max-width: 1023.98px) {
+  /* Fermé : hors écran et hors du parcours clavier (visibility masquée après l'animation) */
+  .sidebar { transform: translateX(-100%); box-shadow: none; visibility: hidden; transition: transform 0.25s ease, visibility 0s linear 0.25s; }
+  .sidebar.open { transform: translateX(0); box-shadow: 8px 0 32px rgba(15, 23, 42, 0.18); visibility: visible; transition: transform 0.25s ease; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}
+
+/* Labels de section (ex: PRINCIPAL, GESTION) */
+.nav-section-label {
+  color: var(--app-text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 8px 24px 6px;
+  margin-top: 6px;
+}
+
+/* Items de navigation */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  margin: 0 12px 3px;
+  border-radius: var(--radius);
+  color: var(--app-text-soft);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.nav-item svg { color: var(--app-text-muted); transition: color 0.15s ease; flex-shrink: 0; }
+
+/* État Survol (Hover) */
+.nav-item:hover {
+  background: #f1f5f9;
+  color: var(--app-text);
+}
+.nav-item:hover svg { color: var(--primary); }
+.nav-item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* État Actif (Lien sélectionné) */
+.nav-item.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 6px 14px -6px rgb(0 74 173 / 0.55);
+}
+.nav-item.active svg { color: #ffffff; }
+
+.topbar {
+  background: rgb(255 255 255 / 0.86);
+  backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  border-bottom: 1px solid var(--app-border);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+@media (min-width: 640px) {
+  .topbar { padding: 0 28px; }
+}
+
+/* Titre de page commun à l'interface interne */
+.page-title {
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--app-text);
+}
+
+/* ── Contenu de l'interface interne (sous l'en-tête .topbar) ──
+   Accueil, connexion, abonnement et console super-admin n'ont pas d'en-tête .topbar : non concernés.
+   :where() + @layer base : toute classe Tailwind ou tout style déjà écrit dans une page reste prioritaire. */
+@layer base {
+  /* Tailwind v4 colore par défaut une bordure sans couleur avec la couleur du texte (souvent noire) */
+  :where(.topbar ~ main, .topbar ~ main *) { border-color: var(--color-gray-200); }
+  /* …sauf les filets de total en bleu (Facturation, Laboratoire), qui gardent leur couleur actuelle */
+  :where(.topbar ~ main .text-primary) { border-color: currentColor; }
+
+  :where(.topbar ~ main) :is(input, textarea)::placeholder { color: var(--color-slate-400); }
+  /* Chiffres de largeur fixe dans les tableaux : montants et dates alignés */
+  :where(.topbar ~ main td) { font-variant-numeric: tabular-nums; }
+}
+
+/* ── Scrollbar style ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--gray-200);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* ── Boutons (classes utilisées par Rendez-vous et Check-in, jamais définies jusqu'ici) ── */
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 6px 14px -8px rgb(0 74 173 / 0.6); }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-outline { background: #fff; color: var(--app-text-soft); border-color: var(--app-border); }
+  .btn-outline:hover { background: #f8fafc; color: var(--primary); border-color: #cbd5e1; }
+  .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8125rem; border-radius: 0.625rem; }
+}
+
+/* ── Badges ── */
+.badge {
+  @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] inline-flex items-center;
+}
+.badge-success { background: #E8F8F0; color: #1a8a4a; }
+.badge-warning { background: #FFFBEB; color: #B45309; }
+.badge-danger  { background: #FEF2F2; color: #DC2626; }
+.badge-info    { background: var(--primary-light); color: var(--primary); }
+.badge-primary { background: var(--primary-light); color: var(--primary); }
+
+/* ── Input focus ── */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #004AAD !important;
+  box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15) !important;
+}
+
+/* ── Compatibilité text-muted (utilisé dans tout le projet) ── */
+.text-muted { color: #6B7280; }
+
+/* ── Cards ── */
+.card-smartdoc {
+  background: #FFFFFF;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.05);
+  transition: box-shadow 0.2s ease;
+}
+.card-smartdoc:hover {
+  box-shadow: 0 4px 16px rgba(0, 74, 173, 0.10);
+}
+
+/* ── KPI card top border ── */
+.kpi-border-primary { border-top: 3px solid #004AAD; }
+.kpi-border-success  { border-top: 3px solid #2ECC71; }
+.kpi-border-warning  { border-top: 3px solid #F59E0B; }
+.kpi-border-danger   { border-top: 3px solid #EF4444; }
+
+/* ── Animations ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── Glass panel ── */
+.glass-panel {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 8px 32px rgba(0, 74, 173, 0.08);
+}

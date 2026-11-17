@@ -1,0 +1,30 @@
+# Infrastructure du test de fumée en mode « local » : l'API et le front tournent sur l'hôte,
+# seules la base MySQL jetable et Mailpit (capture SMTP, aucun envoi réel) sont en conteneur.
+# Projet distinct : ne touche jamais aux volumes de la pile nextclinic.
+name: nextclinic-smoke-local
+
+services:
+  db:
+    image: mysql:8.4.13
+    command: ["--skip-log-bin", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: ${TZ}
+    ports: ["127.0.0.1:3317:3306"]
+    tmpfs: [/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  mailpit:
+    image: axllent/mailpit:v1.27.11
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_TLS_CERT: "sans:mailpit,localhost,127.0.0.1"
+      MP_SMTP_TLS_KEY: "sans:mailpit,localhost,127.0.0.1"
+    ports: ["127.0.0.1:1026:1025", "127.0.0.1:8026:8025"]

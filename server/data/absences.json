@@ -1,0 +1,35 @@
+[
+    {
+        "id": "abs-001",
+        "doctorId": "doc-001",
+        "type": "Congé annuel",
+        "startDate": "20/03/2026",
+        "endDate": "25/03/2026",
+        "days": 5,
+        "reason": "Vacances familiales",
+        "status": "Validé",
+        "createdAt": "01/03/2026"
+    },
+    {
+        "id": "abs-002",
+        "doctorId": "doc-001",
+        "type": "Formation",
+        "startDate": "10/04/2026",
+        "endDate": "11/04/2026",
+        "days": 2,
+        "reason": "Congrès médecine interne Marrakech",
+        "status": "En attente",
+        "createdAt": "03/03/2026"
+    },
+    {
+        "id": "abs-003",
+        "doctorId": "doc-002",
+        "type": "Maladie",
+        "startDate": "07/03/2026",
+        "endDate": "07/03/2026",
+        "days": 1,
+        "reason": "Grippe saisonnière",
+        "status": "Validé",
+        "createdAt": "06/03/2026"
+    }
+]

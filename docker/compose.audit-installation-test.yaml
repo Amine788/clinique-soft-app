@@ -1,0 +1,5 @@
+# À combiner uniquement avec compose.security-test.yaml pour vérifier une
+# installation administrative avec le journal binaire MySQL actif.
+services:
+  mysql-test:
+    command: ["--log-bin=mysql-bin"]

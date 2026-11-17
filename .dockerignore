@@ -1,0 +1,38 @@
+# Contexte de l'image du front (compilation Vite + Caddy) : le serveur a sa propre image.
+server
+node_modules
+dist
+.git
+.vercel
+.vscode
+docker/*
+!docker/Caddyfile
+uploads
+
+# Secrets et journaux locaux
+.env
+.env.*
+!.env.example
+*.log
+client_log.txt
+lint-baseline.json
+
+# Documents hors code
+*.md
+*.docx
+*.pdf
+
+# Clés, dumps, sauvegardes, tests et rapports : jamais dans une image
+build
+*.pem
+*.key
+*.p12
+*.pfx
+*.sql.gz
+*.dump
+*.bak
+backups
+dumps
+tests
+.review
+coverage
