@@ -11,8 +11,8 @@ racine et dans `server/` pour le mode local :
 
 ```bash
 bash tests/smoke/run.sh local                      # API + build de production du front sur l'hôte
-bash tests/smoke/run.sh docker                     # pile complète docker/compose.yaml
-NO_CACHE=1 PERSISTENCE=1 bash tests/smoke/run.sh docker   # images sans cache + test de redémarrage
+bash tests/smoke/run.sh docker                     # pile de production docker-compose.prod.yml
+NO_CACHE=1 PERSISTENCE=1 EXPLOITATION=1 HTTPS_LOCAL=1 bash tests/smoke/run.sh docker   # vérification complète avant mise en production
 bash tests/smoke/run.sh deux-domaines              # API en Docker, front servi à part (comme sur Vercel)
 ```
 
@@ -23,6 +23,8 @@ Le code de sortie vaut 1 si un contrôle est KO.
 |---|---|
 | `NO_CACHE=1` | (docker) reconstruit les images sans cache |
 | `PERSISTENCE=1` | (docker) `stop`/`start` puis `down`/`up` : la base et les fichiers téléversés doivent survivre |
+| `HTTPS_LOCAL=1` | (docker) proxy relancé sur `localhost` : réponse en TLS, certificat de l'autorité interne de Caddy, redirection HTTP → HTTPS |
+| `EXPLOITATION=1` | (docker) installation par `scripts/deploy.sh` et `scripts/seed-catalogue.sh` ; puis `backup.sh`, base et volumes détruits, `restore.sh` sur base vide (empreinte identique : somme de contrôle de chaque table, triggers, routines, sha256 de chaque fichier) ; `deploy.sh` deux fois (données conservées) ; `rollback.sh` |
 | `KEEP=1` | garde l'environnement de test à la fin (pour inspecter) |
 | `SKIP_PAGES=1` | saute le test des pages (Chrome requis sinon, chemin via `CHROME_PATH`) |
 

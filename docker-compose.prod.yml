@@ -1,8 +1,15 @@
-# NextClinic ERP — pile Docker (production par défaut).
-# Première installation du schéma : server/database/INSTALLATION.md (profil install).
-# Après préparation de la base :
-#   docker compose -f docker/compose.yaml up -d --build
-# Variables : docker/.env (copier docker/.env.example ; jamais commité).
+# NextClinic ERP — pile Docker de production : MySQL, API, front servi par Caddy (HTTPS automatique).
+#
+# Variables : .env.prod (copier .env.prod.example ; jamais commité, chmod 600).
+# Exploitation par les scripts (ils passent --env-file et le nom de projet) :
+#   scripts/deploy.sh          installation ou mise à jour : build, schéma, compte limité, redémarrage
+#   scripts/seed-catalogue.sh  catalogue d'examens courants (idempotent)
+#   scripts/backup.sh          sauvegarde base + fichiers, rotation
+#   scripts/restore.sh         restauration d'une sauvegarde
+#   scripts/rollback.sh        retour à une version précédente des images
+# Commande directe équivalente : docker compose --env-file .env.prod -f docker-compose.prod.yml <commande>
+#
+# Exposé sur Internet : seul le proxy (80, 443). La base est sur un réseau interne, sans port publié.
 # L'API doit rester à UNE seule instance : rappels horaires et connexions temps réel sont gérés en mémoire.
 
 name: nextclinic
@@ -42,7 +49,7 @@ services:
     logging: *logging
 
   api:
-    build: ../server
+    build: ./server
     image: nextclinic-api:${APP_VERSION:-local}
     restart: unless-stopped
     depends_on:
@@ -77,19 +84,19 @@ services:
       AI_MODEL: ${AI_MODEL:-}
       AI_MAX_TOKENS: ${AI_MAX_TOKENS:-1024}
       AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-20000}
-      AI_RATE_LIMIT_PER_USER: ${AI_RATE_LIMIT_PER_USER:-}
-      AI_CACHE_DURATION_MINUTES: ${AI_CACHE_DURATION_MINUTES:-}
     volumes:
-      # Photos, logos, résultats d'examens, scans de CIN : à sauvegarder avec la base
+      # Photos, logos, résultats d'examens, scans de CIN : sauvegardés avec la base (scripts/backup.sh)
       - uploads:/app/uploads
     networks: [db, web]
+    # Santé : HEALTHCHECK de server/Dockerfile (/api/health, 503 si la base est injoignable)
     read_only: true
     tmpfs: [/tmp]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     logging: *logging
 
-  # Installation explicite, avec un compte distinct. Jamais lancée par `up`.
+  # Installation et mise à jour du schéma (idempotent), avec un compte administratif distinct.
+  # Jamais lancée par `up` : scripts/deploy.sh l'exécute avant chaque redémarrage de l'API.
   db-install:
     extends:
       service: api
@@ -105,8 +112,8 @@ services:
       - -ec
       - 'test -n "$$DB_USER" && test -n "$$DB_PASSWORD" || { echo "DB_MIGRATION_USER et DB_MIGRATION_PASSWORD requis" >&2; exit 1; }; exec npm run db:install'
 
-  # Compte applicatif limité de l'API (DB_USER / DB_PASSWORD), droits par table. Jamais lancé par `up`.
-  # docker compose -f docker/compose.yaml --profile install run --rm db-app-account
+  # Compte applicatif limité de l'API (DB_USER / DB_PASSWORD), droits par table. Idempotent ;
+  # relancé par scripts/deploy.sh et scripts/restore.sh (les droits suivent les tables).
   db-app-account:
     image: mysql:8.4.13
     profiles: [install]
@@ -121,12 +128,13 @@ services:
       APP_PASSWORD: ${DB_PASSWORD}
     entrypoint: ["sh", "/scripts/create-app-account.sh"]
     volumes:
-      - ./create-app-account.sh:/scripts/create-app-account.sh:ro
+      - ./docker/create-app-account.sh:/scripts/create-app-account.sh:ro
     networks: [db]
 
+  # Front compilé + reverse proxy (/api, /uploads, /socket.io) ; HTTPS automatique sur SITE_ADDRESS
   proxy:
     build:
-      context: ..
+      context: .
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ""
@@ -142,45 +150,19 @@ services:
       - "${HTTPS_PORT:-443}:443"
       - "${HTTPS_PORT:-443}:443/udp"
     volumes:
+      # Certificats HTTPS : à conserver (sinon nouvelle demande à chaque recréation)
       - caddy_data:/data
       - caddy_config:/config
     networks: [web]
+    healthcheck:
+      # API d'administration de Caddy, locale au conteneur : le serveur web répond
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     security_opt: [no-new-privileges:true]
     logging: *logging
-
-  # Sauvegarde ponctuelle de la base : docker compose -f docker/compose.yaml --profile backup run --rm backup
-  # Fichiers créés en 600 (umask 077) : données de santé, lisibles par le seul propriétaire.
-  backup:
-    image: mysql:8.4.13
-    profiles: [backup]
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      MYSQL_PWD: ${DB_ROOT_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      TZ: ${TZ:-Africa/Casablanca}
-    entrypoint: ["sh", "-c"]
-    command:
-      - set -o pipefail; umask 077; f="/backups/$$DB_NAME-$$(date +%Y%m%d-%H%M%S).sql.gz"; mysqldump -h db -uroot --single-transaction --routines --triggers --no-tablespaces "$$DB_NAME" | gzip > "$$f" && ls -l "$$f"
-    volumes:
-      - ./backups:/backups
-    networks: [db]
-
-  # Sauvegarde des fichiers téléversés (photos, logos, résultats d'examens, scans de CIN) :
-  # docker compose -f docker/compose.yaml --profile backup run --rm backup-uploads
-  backup-uploads:
-    image: alpine:3.22.7
-    profiles: [backup]
-    environment:
-      TZ: ${TZ:-Africa/Casablanca}
-    entrypoint: ["sh", "-c"]
-    command:
-      - umask 077; f="/backups/uploads-$$(date +%Y%m%d-%H%M%S).tar.gz"; tar czf "$$f" -C /uploads . && ls -l "$$f"
-    volumes:
-      - uploads:/uploads:ro
-      - ./backups:/backups
-    network_mode: none
 
 volumes:
   db_data:

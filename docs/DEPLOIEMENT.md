@@ -1,6 +1,6 @@
 # Déploiement Docker — NextClinic ERP
 
-Trois conteneurs, une seule adresse publique :
+Pile de production : [`docker-compose.prod.yml`](../docker-compose.prod.yml). Trois conteneurs, une seule adresse publique :
 
 | Service | Image | Rôle | Exposé |
 |---|---|---|---|
@@ -9,140 +9,116 @@ Trois conteneurs, une seule adresse publique :
 | `db` | `mysql:8.4.13` | Base de données | non (réseau interne, sans Internet) |
 
 Volumes : `db_data` (base), `uploads` (photos, logos, résultats d'examens, scans de CIN), `caddy_data` (certificats).
+Tous les services redémarrent seuls (`restart: unless-stopped`) et ont un contrôle de santé.
 **L'API doit rester à une seule instance** (rappels et connexions temps réel en mémoire).
+
+Toutes les commandes se lancent depuis la racine du dépôt, sur le serveur, avec un compte membre du groupe `docker`.
 
 ## 1. Configuration
 
 ```bash
-cp docker/.env.example docker/.env      # puis remplacer TOUTES les valeurs
-chmod 600 docker/.env
+cp .env.prod.example .env.prod
+chmod 600 .env.prod
+nano .env.prod          # remplacer TOUTES les valeurs « change-me » (un commentaire décrit chaque variable)
 ```
 
-Secrets à générer (`node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`) :
-`JWT_SECRET`, `DB_PASSWORD`, `DB_ROOT_PASSWORD`, `DB_BOOTSTRAP_PASSWORD`, `SUPER_ADMIN_PASSWORD`.
-Compte de migration : `DB_MIGRATION_USER=root`, `DB_MIGRATION_PASSWORD` = `DB_ROOT_PASSWORD`.
-En production : `SITE_ADDRESS=erp.votre-domaine.ma`, `FRONTEND_URL=https://erp.votre-domaine.ma`, `HTTP_PORT=80`, `HTTPS_PORT=443`.
+Secrets : `openssl rand -hex 48` pour `JWT_SECRET`, `DB_PASSWORD`, `DB_ROOT_PASSWORD`, `DB_BOOTSTRAP_PASSWORD`
+(une valeur différente pour chacun) ; `DB_MIGRATION_PASSWORD` = `DB_ROOT_PASSWORD` ; `openssl rand -hex 16` pour
+`SUPER_ADMIN_PASSWORD`. Les scripts refusent de démarrer tant qu'une valeur `change-me` reste dans `.env.prod`.
+`.env.prod` n'est jamais commité ni copié dans une image.
 
-`docker/.env` n'est jamais commité ni copié dans une image.
+## 2. Première installation
 
-## 2. Démarrage (base neuve)
-
-L'API ne crée aucune table : le schéma et ses protections sont installés avant son premier démarrage.
+Le DNS du domaine (`SITE_ADDRESS`) doit déjà viser le serveur : Caddy obtient le certificat au premier démarrage.
 
 ```bash
-docker compose -f docker/compose.yaml --profile install build
-docker compose -f docker/compose.yaml up -d --wait db
-docker compose -f docker/compose.yaml --profile install run --rm db-install                                # schéma
-docker compose -f docker/compose.yaml --profile install run --rm db-install node database/seedExamens.js   # catalogue d'examens
-docker compose -f docker/compose.yaml --profile install run --rm db-app-account                            # compte limité de l'API
-docker compose -f docker/compose.yaml up -d --wait
-docker compose -f docker/compose.yaml ps          # db et api « healthy »
-curl -s https://erp.votre-domaine.ma/api/health   # {"status":"ok","database":"connected",...}
+scripts/deploy.sh                       # images, base, schéma et protections, compte limité, démarrage
+scripts/seed-catalogue.sh --dry-run     # aperçu du catalogue d'examens (prix : server/database/seeds/examens-courants.json)
+scripts/seed-catalogue.sh               # ajout des examens absents (idempotent)
+curl -s https://erp.votre-domaine.ma/api/health    # {"status":"ok","database":"connected",...}
 ```
 
-Ce parcours est vérifié par `NO_CACHE=1 PERSISTENCE=1 bash tests/smoke/run.sh docker`.
+Le super-administrateur est créé au premier démarrage (`SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`). Après la première
+connexion, retirer `SUPER_ADMIN_PASSWORD` de `.env.prod` puis relancer `scripts/deploy.sh` (ou `SANS_PULL=1 scripts/deploy.sh`).
 Le script `server/seed.js` (données de démonstration, **supprime** des données) n'est pas inclus dans l'image.
 
-## 3. Reprendre une base existante (sans perte)
+## 3. Mise à jour et retour arrière
 
 ```bash
-# Sur l'ancienne machine : export en lecture seule
-mysqldump -u<user> -p --single-transaction --routines --triggers --no-tablespaces \
-  --default-character-set=utf8mb4 nextclinic_db > docker/backups/reprise.sql
-
-# Base Docker démarrée seule, puis import
-docker compose -f docker/compose.yaml up -d db
-docker compose -f docker/compose.yaml exec -T db \
-  sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot --default-character-set=utf8mb4 "$MYSQL_DATABASE"' \
-  < docker/backups/reprise.sql
-docker compose -f docker/compose.yaml --profile install run --rm db-install       # protections et tables manquantes
-docker compose -f docker/compose.yaml --profile install run --rm db-app-account   # compte limité de l'API
-docker compose -f docker/compose.yaml up -d
+scripts/deploy.sh               # git pull, sauvegarde, nouvelles images, schéma, redémarrage ; données conservées
+scripts/rollback.sh             # liste des versions disponibles (5 dernières conservées)
+scripts/rollback.sh <version>   # retour aux images de cette version ; base et fichiers inchangés
 ```
 
-Vérifier ensuite le nombre de lignes de chaque table des deux côtés. Les migrations `server/database/migrations/*.sql`
-doivent avoir été appliquées à l'ancienne base **avant** l'export ; ne jamais les rejouer à l'aveugle.
-Copier aussi les fichiers téléversés (`server/uploads/`) dans le volume :
-
-```bash
-docker compose -f docker/compose.yaml cp server/uploads/. api:/app/uploads/
-# Obligatoire : « cp » rend root propriétaire ; l'API (utilisateur node, uid 1000) doit pouvoir y écrire
-docker run --rm --network none -v nextclinic_uploads:/u alpine:3.22.7 chown -R 1000:1000 /u
-```
-
-(Sous Git Bash sur Windows, préfixer la dernière commande par `MSYS_NO_PATHCONV=1`.)
+Si la version abandonnée avait modifié le schéma de façon incompatible, restaurer en plus la sauvegarde que
+`deploy.sh` a faite juste avant elle (§ 4). **Ne jamais utiliser `docker compose down -v`** (supprime la base et les fichiers).
+Historique des déploiements : `deploiements.log` (non suivi par Git).
 
 ## 4. Sauvegarde et restauration
 
 ```bash
-# Sauvegardes (à planifier chaque jour par cron sur le VPS) — fichiers créés en 600 dans docker/backups/
-docker compose -f docker/compose.yaml --profile backup run --rm backup           # base  → nextclinic_db-<date>.sql.gz
-docker compose -f docker/compose.yaml --profile backup run --rm backup-uploads   # fichiers → uploads-<date>.tar.gz
+scripts/backup.sh                                                   # base + fichiers, rotation, copie distante
+scripts/restore.sh /var/backups/nextclinic/db-AAAAMMJJ-HHMMSS.sql.gz   # + uploads-… du même horodatage
 ```
 
-`docker/backups/` contient des données de santé : il est ignoré par Git. Le copier, chiffré, **hors du VPS**.
+Planification quotidienne (`crontab -e`) :
 
-### Restauration en production (après incident)
-
-```bash
-docker compose -f docker/compose.yaml stop api proxy
-gzip -dc docker/backups/nextclinic_db-AAAAMMJJ-HHMMSS.sql.gz | docker compose -f docker/compose.yaml exec -T db \
-  sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot "$MYSQL_DATABASE"'
-docker run --rm --network none -v nextclinic_uploads:/u -v "$PWD/docker/backups:/b:ro" alpine:3.22.7 \
-  sh -c 'tar xzf /b/uploads-AAAAMMJJ-HHMMSS.tar.gz -C /u && chown -R 1000:1000 /u'
-docker compose -f docker/compose.yaml start api proxy
 ```
+30 2 * * * /home/deploy/clinique-soft-app/scripts/backup.sh >> /home/deploy/nextclinic-backup.log 2>&1
+```
+
+Les sauvegardes contiennent des données de santé : dossier en 700, fichiers en 600, copie **hors du VPS** par
+`BACKUP_RSYNC_DEST` (rsync par SSH avec clé). `restore.sh` demande de taper `RESTAURER`, sauvegarde l'état actuel,
+recrée la base, remplace les fichiers, remet à jour le compte limité puis redémarre.
+Sur un serveur neuf : `.env.prod`, puis `scripts/deploy.sh`, puis `scripts/restore.sh <sauvegarde>`.
 
 ### Test de restauration (chaque mois, sans toucher à la production)
 
-Restaurer dans un environnement **jetable et sans réseau**, puis comparer avec la production :
+Restaurer dans un environnement **jetable**, sur une autre machine ou sous un autre nom de projet, puis comparer :
 
 ```bash
-# Base : conteneur MySQL isolé
-docker run -d --name nextclinic-restore-test --network none -e MYSQL_ROOT_PASSWORD=<aléatoire> \
-  -e MYSQL_DATABASE=restauration mysql:8.4.13 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-gzip -dc docker/backups/nextclinic_db-<date>.sql.gz | docker exec -i nextclinic-restore-test \
-  sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot restauration'
-#   → comparer, table par table, le nombre de lignes et la somme des crc32(id) avec la production
-
-# Fichiers : volume isolé
-docker volume create nextclinic-restore-test-uploads
-docker run --rm --network none -v nextclinic-restore-test-uploads:/r -v "$PWD/docker/backups:/b:ro" alpine:3.22.7 \
-  tar xzf /b/uploads-<date>.tar.gz -C /r
-#   → comparer les sha256sum des fichiers avec ceux du volume nextclinic_uploads
-
-# Nettoyage
-docker rm -f nextclinic-restore-test && docker volume rm nextclinic-restore-test-uploads
+cp .env.prod /tmp/env-restauration && sed -i 's/^HTTP_PORT=.*/HTTP_PORT=8081/; s/^HTTPS_PORT=.*/HTTPS_PORT=8444/; s/^SITE_ADDRESS=.*/SITE_ADDRESS=:80/' /tmp/env-restauration
+export ENV_FILE=/tmp/env-restauration COMPOSE_PROJECT_NAME=nextclinic-restauration ETAT_DIR=/tmp SANS_PULL=1 SANS_SAUVEGARDE=1
+scripts/deploy.sh && scripts/restore.sh /var/backups/nextclinic/db-<date>.sql.gz
+#   → comparer le nombre de lignes des tables principales et les sha256 des fichiers avec la production
+docker compose -p nextclinic-restauration -f docker-compose.prod.yml --env-file /tmp/env-restauration --profile install down -v
+unset ENV_FILE COMPOSE_PROJECT_NAME ETAT_DIR SANS_PULL SANS_SAUVEGARDE; rm -f /tmp/env-restauration
 ```
 
 Ne jamais afficher le contenu des tables ni des fichiers dans un rapport : seulement des nombres et des empreintes.
-Dernier test réussi : 2026-10-22 (21 tables, 133 lignes, 9 fichiers identiques).
+Le test de fumée `EXPLOITATION=1 bash tests/smoke/run.sh docker` fait ce parcours sur des données fictives
+(empreinte complète identique avant sauvegarde et après restauration sur base vide).
 
-## 5. Mise à jour et retour arrière
+## 5. Reprendre une base existante (sans perte)
 
 ```bash
-APP_VERSION=2026-10-22 docker compose -f docker/compose.yaml up -d --build   # nouvelle version étiquetée
-APP_VERSION=<version précédente> docker compose -f docker/compose.yaml up -d  # retour arrière (images conservées)
+# Sur l'ancienne machine : export en lecture seule
+mysqldump -u<user> -p --single-transaction --routines --triggers --no-tablespaces \
+  --default-character-set=utf8mb4 nextclinic_db | gzip > db-reprise.sql.gz
+# Sur le serveur : installation (§ 2), puis chargement du dump (le schéma manquant est complété par deploy.sh)
+scripts/deploy.sh
+scripts/restore.sh db-reprise.sql.gz
+SANS_PULL=1 scripts/deploy.sh
 ```
 
-Faire une sauvegarde avant chaque mise à jour. `docker compose down` conserve les données ;
-**ne jamais utiliser `down -v`** (supprime les volumes : base et fichiers).
+Les migrations `server/database/migrations/*.sql` doivent avoir été appliquées à l'ancienne base **avant** l'export ;
+ne jamais les rejouer à l'aveugle. Fichiers téléversés de l'ancienne machine : les archiver
+(`tar czf uploads-reprise.tar.gz -C server/uploads .`) et les passer en second argument de `restore.sh`.
 
 ## 6. Développement
 
 ```bash
-docker compose -f docker/compose.yaml -f docker/compose.dev.yaml up -d   # base (127.0.0.1:3307) + API (127.0.0.1:3001, rechargement auto)
-npm run dev                                                              # front Vite, proxy vers 127.0.0.1:3001
+cp .env.prod.example .env.dev    # valeurs de développement
+docker compose --env-file .env.dev -f docker-compose.prod.yml -f docker/compose.dev.yaml up -d   # base (127.0.0.1:3307) + API (127.0.0.1:3001)
+npm run dev                                                                                       # front Vite
 ```
 
-Arrêter d'abord tout serveur Node local qui occupe le port 3001.
-Le développement est un projet distinct (`nextclinic-dev`) : ses volumes ne sont **jamais** ceux de la production,
-même sur la même machine. Sa base démarre vide (importer une sauvegarde au besoin, § 3).
+Le développement est un projet distinct (`nextclinic-dev`) : ses volumes ne sont **jamais** ceux de la production.
 
-## 7. VPS (Linux)
+## 7. Serveur (VPS Linux)
 
 - Docker Engine + plugin Compose ; 2 vCPU, 2 à 4 Go de RAM, 40 Go de SSD au départ (estimation).
-- Pare-feu : 22 (SSH par clé), 80, 443 uniquement. La base n'est jamais exposée.
-- DNS : enregistrement A/AAAA du domaine vers le VPS avant le premier démarrage (certificat HTTPS automatique).
-- Sortie autorisée : SMTP 587 (e-mails) et HTTPS (API d'IA). Certains hébergeurs bloquent le port 587.
+- Pare-feu : 22 (SSH par clé), 80, 443 (TCP et UDP) uniquement. La base n'est jamais exposée.
+- DNS : enregistrement A (et AAAA) du domaine vers le VPS avant le premier démarrage.
+- Sortie autorisée : SMTP 587 (e-mails) et HTTPS (API d'IA).
 - Journaux Docker limités (10 Mo × 5 par service).

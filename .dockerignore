@@ -36,3 +36,7 @@ dumps
 tests
 .review
 coverage
+
+# Scripts d'exploitation et version en service : jamais dans une image
+scripts
+.app-version

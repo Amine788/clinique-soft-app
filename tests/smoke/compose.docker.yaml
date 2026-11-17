@@ -1,4 +1,4 @@
-# Surcouche de test pour la pile complète docker/compose.yaml (mode « docker » de run.sh).
+# Surcouche de test pour la pile de production docker-compose.prod.yml (mode « docker » de run.sh).
 # Ajoute Mailpit (capture SMTP, aucun envoi réel) et l'expose à l'hôte local.
 # Toujours lancé avec le nom de projet nextclinic-smoke : volumes distincts de la pile réelle.
 services:

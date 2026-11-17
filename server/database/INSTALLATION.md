@@ -67,7 +67,7 @@ droits puis accorde exactement les droits ci-dessus (`docker/create-app-account.
 Le relancer après chaque `db-install` qui ajoute des tables :
 
 ```powershell
-docker compose -f docker/compose.yaml --profile install run --rm db-app-account
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-app-account
 ```
 
 ## Installation ou mise à jour, API arrêtée
@@ -92,16 +92,19 @@ Sur une base neuve, démarrer d'abord `db`, installer le schéma, puis créer le
 compte applicatif et attribuer ses droits avant de démarrer `api`.
 
 Parcours Docker (renseigner `DB_MIGRATION_USER` et `DB_MIGRATION_PASSWORD` dans
-l'environnement ou le fichier privé `docker/.env`) :
+l'environnement ou le fichier privé `.env.prod`) :
 
 ```powershell
-docker compose -f docker/compose.yaml stop api
-docker compose -f docker/compose.yaml --profile install build db-install
-docker compose -f docker/compose.yaml --profile install run --rm db-install
-docker compose -f docker/compose.yaml --profile install run --rm db-install node database/seedExamens.js
-docker compose -f docker/compose.yaml --profile install run --rm db-app-account
-docker compose -f docker/compose.yaml up -d --no-build api
+docker compose --env-file .env.prod -f docker-compose.prod.yml stop api
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install build db-install
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-install
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-install node database/seedExamens.js
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-app-account
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --no-build api
 ```
+
+Ces étapes sont automatisées par `scripts/deploy.sh` (avec sauvegarde préalable) et
+`scripts/seed-catalogue.sh` (voir `docs/DEPLOIEMENT.md`).
 
 Ce parcours (base avec journal binaire, installation par root, compte limité,
 seed relancé deux fois) est vérifié par `tests/smoke/run.sh docker`.
@@ -125,8 +128,8 @@ exemple après avoir complété la liste.
 
 ```powershell
 # Docker (compte de migration du profil install), après l'installation du schéma :
-docker compose -f docker/compose.yaml --profile install run --rm db-install node database/seedExamens.js --dry-run
-docker compose -f docker/compose.yaml --profile install run --rm db-install node database/seedExamens.js
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-install node database/seedExamens.js --dry-run
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile install run --rm db-install node database/seedExamens.js
 
 # Hors Docker, depuis server/ (variables DB_* ou DATABASE_URL) :
 npm run db:seed-examens

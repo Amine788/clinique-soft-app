@@ -49,28 +49,28 @@ Documentation complémentaire :
 [e-mails et IA](server/SERVICES_EXTERNES.md) ·
 [déploiement Docker](docs/DEPLOIEMENT.md).
 
-## Lancement avec Docker
+## Production avec Docker
+
+Pile [`docker-compose.prod.yml`](docker-compose.prod.yml) : MySQL (non exposé), API, front servi
+par Caddy avec HTTPS automatique sur le domaine de `SITE_ADDRESS`, volumes persistants.
 
 ```bash
-cp docker/.env.example docker/.env      # remplir TOUTES les valeurs (tableau ci-dessous)
-
-docker compose -f docker/compose.yaml --profile install build
-docker compose -f docker/compose.yaml up -d --wait db
-docker compose -f docker/compose.yaml --profile install run --rm db-install
-docker compose -f docker/compose.yaml --profile install run --rm db-install node database/seedExamens.js
-docker compose -f docker/compose.yaml --profile install run --rm db-app-account
-docker compose -f docker/compose.yaml up -d --wait
+cp .env.prod.example .env.prod && chmod 600 .env.prod   # remplir TOUTES les valeurs (tableau ci-dessous)
+scripts/deploy.sh                    # installation ou mise à jour : build, schéma, compte limité, redémarrage
+scripts/seed-catalogue.sh --dry-run  # aperçu du catalogue d'examens courants
+scripts/seed-catalogue.sh            # ajout des examens absents (idempotent)
 ```
 
-- `db-install` installe le schéma avec le compte de migration (`DB_MIGRATION_USER`).
-- Le seed ajoute 31 examens courants (`server/database/seeds/examens-courants.json`, prix
-  indicatifs à ajuster) ; il n'ajoute que les examens absents et ne modifie jamais l'existant.
-- `db-app-account` crée le compte MySQL **limité** de l'API (`DB_USER`) : droits par table,
-  aucun droit DDL. À relancer après chaque `db-install` qui ajoute des tables.
-- Le super-administrateur de la plateforme est créé au premier démarrage depuis
-  `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`.
-- Sauvegardes : `docker compose -f docker/compose.yaml --profile backup run --rm backup` (base)
-  et `… --profile backup run --rm backup-uploads` (fichiers téléversés), dans `docker/backups/`.
+| Script | Rôle |
+|---|---|
+| `scripts/deploy.sh` | `git pull`, images étiquetées date-commit, sauvegarde si la base contient des données, schéma (`db-install`, idempotent), compte MySQL **limité** de l'API (`db-app-account`), redémarrage et contrôle de `/api/health`. Données conservées (volumes). |
+| `scripts/backup.sh` | Dump MySQL cohérent + archive des fichiers téléversés (photos, logos, résultats, scans de CIN), rotation (`RETENTION_JOURS`), copie distante facultative (`BACKUP_RSYNC_DEST`). |
+| `scripts/restore.sh` | Restauration d'une sauvegarde (base recréée, fichiers remplacés), après sauvegarde de l'état actuel. |
+| `scripts/rollback.sh` | Retour aux images d'une version précédente (base et fichiers inchangés). |
+| `scripts/seed-catalogue.sh` | Catalogue d'examens courants (`server/database/seeds/examens-courants.json`, prix indicatifs à ajuster). |
+
+Le super-administrateur de la plateforme est créé au premier démarrage depuis
+`SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`. Détails : [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md).
 
 ## Tests
 
@@ -80,14 +80,16 @@ docker compose -f docker/compose.yaml up -d --wait
 | `npm run build` (racine) | build de production du front |
 | `TEST_DB_AUTHORIZED_TARGET=mysql-test:3306/nextclinic_security_test docker compose -f docker/compose.security-test.yaml up --build --abort-on-container-exit --exit-code-from tests` | tests d'intégration de l'API (node:test) contre une base MySQL jetable |
 | `bash tests/smoke/run.sh local` | test de fumée : toutes les routes (cas normal, erreurs, 401/403) et toutes les pages React par rôle ; base jetable, e-mails capturés par Mailpit |
-| `NO_CACHE=1 PERSISTENCE=1 bash tests/smoke/run.sh docker` | même test sur la pile Docker complète : images sans cache, redémarrages, persistance |
+| `NO_CACHE=1 PERSISTENCE=1 bash tests/smoke/run.sh docker` | même test sur la pile de production `docker-compose.prod.yml` : images sans cache, redémarrages, persistance |
+| `EXPLOITATION=1 HTTPS_LOCAL=1 bash tests/smoke/run.sh docker` | en plus : installation par `deploy.sh`, sauvegarde puis restauration sur base vide (empreinte identique), `deploy.sh` ×2, `rollback.sh`, HTTPS par certificat interne |
+| `bash tests/smoke/run.sh deux-domaines` | front servi à part (comme sur Vercel) et API Docker : CORS, temps réel, images, documents |
 
 Les tests n'utilisent que des bases jetables et des valeurs de test
 ([`tests/smoke/README.md`](tests/smoke/README.md)) ; aucun e-mail réel n'est envoyé.
 
 ## Variables d'environnement
 
-Modèles : [`docker/.env.example`](docker/.env.example) (Docker),
+Modèles : [`.env.prod.example`](.env.prod.example) (production Docker, un commentaire par variable),
 [`server/.env.example`](server/.env.example) (API hors Docker), [`.env.example`](.env.example) (front).
 Ne jamais versionner un fichier `.env` rempli.
 
@@ -112,10 +114,10 @@ Ne jamais versionner un fichier `.env` rempli.
 | `EMAIL_FROM` | Adresse d'expédition (si `SMTP_USER` n'est pas une adresse e-mail) |
 | `ADMIN_NOTIFICATION_EMAIL` | Destinataire des notifications internes (nouvelle clinique inscrite) |
 | `ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_MAX_TOKENS`, `AI_TIMEOUT_MS` | Lecture automatique de la CIN et assistant IA ; optionnels (sans clé, ces fonctions répondent 503) |
-| `APP_VERSION` | Étiquette des images construites (permet de revenir à une version précédente) |
+| `BACKUP_DIR`, `RETENTION_JOURS`, `BACKUP_RSYNC_DEST` | Sauvegardes : dossier sur le serveur, durée de conservation, copie hors du serveur (`scripts/backup.sh`) |
 | `VITE_API_URL` | Front seulement, si le front est servi sur un autre domaine que l'API (vide avec Docker) |
 
-Générer un secret : `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
+Générer un secret : `openssl rand -hex 48` (ou `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`).
 
 ## Licence
 

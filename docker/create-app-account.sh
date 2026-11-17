@@ -1,6 +1,6 @@
 #!/bin/sh
 # Compte applicatif LIMITÉ de l'API (procédure de server/database/INSTALLATION.md, « Comptes séparés »).
-# Lancé par : docker compose -f docker/compose.yaml --profile install run --rm db-app-account
+# Lancé par scripts/deploy.sh et scripts/restore.sh (service db-app-account de docker-compose.prod.yml)
 # Idempotent : crée le compte s'il manque, (re)définit son mot de passe, retire tous ses droits,
 # puis accorde seulement les droits métier, table par table :
 #   SELECT, INSERT sur clinical_access_audit_events ; SELECT, INSERT, UPDATE, DELETE sur les autres ;

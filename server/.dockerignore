@@ -2,7 +2,7 @@
 node_modules
 npm-debug.log*
 
-# Secrets : jamais dans une image (fournis par docker/.env au lancement)
+# Secrets : jamais dans une image (fournis par .env.prod au lancement)
 .env
 .env.*
 !.env.example

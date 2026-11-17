@@ -1,6 +1,6 @@
 # E-mails et IA
 
-Les secrets restent dans `server/.env` en local ou `docker/.env` pour Compose. Les fichiers `.env.example` décrivent les variables ; les fichiers privés ne sont pas versionnés. Redémarrer l'API après un changement de configuration.
+Les secrets restent dans `server/.env` en local ou `.env.prod` pour Compose (production). Les fichiers `.env.example` décrivent les variables ; les fichiers privés ne sont pas versionnés. Redémarrer l'API après un changement de configuration.
 
 ## E-mails
 

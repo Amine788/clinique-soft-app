@@ -1,6 +1,7 @@
 # Développement : base + API avec rechargement automatique ; le front tourne avec « npm run dev » (proxy Vite → 127.0.0.1:3001).
 # Préparer une base neuve selon server/database/INSTALLATION.md avant de lancer l'API.
-#   docker compose -f docker/compose.yaml -f docker/compose.dev.yaml up -d
+#   docker compose --env-file .env.dev -f docker-compose.prod.yml -f docker/compose.dev.yaml up -d
+# (.env.dev : copie de .env.prod.example avec des valeurs de développement ; chemins relatifs à la racine du dépôt)
 # Arrêter d'abord tout serveur Node local qui occupe le port 3001.
 
 # Projet distinct : volumes (base, fichiers) séparés de ceux de la production, même sur la même machine
@@ -21,7 +22,7 @@ services:
     ports:
       - "127.0.0.1:3001:3001"
     volumes:
-      - ../server:/app
+      - ./server:/app
       - /app/node_modules
       - uploads:/app/uploads
     read_only: false
