@@ -7,6 +7,7 @@ import sequelize from './config/database.js';
 import { verifyAuditProtection } from './services/auditProtection.js';
 import { initSocket, chargerReglagesTempsReel } from './socket/clinicSocket.js';
 import { demarrerRappels } from './services/rappels.js';
+import { cheminJournal, gestionnaireErreurs } from './middleware/erreurs.js';
 import authRoutes from './routes/auth.js';
 import patientRoutes from './routes/patients.js';
 import appointmentRoutes from './routes/appointments.js';
@@ -80,7 +81,8 @@ app.use(cors({
         if (allowedOrigins.includes(origin)) return cb(null, true);
         // En dev, tout autoriser
         if (process.env.NODE_ENV !== 'production') return cb(null, true);
-        return cb(new Error('CORS non autorisé'));
+        // 403 (et non 500) : refus attendu, pas une panne du serveur
+        return cb(Object.assign(new Error('Origine non autorisée (CORS)'), { status: 403, code: 'CORS_FORBIDDEN' }));
     },
     credentials: true
 }));
@@ -90,8 +92,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/uploads/profiles', express.static('uploads/profiles'));
 app.use('/uploads/logos', express.static('uploads/logos'));
 
-// Logger simple — sans paramètres de requête et avec les numéros de CIN masqués (données personnelles)
-const cheminJournal = (url) => url.split('?')[0].replace(/\/[A-Za-z]{1,2}\d{3,}(?=\/|$)/g, '/***');
+// Logger simple — sans paramètres de requête et avec les numéros de CIN masqués (middleware/erreurs.js)
 app.use('/api', (req, res, next) => {
     console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${cheminJournal(req.originalUrl)}`);
     next();
@@ -134,18 +135,8 @@ app.get('/api/health', async (req, res) => {
 // Utiliser le fichier server/database/setup_mysql.sql dans phpMyAdmin pour initialiser la base
 
 
-// Error handler
-app.use((err, req, res, _next) => {
-    console.error('[GLOBAL ERROR]', err.stack);
-    // Corps JSON au-delà de la limite d'express.json (ex. image OCR trop lourde, V3)
-    if (err.type === 'entity.too.large') {
-        return res.status(413).json({ error: 'Fichier trop volumineux (10 Mo maximum)', code: 'payload_too_large' });
-    }
-    res.status(err.status || 500).json({
-        error: err.message || 'Erreur interne du serveur',
-        code: err.code
-    });
-});
+// Error handler (middleware/erreurs.js)
+app.use(gestionnaireErreurs);
 
 // Démarrer le serveur
 async function start() {

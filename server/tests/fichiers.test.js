@@ -104,6 +104,29 @@ test('Photo de profil : seules PNG, JPEG et WebP, extension déduite du type (ja
     assert.equal(await m.User.count({ where: { email: 'svg@clinique-a.test' } }), 0);
 });
 
+test('Photo de profil refusée (rôle non médecin, fichier trop lourd) : aucun fichier laissé sur le disque', async () => {
+    const dossier = path.join(UPLOADS, 'profiles');
+    fs.mkdirSync(dossier, { recursive: true });
+    const fichiers = () => fs.readdirSync(dossier).sort();
+    const envoyer = (user, taille) => {
+        const form = new FormData();
+        form.append('photo', new Blob([Buffer.alloc(taille, 1)], { type: 'image/png' }), 'moi.png');
+        return fetch(`${server.base}/api/auth/profile-photo`, { method: 'POST', headers: { Authorization: `Bearer ${tokenFor(user)}` }, body: form });
+    };
+    const avant = fichiers();
+
+    const secretaire = await envoyer(A.users.secretary, 1024);
+    assert.equal(secretaire.status, 403);
+    assert.match((await secretaire.json()).error, /Seuls les médecins/);
+    assert.deepEqual(fichiers(), avant);
+
+    // Au-delà de 5 Mo : 413 (et non 500), fichier partiel supprimé par multer
+    const tropLourd = await envoyer(A.users.doctor, 5 * 1024 * 1024 + 1);
+    assert.equal(tropLourd.status, 413);
+    assert.equal((await tropLourd.json()).code, 'payload_too_large');
+    assert.deepEqual(fichiers(), avant);
+});
+
 test('Logo de clinique : envoyé par l’admin, public, remplacé proprement ; l’ancienne route commune n’existe plus', async () => {
     const envoyer = (user, contenu, type = 'image/png', nom = 'logo.png') => {
         const form = new FormData();

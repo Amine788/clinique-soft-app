@@ -21,3 +21,15 @@ test('V7 : l’origine déclarée est acceptée, une origine qui la prolonge est
         assert.equal((await preflight(origine)).headers.get('access-control-allow-origin'), null, origine);
     }
 });
+
+test('Origine refusée : 403 explicite (et non 500), sans en-tête CORS ; l’origine déclarée reste servie', async () => {
+    const refusee = await fetch(`${server.base}/api/health`, { headers: { Origin: 'https://evil.example' } });
+    assert.equal(refusee.status, 403);
+    assert.equal(refusee.headers.get('access-control-allow-origin'), null);
+    assert.deepEqual(await refusee.json(), { error: 'Origine non autorisée (CORS)', code: 'CORS_FORBIDDEN' });
+    assert.equal((await preflight('https://evil.example')).status, 403);
+
+    const acceptee = await fetch(`${server.base}/api/health`, { headers: { Origin: 'https://app.example.com' } });
+    assert.equal(acceptee.status, 200);
+    assert.equal(acceptee.headers.get('access-control-allow-origin'), 'https://app.example.com');
+});

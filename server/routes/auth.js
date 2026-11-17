@@ -404,17 +404,24 @@ router.post('/register', async (req, res) => {
 
 
 // POST /api/auth/profile-photo — Uploader la photo de profil du médecin
-router.post('/profile-photo', authenticateJWT, upload.single('photo'), async (req, res) => {
+const PHOTO_MEDECIN_SEULEMENT = 'Seuls les médecins peuvent avoir une photo de profil personnalisée pour le moment.';
+// Rôle (relu en base par authenticateJWT) vérifié AVANT multer : un refus ne laisse aucun fichier sur le disque
+const medecinSeulement = (req, res, next) => req.user.role === 'doctor' ? next() : res.status(403).json({ error: PHOTO_MEDECIN_SEULEMENT });
+// Photo enregistrée mais requête en échec : le fichier ne doit pas rester orphelin dans uploads/profiles
+const supprimerPhoto = (req) => req.file && fs.promises.unlink(req.file.path).catch(() => {});
+
+router.post('/profile-photo', authenticateJWT, medecinSeulement, upload.single('photo'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'Aucun fichier reçu' });
         }
 
         const user = await User.findByPk(req.user.id);
-        if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        if (!user) { await supprimerPhoto(req); return res.status(404).json({ error: 'Utilisateur non trouvé' }); }
 
         if (user.role !== 'doctor') {
-            return res.status(403).json({ error: 'Seuls les médecins peuvent avoir une photo de profil personnalisée pour le moment.' });
+            await supprimerPhoto(req);
+            return res.status(403).json({ error: PHOTO_MEDECIN_SEULEMENT });
         }
 
         const photoUrl = `/uploads/profiles/${req.file.filename}`;
@@ -422,6 +429,7 @@ router.post('/profile-photo', authenticateJWT, upload.single('photo'), async (re
 
         res.json({ success: true, photoUrl });
     } catch (error) {
+        await supprimerPhoto(req);
         console.error('[AUTH UPLOAD]', error.message);
         res.status(500).json({ error: 'Erreur lors de l\'upload de la photo' });
     }

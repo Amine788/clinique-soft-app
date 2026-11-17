@@ -6,7 +6,8 @@
 //
 // Prérequis : tests/smoke/api.mjs déjà passé (il écrit le fichier d'état : comptes, patient, RDV).
 // Variables : SMOKE_FRONT_URL (ex. http://127.0.0.1:4173), SMOKE_BASE_URL (API, défaut = front),
-//             SMOKE_STATE, SMOKE_PAGES_REPORT (rapport .md), CHROME_PATH, SMOKE_PAGE_WAIT_MS
+//             SMOKE_STATE, SMOKE_PAGES_REPORT (rapport .md), CHROME_PATH, SMOKE_PAGE_WAIT_MS,
+//             SMOKE_DEUX_DOMAINES=1 (front compilé avec VITE_API_URL, servi sur une autre origine que l'API)
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -17,6 +18,7 @@ const API = `${(process.env.SMOKE_BASE_URL || FRONT).replace(/\/+$/, '')}/api`;
 const STATE = JSON.parse(readFileSync(process.env.SMOKE_STATE || 'smoke-state.json', 'utf8'));
 const REPORT_FILE = process.env.SMOKE_PAGES_REPORT || '';
 const WAIT = Number(process.env.SMOKE_PAGE_WAIT_MS || 3000);
+const DEUX_DOMAINES = process.env.SMOKE_DEUX_DOMAINES === '1';
 const PORT = 9339;
 const CHROME = process.env.CHROME_PATH || [
     'C:/Program Files/Google/Chrome/Application/chrome.exe',
@@ -127,6 +129,9 @@ async function getTab() {
             current.api.push({ call: `${current.reqs.get(m.params.requestId)} ${u.pathname}`, status: m.params.response.status });
         }
         if (m.method === 'Network.loadingFailed' && current.reqs.has(m.params.requestId) && !m.params.canceled) current.errors.push(`requête échouée : ${m.params.errorText}`);
+        // Temps réel : connexions WebSocket ouvertes par la page et statut de la poignée de main (101 attendu)
+        if (m.method === 'Network.webSocketCreated') current.ws.set(m.params.requestId, { url: m.params.url, status: null });
+        if (m.method === 'Network.webSocketHandshakeResponseReceived' && current.ws.has(m.params.requestId)) current.ws.get(m.params.requestId).status = m.params.response.status;
     });
     await tab.send('Runtime.enable'); await tab.send('Network.enable'); await tab.send('Page.enable');
     return tab;
@@ -153,12 +158,43 @@ async function visitOnce(pagePath, auth) {
     if (scriptId) await c.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: scriptId });
     const store = auth ? JSON.stringify(JSON.stringify(auth)) : 'null';
     ({ identifier: scriptId } = await c.send('Page.addScriptToEvaluateOnNewDocument', { source: `try { if (location.protocol.startsWith('http')) { localStorage.clear(); if (${store}) localStorage.setItem('clinicsoft-auth', ${store}); } } catch {}` }));
-    const col = current = { errors: [], api: [], reqs: new Map() };
+    const col = current = { errors: [], api: [], reqs: new Map(), ws: new Map() };
     await c.send('Page.navigate', { url: FRONT + pagePath });
     await sleep(WAIT);
     const { result } = await c.send('Runtime.evaluate', { expression: 'JSON.stringify({ path: location.pathname, text: document.body.innerText.slice(0, 2000), root: document.getElementById("root")?.children.length || 0 })', returnByValue: true });
     const page = JSON.parse(result.value);
-    return { c, errors: col.errors, api: col.api, page };
+    return { c, errors: col.errors, api: col.api, ws: [...col.ws.values()], page };
+}
+
+async function controlesDeuxDomaines(sessions) {
+    const origineApi = new URL(API).origin;
+    const sousApi = (url) => url.startsWith(`${origineApi}/`) || url.startsWith(`${origineApi.replace(/^http/, 'ws')}/`);
+    if (new URL(FRONT).origin === origineApi) record('Deux domaines', '—', false, [], `front et API sur la même origine (${origineApi})`);
+
+    // Temps réel : le centre de notifications de l'en-tête ouvre Socket.io vers l'API
+    let v = await visit('/dashboard', sessions.doctor);
+    const ws = v.ws.find(w => sousApi(w.url) && w.status === 101);
+    record('Deux domaines : temps réel (Socket.io)', 'doctor', !!ws && !v.errors.length, [],
+        ws ? `WebSocket établi vers ${origineApi}` : `aucune connexion établie (${v.ws.map(w => `${w.url} → ${w.status}`).join(', ') || 'aucune tentative'}) ${v.errors.join(' ; ')}`);
+
+    // Images publiques servies par l'API : photo du médecin (en-tête) et logo de la clinique (menu)
+    const { result } = await v.c.send('Runtime.evaluate', { expression: `JSON.stringify([...document.images].filter(i => /\\/uploads\\/(profiles|logos)\\//.test(i.src)).map(i => ({ src: i.src, chargee: i.complete && i.naturalWidth > 0 })))`, returnByValue: true });
+    const images = JSON.parse(result.value);
+    for (const [nom, dossier] of [['photo de profil', '/uploads/profiles/'], ['logo de la clinique', '/uploads/logos/']]) {
+        const img = images.find(i => i.src.includes(dossier));
+        record(`Deux domaines : ${nom}`, 'doctor', !!img && img.chargee && sousApi(img.src), [], img ? `${img.src} ${img.chargee ? 'affichée' : 'non chargée'}` : 'image absente de la page');
+    }
+
+    // Document protégé : même appel que ouvrirFichierProtege (jeton en en-tête, réponse binaire), depuis la page
+    v = await visit('/dashboard', sessions.secretary);
+    const url = `${API}/patients/${STATE.patientId}/documents/cin/${STATE.scanId}`;
+    const { result: doc } = await v.c.send('Runtime.evaluate', { awaitPromise: true, returnByValue: true, expression: `(async () => {
+        const jeton = JSON.parse(localStorage.getItem('clinicsoft-auth')).state.token;
+        const r = await fetch(${JSON.stringify(url)}, { headers: { Authorization: 'Bearer ' + jeton } });
+        return JSON.stringify({ statut: r.status, taille: (await r.blob()).size });
+    })().catch(e => JSON.stringify({ erreur: String(e) }))` });
+    const d = JSON.parse(doc.value);
+    record('Deux domaines : document protégé (scan de CIN)', 'secretary', d.statut === 200 && d.taille > 0, [], d.erreur || `HTTP ${d.statut}, ${d.taille} octets`);
 }
 
 async function main() {
@@ -206,6 +242,9 @@ async function main() {
             const leaked = links.filter(h => ADMIN_DENIED.includes(h));
             record('Menu admin', 'admin', links.length > 0 && !leaked.length, [], leaked.length ? `liens présents : ${leaked.join(', ')}` : `${links.length} liens, aucune page médicale`);
         }
+        // Front et API sur deux origines (ex. front sur Vercel, API sur un serveur) : temps réel, images publiques
+        // et document protégé passent par l'adresse de l'API, avec le CORS du navigateur
+        if (DEUX_DOMAINES) await controlesDeuxDomaines(sessions);
         // Déconnexion : bouton du menu, session effacée, page protégée → /login
         {
             const { c } = await visit('/dashboard', sessions.admin);

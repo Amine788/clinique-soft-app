@@ -567,7 +567,7 @@ async function main() {
     // ── CORS ──
     const evil = await fetch(`${API}/health`, { headers: { Origin: 'https://evil.example' } });
     const acao = evil.headers.get('access-control-allow-origin');
-    record('CORS', 'GET', '/health', 'origine étrangère refusée (production)', acao !== 'https://evil.example' && acao !== '*', evil.status, acao ? `ACAO=${acao}` : 'pas d\'en-tête ACAO');
+    record('CORS', 'GET', '/health', 'origine étrangère refusée (production) : 403, sans en-tête ACAO', evil.status === 403 && acao !== 'https://evil.example' && acao !== '*', evil.status, acao ? `ACAO=${acao}` : 'pas d\'en-tête ACAO');
     if (ALLOWED_ORIGIN) {
         const good = await fetch(`${API}/health`, { headers: { Origin: ALLOWED_ORIGIN } });
         record('CORS', 'GET', '/health', 'origine du front autorisée', good.headers.get('access-control-allow-origin') === ALLOWED_ORIGIN, good.status);

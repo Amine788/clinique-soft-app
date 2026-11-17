@@ -3,6 +3,10 @@
 #
 #   bash tests/smoke/run.sh local    API + front (build de production) sur l'hôte, MySQL et Mailpit en conteneurs
 #   bash tests/smoke/run.sh docker   pile complète docker/compose.yaml (projet « nextclinic-smoke », volumes à part)
+#   bash tests/smoke/run.sh deux-domaines
+#                                    même pile Docker pour l'API, mais front compilé avec VITE_API_URL et servi à part
+#                                    (http://127.0.0.1:4174, comme un front sur Vercel) : CORS, temps réel, images et
+#                                    documents vérifiés entre deux origines
 #
 # Options (variables d'environnement) :
 #   NO_CACHE=1     mode docker : reconstruit les images sans cache
@@ -70,9 +74,16 @@ if [ "$MODE" = local ]; then
     wait_http http://127.0.0.1:4173/ 60 || exit 1
     run_tests http://127.0.0.1:3001 http://127.0.0.1:4173 http://127.0.0.1:4173
 
-elif [ "$MODE" = docker ]; then
+elif [ "$MODE" = docker ] || [ "$MODE" = deux-domaines ]; then
+    if [ "$MODE" = deux-domaines ]; then
+        # Seule origine acceptée par l'API : celle du front servi à part (prioritaire sur smoke.env)
+        FRONT_SEPARE="http://127.0.0.1:4174"; export FRONTEND_URL="$FRONT_SEPARE" SMOKE_DEUX_DOMAINES=1
+    fi
     DC=(docker compose -p nextclinic-smoke --env-file "$SMOKE/smoke.env" -f "$ROOT/docker/compose.yaml" -f "$SMOKE/compose.docker.yaml")
-    cleanup() { [ "${KEEP:-0}" = 1 ] || "${DC[@]}" --profile install down -v >/dev/null 2>&1; }
+    cleanup() {
+        for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null; done
+        [ "${KEEP:-0}" = 1 ] || "${DC[@]}" --profile install down -v >/dev/null 2>&1
+    }
     trap cleanup EXIT
     BASE="http://127.0.0.1:${HTTP_PORT}"; export SMOKE_BASE_URL="$BASE"
     if [ "${NO_CACHE:-0}" = 1 ]; then log "Construction des images sans cache"; "${DC[@]}" --profile install build --no-cache || exit 1; fi
@@ -88,7 +99,20 @@ elif [ "$MODE" = docker ]; then
     "${DC[@]}" up -d --build --wait || exit 1
     wait_http "$BASE/api/health" 120 || exit 1
     "${DC[@]}" ps --format '{{.Service}}\t{{.State}}\t{{.Status}}'
-    run_tests "$BASE" "$BASE" "$FRONTEND_URL"
+    if [ "$MODE" = deux-domaines ]; then
+        # Front compilé comme pour Vercel : l'adresse de l'API est figée au build. Le proxy de vite preview vise
+        # 127.0.0.1:3001 (rien n'y écoute) : un appel resté sur l'origine du front échouerait et serait signalé.
+        log "Front séparé (build avec VITE_API_URL=$BASE, vite preview sur $FRONT_SEPARE)"
+        (cd "$ROOT" && VITE_API_URL="$BASE" node node_modules/vite/bin/vite.js build --outDir "$OUT/front-deux-domaines" --emptyOutDir \
+            > "$OUT/build-deux-domaines.log" 2>&1) || { tail -20 "$OUT/build-deux-domaines.log"; exit 1; }
+        (cd "$ROOT" && exec node node_modules/vite/bin/vite.js preview --outDir "$OUT/front-deux-domaines" --host 127.0.0.1 --port 4174 --strictPort) \
+            > "$OUT/preview-deux-domaines.log" 2>&1 &
+        PIDS+=($!)
+        wait_http "$FRONT_SEPARE/" 60 || exit 1
+        run_tests "$BASE" "$FRONT_SEPARE" "$FRONT_SEPARE"
+    else
+        run_tests "$BASE" "$BASE" "$FRONTEND_URL"
+    fi
     if [ "${PERSISTENCE:-0}" = 1 ]; then
         log "Persistance : stop/start des conteneurs"
         "${DC[@]}" stop && "${DC[@]}" start && "${DC[@]}" up -d --wait >/dev/null && wait_http "$BASE/api/health" 120
@@ -101,7 +125,7 @@ elif [ "$MODE" = docker ]; then
     fi
     "${DC[@]}" logs --no-color > "$OUT/docker-logs.txt" 2>&1
 else
-    echo "Usage : bash tests/smoke/run.sh local|docker" >&2; exit 2
+    echo "Usage : bash tests/smoke/run.sh local|docker|deux-domaines" >&2; exit 2
 fi
 
 log "Résultat : $([ $STATUS = 0 ] && echo 'tout est OK' || echo 'au moins un KO') — rapports dans $OUT"

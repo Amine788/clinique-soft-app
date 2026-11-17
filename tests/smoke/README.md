@@ -13,6 +13,7 @@ racine et dans `server/` pour le mode local :
 bash tests/smoke/run.sh local                      # API + build de production du front sur l'hôte
 bash tests/smoke/run.sh docker                     # pile complète docker/compose.yaml
 NO_CACHE=1 PERSISTENCE=1 bash tests/smoke/run.sh docker   # images sans cache + test de redémarrage
+bash tests/smoke/run.sh deux-domaines              # API en Docker, front servi à part (comme sur Vercel)
 ```
 
 Rapports dans `tests/smoke/out/` (non suivi) : `api-<mode>.md`, `pages-<mode>.md`, journaux.
@@ -37,14 +38,19 @@ Le code de sortie vaut 1 si un contrôle est KO.
 - **`pages.mjs`** : chaque page de `src/App.jsx`, avec chaque rôle autorisé, dans Chrome headless :
   aucune exception JavaScript, aucune erreur console, aucun appel `/api` en erreur, pas de
   redirection non voulue ; puis la déconnexion.
+- **Mode `deux-domaines`** : front compilé avec `VITE_API_URL` et servi sur une autre origine que
+  l'API (`127.0.0.1:4174` contre `127.0.0.1:8091`), seule origine acceptée par l'API. En plus des
+  pages : connexion temps réel (WebSocket Socket.io, 101), photo de profil et logo chargés depuis
+  l'API, document protégé (scan de CIN) téléchargé depuis la page avec le jeton.
 
 ## Isolation
 
 - Mode local : projet compose `nextclinic-smoke-local`, MySQL sur `127.0.0.1:3317` (stockage en
   mémoire), Mailpit sur `127.0.0.1:1026`/`8026`, API sur `3001`, front sur `4173`.
-- Mode docker : projet `nextclinic-smoke` (volumes distincts de la pile réelle `nextclinic`),
-  site sur `127.0.0.1:8091`. La surcouche `compose.docker.yaml` ajoute Mailpit, désactive le
-  journal binaire de la base jetable et accepte le certificat auto-signé de Mailpit
-  (`NODE_TLS_REJECT_UNAUTHORIZED=0`, **test uniquement**).
+- Modes docker et deux-domaines : projet `nextclinic-smoke` (volumes distincts de la pile réelle
+  `nextclinic`), site sur `127.0.0.1:8091` ; front séparé sur `127.0.0.1:4174` en mode deux-domaines.
+  La base garde la configuration de production (journal binaire actif, installation par root, API
+  avec le compte limité). La surcouche `compose.docker.yaml` ajoute Mailpit et accepte son
+  certificat auto-signé (`NODE_TLS_REJECT_UNAUTHORIZED=0`, **test uniquement**).
 - Catalogue d'examens : alimenté par le seed du projet (`server/database/seedExamens.js`),
   lancé deux fois pour vérifier qu'il est idempotent (le second passage n'ajoute rien).
