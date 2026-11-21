@@ -122,3 +122,24 @@ Générer un secret : `openssl rand -hex 48` (ou `node -e "console.log(require('
 ## Licence
 
 Tous droits réservés. Aucune réutilisation sans autorisation.
+
+## Organisation, facturation et paiements
+
+Une clinique, une équipe : l'administrateur crée les comptes et leur attribue un rôle (secrétaire, médecin,
+infirmier, pharmacien, technicien de laboratoire…). Chaque compte accède aux fonctions de son rôle, sans
+département ni service organisationnel.
+
+Une prestation source ne peut pas figurer sur deux factures non annulées. La réservation intervient à l'émission,
+dans la même transaction que la facture et ses lignes. Les créations et paiements acceptent des références
+idempotentes pour éviter les doublons lors d'une nouvelle tentative réseau.
+
+Les paiements patient et assurance sont enregistrés séparément, avec montant, date, mode et auteur.
+Une facture reste partiellement réglée tant que la totalité n'est pas encaissée ; un ancien statut « payée »
+ne crée jamais un encaissement supposé.
+
+La migration additive `013_facturation_idempotence.js` est exécutée par `npm run db:install` et par le script
+de déploiement. Elle ne supprime aucune donnée. Sur une base existante, les anciennes tables et colonnes de
+départements sont conservées telles quelles mais ne sont plus utilisées.
+
+Tests ciblés, uniquement dans le Compose de sécurité et sa base jetable autorisée :
+`npm run test:facturation` dans `server/`.

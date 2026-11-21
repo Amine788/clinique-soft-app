@@ -2,9 +2,9 @@ import { Router } from 'express';
 import crypto from 'node:crypto';
 import { Op } from 'sequelize';
 import { authenticateJWT, authorizeRole, requireClinicId } from '../middleware/auth.js';
-import { Patient, User, Medecin, Departement, Hospitalisation, ExamenPatient } from '../models/index.js';
+import { Patient, Medecin, Hospitalisation, ExamenPatient } from '../models/index.js';
 import { Prescription } from './prescriptions.js';
-import { PatientAssignment, NurseService, ClinicResponsibility, ExceptionalGrant, AccessAudit } from '../models/access.js';
+import { PatientAssignment, ClinicResponsibility, ExceptionalGrant, AccessAudit } from '../models/access.js';
 import { doctorPatientIds, audit } from '../services/patientAccess.js';
 import { inClinic } from '../services/tenant.js';
 import sequelize from '../config/database.js';
@@ -78,20 +78,15 @@ router.get('/audit', wrap(async (req, res) => {
 
 // Adressage/remplacement : uniquement par un médecin déjà rattaché ; borné et révocable.
 router.post('/assignments', authorizeRole('doctor', 'admin'), wrap(async (req, res) => {
-    const { patientId, doctorUserId, departmentId, kind, startsAt, endsAt, reason } = req.body;
+    const { patientId, doctorUserId, kind, startsAt, endsAt, reason } = req.body;
     const patient = await clinicPatient(req, patientId);
     const start = new Date(startsAt), end = new Date(endsAt);
     if (!Number.isFinite(+start) || !Number.isFinite(+end) || end <= start || typeof reason !== 'string' || reason.trim().length < 10 || reason.length > 1000) fail(400, 'Dates et justification requises');
-    if (kind === 'service') {
-        if (req.user.role !== 'admin' || doctorUserId || !await Departement.findOne({ where: inClinic(req, { id: departmentId }) })) fail(403, 'Affectation au service refusée');
-    } else {
-        if (!['referral', 'replacement'].includes(kind) || departmentId || req.user.role !== 'doctor' || !await attached(req, patient.id)) fail(403, 'Adressage refusé');
-        if (!await Medecin.findOne({ where: inClinic(req, { userId: doctorUserId }) })) fail(404, 'Médecin non trouvé');
-    }
+    if (!['referral', 'replacement'].includes(kind) || req.user.role !== 'doctor' || !await attached(req, patient.id)) fail(403, 'Adressage refusé');
+    if (!await Medecin.findOne({ where: inClinic(req, { userId: doctorUserId }) })) fail(404, 'Médecin non trouvé');
     await audit(req, 'assignment.create', { patientId: patient.id, resourceType: 'assignment' });
     const assignment = await PatientAssignment.create({ clinic_id: req.user.clinic_id, patientId: patient.id,
-        doctorUserId: kind === 'service' ? null : doctorUserId, departmentId: kind === 'service' ? departmentId : null,
-        kind, startsAt: start, endsAt: end, reason, createdBy: req.user.id });
+        doctorUserId, kind, startsAt: start, endsAt: end, reason, createdBy: req.user.id });
     res.status(201).json(assignment);
 }));
 router.post('/assignments/:id/revoke', authorizeRole('doctor', 'admin'), wrap(async (req, res) => {
@@ -100,16 +95,6 @@ router.post('/assignments/:id/revoke', authorizeRole('doctor', 'admin'), wrap(as
     if (assignment.kind === 'service' ? req.user.role !== 'admin' : req.user.role !== 'doctor' || !await attached(req, assignment.patientId)) fail(403, 'Révocation refusée');
     await audit(req, 'assignment.revoke', { patientId: assignment.patientId, resourceType: 'assignment', resourceId: assignment.id });
     await assignment.update({ revokedAt: new Date() });
-    res.json({ success: true });
-}));
-router.post('/nurse-services', authorizeRole('admin'), wrap(async (req, res) => {
-    const { userId, departmentId } = req.body;
-    if (!await User.findOne({ where: inClinic(req, { id: userId, role: 'nurse' }) }) || !await Departement.findOne({ where: inClinic(req, { id: departmentId }) })) fail(404, 'Infirmier ou service non trouvé');
-    const [membership] = await NurseService.findOrCreate({ where: inClinic(req, { userId, departmentId }) });
-    res.status(201).json(membership);
-}));
-router.delete('/nurse-services/:id', authorizeRole('admin'), wrap(async (req, res) => {
-    await NurseService.destroy({ where: inClinic(req, { id: req.params.id }) });
     res.json({ success: true });
 }));
 

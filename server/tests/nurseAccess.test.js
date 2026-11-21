@@ -2,7 +2,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { resetDatabase, startServer, loadModels, seedClinic, createPatient, createHospitalisation, createRdv, client } from './helpers.js';
 
-let server, m, A, B, stay, outside, service, colleague, department, membership, assignment, accessModels;
+let server, m, A, B, stay, outside, service, colleague, accessModels;
 const request = (user, method, path, body) => client(server.base, user)(method, path, body);
 const patientPath = patient => `/api/patients/${patient.numeroDossier}`;
 
@@ -16,7 +16,6 @@ before(async () => {
     ({ hosp: stay } = await createHospitalisation(m, A));
     await createHospitalisation(m, B);
     colleague = await m.User.create({ clinic_id: A.clinic.id, matricule: 'NURSE-COLLEAGUE', nom: 'Collegue', prenom: 'Test', email: 'nurse-colleague@test.test', passwordHash: 'x', role: 'nurse', statut: 'actif' });
-    department = await m.Departement.create({ clinic_id: A.clinic.id, nom: 'Service de soins test' });
     const catalog = await m.ExamenCatalog.create({ code: 'NURSE-ACCESS', nom: 'Examen test', type: 'laboratoire', prixStandard: 10 });
     const resources = async (patient, label) => ({
         patient,
@@ -30,7 +29,7 @@ before(async () => {
 });
 after(async () => { await server?.stop(); await m?.sequelize.close(); });
 
-test('Infirmier : aucun accès ambulatoire sans hospitalisation ou affectation de service', async () => {
+test('Infirmier : aucun accès ambulatoire sans hospitalisation', async () => {
     for (const path of [patientPath(outside.patient), `/api/nurse/patient-by-dossier/${outside.patient.numeroDossier}`, `/api/nurse/scan/${outside.rdv.numeroRdv}`]) {
         assert.equal((await request(A.users.nurse, 'GET', path)).status, 404, path);
     }
@@ -94,67 +93,24 @@ test('Infirmier : hospitalisé lisible dans sa clinique, écritures réservées 
     assert.equal(await m.HospitalisationSoin.count({ where: { hospitalisationId: stay.id } }), 0);
 });
 
-test('Infirmier : service affecté par API, accès réservé à ses membres et à sa clinique', async () => {
+test('Infirmier : aucun accès par département ou service, même avec une ancienne affectation conservée', async () => {
     const base = '/api/patient-access';
     assert.equal((await request(A.users.nurse, 'GET', patientPath(service.patient))).status, 404);
-    assert.equal((await request(A.users.admin, 'POST', `${base}/nurse-services`, { userId: B.users.nurse.id, departmentId: department.id })).status, 404);
-    const joined = await request(A.users.admin, 'POST', `${base}/nurse-services`, { userId: A.users.nurse.id, departmentId: department.id });
-    assert.equal(joined.status, 201, JSON.stringify(joined.body));
-    membership = joined.body;
-    assert.equal((await request(A.users.nurse, 'GET', patientPath(service.patient))).status, 404, 'appartenance au service sans affectation du patient');
-    const made = await request(A.users.admin, 'POST', `${base}/assignments`, {
-        patientId: service.patient.id, departmentId: department.id, kind: 'service', startsAt: new Date(Date.now() - 60000), endsAt: new Date(Date.now() + 3600000), reason: 'Prise en charge du patient par le service de soins',
+    // Les routes d'affectation aux services n'existent plus
+    assert.equal((await request(A.users.admin, 'POST', `${base}/nurse-services`, { userId: A.users.nurse.id, departmentId: 1 })).status, 404);
+    const refused = await request(A.users.admin, 'POST', `${base}/assignments`, {
+        patientId: service.patient.id, departmentId: 1, kind: 'service', startsAt: new Date(Date.now() - 60000), endsAt: new Date(Date.now() + 3600000), reason: 'Prise en charge du patient par le service de soins',
     });
-    assert.equal(made.status, 201, JSON.stringify(made.body));
-    assignment = await accessModels.PatientAssignment.findByPk(made.body.id);
-    assert.equal((await request(A.users.nurse, 'GET', patientPath(service.patient))).status, 200);
-    assert.equal((await request(colleague, 'GET', patientPath(service.patient))).status, 404);
-    assert.equal((await request(B.users.nurse, 'GET', patientPath(service.patient))).status, 404);
-    assert.equal((await request(A.users.nurse, 'POST', '/api/nurse/vitals', { rdvId: service.rdv.numeroRdv, vitals: { pouls: 70 } })).status, 200);
-    assert.equal((await request(A.users.nurse, 'PATCH', `/api/examens/${service.exam.id}/statut`, { statut: 'preleve' })).status, 200);
-    assert.equal((await request(A.users.nurse, 'PATCH', `/api/examens/${service.exam.id}/statut`, { statut: 'termine', resultats: 'Interdit' })).status, 403);
-    await service.exam.reload();
-    assert.equal(service.exam.statut, 'preleve');
-    assert.equal(service.exam.resultats, null);
-});
-
-test('Infirmier : médicaments et alerte autorisés pour le service affecté', async () => {
-    const meds = await request(A.users.nurse, 'GET', '/api/nurse/medications');
-    assert.equal(meds.status, 200);
-    assert.ok(meds.body.some(row => row.id === service.prescription.id));
-    await service.prescription.update({ statut: 'preparee' });
-    const path = `/api/nurse/prescriptions/${service.prescription.id}`;
-    const delivered = await request(A.users.nurse, 'POST', `${path}/deliver`, {});
-    assert.equal(delivered.status, 200, JSON.stringify(delivered.body));
-    assert.equal((await service.prescription.reload()).statut, 'remise');
-    const administered = await request(A.users.nurse, 'POST', `${path}/administer`, { itemId: 1, slotIndex: 0, done: true });
-    assert.equal(administered.status, 200, JSON.stringify(administered.body));
-    assert.equal((await service.prescription.reload()).statut, 'administree');
-    assert.ok(JSON.parse(service.prescription.slots).every(slot => slot.done));
-    assert.equal((await request(A.users.nurse, 'POST', '/api/nurse/alert', { patientId: service.patient.id, message: 'Observation du service' })).status, 200);
-});
-
-test('Infirmier : retrait du service, révocation, expiration et début futur coupent immédiatement l’accès', async () => {
-    const get = () => request(A.users.nurse, 'GET', patientPath(service.patient));
-    assert.equal((await request(A.users.admin, 'DELETE', `/api/patient-access/nurse-services/${membership.id}`)).status, 200);
-    assert.equal((await get()).status, 404);
+    assert.equal(refused.status, 403, JSON.stringify(refused.body));
+    // Une affectation « service » d'une ancienne base reste en base mais n'ouvre aucun accès
+    const legacy = await accessModels.PatientAssignment.create({ clinic_id: A.clinic.id, patientId: service.patient.id, kind: 'service',
+        startsAt: new Date(Date.now() - 60000), endsAt: new Date(Date.now() + 3600000), reason: 'Ancienne affectation de service', createdBy: A.users.admin.id });
+    assert.equal((await request(A.users.nurse, 'GET', patientPath(service.patient))).status, 404);
     assert.equal((await request(A.users.nurse, 'POST', '/api/nurse/alert', { patientId: service.patient.id, message: 'Observation test' })).status, 404);
-    assert.equal((await request(A.users.admin, 'POST', '/api/patient-access/nurse-services', { userId: A.users.nurse.id, departmentId: department.id })).status, 201);
-    assert.equal((await get()).status, 200);
-    assert.equal((await request(A.users.admin, 'POST', `/api/patient-access/assignments/${assignment.id}/revoke`, {})).status, 200);
-    assert.equal((await get()).status, 404);
-    // La révocation a été faite par le processus API : relire avant de modifier
-    // le jeu de données, sinon Sequelize considère revokedAt=null inchangé.
-    await assignment.reload();
-    await assignment.update({ revokedAt: null, endsAt: new Date(Date.now() - 1000) });
-    assert.equal((await get()).status, 404);
-    await assignment.update({ startsAt: new Date(Date.now() + 60000), endsAt: new Date(Date.now() + 3600000) });
-    assert.equal((await get()).status, 404);
-    await assignment.update({ startsAt: new Date(Date.now() - 60000) });
-    assert.equal((await get()).status, 200);
+    assert.ok(await accessModels.PatientAssignment.findByPk(legacy.id));
 });
 
-test('Infirmier : sortie demandée reste accessible, séjour terminé sans service devient inaccessible', async () => {
+test('Infirmier : sortie demandée reste accessible, séjour terminé devient inaccessible', async () => {
     await stay.update({ statut: 'sortie_demandee' });
     assert.equal((await request(A.users.nurse, 'GET', patientPath(A.patient))).status, 200);
     await stay.update({ statut: 'termine', dateSortie: new Date() });

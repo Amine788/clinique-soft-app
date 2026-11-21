@@ -9,6 +9,8 @@ import multer from 'multer';
 
 
 
+// Dossier des scans sur le serveur (volume persistant en Docker), jamais servi en accès libre
+export const dossierScansCin = () => join(process.cwd(), 'uploads/cin-scans');
 export const FACES_CIN = ['recto', 'verso'];
 const TAILLE_MAX = 5 * 1024 * 1024;
 

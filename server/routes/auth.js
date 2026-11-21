@@ -7,6 +7,8 @@ import { User, Medecin } from '../models/index.js';
 import sequelize from '../config/database.js';
 import { sendAdminWelcomeEmail, sendNewClientNotification, emailConfigure } from '../services/emailService.js';
 import { trialEndFor } from '../config/trial.js';
+import { optionsSession, revoquerSession } from '../services/sessions.js';
+import { clinicSocket } from '../socket/clinicSocket.js';
 import multer from 'multer';
 import fs from 'fs';
 const router = Router();
@@ -159,7 +161,7 @@ router.post('/login', async (req, res) => {
 
         const payload = await buildSessionPayload(user);
 
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_EXPIRES_IN });
+        const token = jwt.sign(payload, JWT_SECRET, optionsSession(SESSION_EXPIRES_IN));
 
         res.json({ token, user: payload });
     } catch (error) {
@@ -285,7 +287,7 @@ router.post('/setup-password', async (req, res) => {
             }
 
             const payload = await buildSessionPayload(user);
-            const sessionToken = jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_EXPIRES_IN });
+            const sessionToken = jwt.sign(payload, JWT_SECRET, optionsSession(SESSION_EXPIRES_IN));
             return res.json({ success: true, token: sessionToken, user: payload });
         }
 
@@ -447,6 +449,19 @@ router.get('/me', authenticateJWT, async (req, res) => {
 
     const updatedPayload = { ...req.user, avatar: dbUser.photoUrl || (dbUser.prenom[0] + dbUser.nom[0]) };
     res.json({ user: updatedPayload });
+});
+
+// POST /api/auth/logout — Ferme la session de ce poste : le jeton est refusé jusqu'à son expiration.
+// Les autres postes connectés au même compte ne sont pas déconnectés.
+router.post('/logout', authenticateJWT, async (req, res) => {
+    try {
+        await revoquerSession(req.user);
+        if (req.user.jti) clinicSocket.deconnecterSession(req.user.jti);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('[AUTH] Erreur déconnexion :', error.message);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
 });
 
 export default router;

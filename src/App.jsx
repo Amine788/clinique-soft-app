@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
+import { seDeconnecter } from './api/deconnexion';
 
 import MainLayout from './components/MainLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -20,6 +21,7 @@ import RoomsPage from './pages/RoomsPage';
 import CreatePatientPage from './pages/CreatePatientPage';
 import CheckinPage from './pages/CheckinPage';
 import AdminPage from './pages/admin/AdminPage';
+import AdminFinances from './pages/admin/AdminFinances';
 import PatientProfileAdvanced from './pages/Patients/PatientProfileAdvanced';
 
 
@@ -55,9 +57,8 @@ import SecretaryAdmissionsPage from './pages/secretary/AdmissionsPage';
 
 // Page 403
 function UnauthorizedPage() {
-    const logout = useAuthStore(s => s.logout);
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await seDeconnecter();
         window.location.href = '/login';
     };
     return (
@@ -325,6 +326,11 @@ export default function App() {
                         <Route path="/admin/clinic" element={
                             <ProtectedRoute allowedRoles={['admin']}>
                                 <AdminPage tab="clinic" />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/admin/finances" element={
+                            <ProtectedRoute allowedRoles={['admin']}>
+                                <AdminFinances />
                             </ProtectedRoute>
                         } />
                         <Route path="/admin/performance" element={

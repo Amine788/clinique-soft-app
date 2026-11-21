@@ -3,7 +3,6 @@
 import sequelize from '../config/database.js';
 import cls from 'cls-hooked';
 import { Clinic } from './clinic.js';
-import { Departement } from './departement.js';
 import { User } from './user.js';
 import { Patient } from './patient.js';
 import { CinScan } from './cinScan.js';
@@ -22,7 +21,9 @@ import { ExamenPatient } from './examenPatient.js';
 import { Facture } from './facture.js';
 import { LigneFacture } from './ligneFacture.js';
 import { Absence } from './absence.js';
+import { SessionRevoquee } from './sessionRevoquee.js';
 import './associations.js';
+import { BillingPayment } from './billingPayment.js';
 
 // ============================================================
 // CLINIQUE PAR DÉFAUT À LA CRÉATION — pose clinic_id sur un nouvel enregistrement s'il manque
@@ -47,7 +48,8 @@ sequelize.addHook('beforeValidate', (instance) => {
 export {
     Clinic, User, Patient, CinScan, DossierMedical, Medecin,
     RendezVous, Pointage, Chambre, ProduitPharmacie, ExamenCatalog, ExamenPatient,
-    Facture, LigneFacture, Absence, Departement,
-    Hospitalisation, HospitalisationSoin, HospitalisationVital, HospitalisationAlerte
+    Facture, LigneFacture, Absence,
+    Hospitalisation, HospitalisationSoin, HospitalisationVital, HospitalisationAlerte,
+    SessionRevoquee, BillingPayment
 };
 export default sequelize;

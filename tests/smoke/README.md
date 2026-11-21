@@ -28,6 +28,14 @@ Le code de sortie vaut 1 si un contrôle est KO.
 | `KEEP=1` | garde l'environnement de test à la fin (pour inspecter) |
 | `SKIP_PAGES=1` | saute le test des pages (Chrome requis sinon, chemin via `CHROME_PATH`) |
 
+### Exécuter une seconde pile de test sans toucher à une pile existante
+
+Les modes Docker acceptent `SMOKE_PROJECT_NAME` (`nextclinic-smoke` ou un nom commençant par
+`nextclinic-smoke-`), `SMOKE_ENV_FILE` (copie de `smoke.env` avec des ports HTTP/HTTPS libres),
+`SMOKE_MAILPIT_PORT`, `SMOKE_CHROME_PORT` et `SMOKE_OUT`. La copie doit conserver `DB_NAME=nextclinic_smoke` et
+exclusivement les identifiants fictifs. Adapter également `FRONTEND_URL` au port HTTP choisi.
+Le nettoyage ne concerne que le projet de test sélectionné.
+
 ## Ce qui est vérifié
 
 - **`api.mjs`** : toutes les routes Express (inventaire de `server/routes`). Pour chacune : cas
@@ -36,10 +44,11 @@ Le code de sortie vaut 1 si un contrôle est KO.
   comptes de chaque rôle → patients, scans de CIN (signature réelle du fichier, téléchargement
   authentifié, jamais publics), RDV, absences, examens, ordonnances, circuit du médicament,
   pharmacie, hospitalisations, facturation, tableaux de bord, accès patients, IA (sans clé :
-  refus propre), super-admin, cloisonnement entre deux cliniques, CORS, JWT falsifiés/expirés.
+  refus propre), super-admin, cloisonnement entre deux cliniques, CORS, JWT falsifiés/expirés, déconnexion
+  (session fermée côté serveur pour ce poste, autres postes toujours connectés).
 - **`pages.mjs`** : chaque page de `src/App.jsx`, avec chaque rôle autorisé, dans Chrome headless :
   aucune exception JavaScript, aucune erreur console, aucun appel `/api` en erreur, pas de
-  redirection non voulue ; puis la déconnexion.
+  redirection non voulue ; puis la déconnexion (ancien jeton refusé par l'API).
 - **Mode `deux-domaines`** : front compilé avec `VITE_API_URL` et servi sur une autre origine que
   l'API (`127.0.0.1:4174` contre `127.0.0.1:8091`), seule origine acceptée par l'API. En plus des
   pages : connexion temps réel (WebSocket Socket.io, 101), photo de profil et logo chargés depuis

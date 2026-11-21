@@ -51,7 +51,7 @@ export default function AdminPerformance() {
             trend: overview.alertes > 0 ? 'À traiter' : 'RAS', up: false
         },
         {
-            label: 'CA du mois', value: overview.caTotal?.toLocaleString('fr-FR'), sub: 'MAD',
+            label: 'Factures réglées', value: overview.caTotal?.toLocaleString('fr-FR'), sub: 'MAD',
             icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50',
             trend: '+vs mois préc.', up: true
         },

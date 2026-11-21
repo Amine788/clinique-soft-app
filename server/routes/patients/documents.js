@@ -6,11 +6,11 @@ import { existsSync, mkdirSync } from 'fs';
 import { join, basename } from 'path';
 import { authenticateJWT, authorizeRole } from '../../middleware/auth.js';
 import { Patient, CinScan, ExamenPatient, ExamenCatalog } from '../../models/index.js';
-import { recevoirScanCin, envoyerScanCin } from '../../services/scansCin.js';
+import { recevoirScanCin, envoyerScanCin, dossierScansCin } from '../../services/scansCin.js';
 
 const router = Router();
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads/cin-scans');
+const UPLOAD_DIR = dossierScansCin();
 
 if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -46,7 +46,7 @@ router.post('/:cin/upload-scan', authenticateJWT, authorizeRole('secretary', 'do
         res.json({ success: true, face, cin, file: { name: req.file.filename, size: req.file.size } });
     } catch (err) {
         console.error('[UPLOAD ERROR]', err);
-        res.status(500).json({ error: err.message || 'Erreur lors de l\'enregistrement de la photo' });
+        res.status(500).json({ error: 'Erreur lors de l\'enregistrement du scan' });
     }
 });
 

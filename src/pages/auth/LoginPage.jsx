@@ -97,13 +97,13 @@ export default function LoginPage() {
 
                         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                             <div className="space-y-2">
-                                <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
+                                <label htmlFor="email" className="block text-sm font-medium text-slate-700">{import.meta.env.DEV ? 'Identifiant ou email' : 'Email'}</label>
                                 <div className="relative">
                                     <Mail size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input
                                         id="email"
-                                        type="email"
-                                        autoComplete="email"
+                                        type={import.meta.env.DEV ? 'text' : 'email'}
+                                        autoComplete="username"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         placeholder="nom@clinique.ma"
@@ -125,7 +125,7 @@ export default function LoginPage() {
                                         onChange={e => setPassword(e.target.value)}
                                         placeholder="••••••••"
                                         required
-                                        minLength={6}
+                                        minLength={import.meta.env.DEV ? 1 : 6}
                                         className={`${inputClass} pr-12`}
                                     />
                                     <button

@@ -9,6 +9,7 @@ import { User, Clinic } from '../models/index.js';
 import { JWT_SECRET } from '../middleware/auth.js';
 import { moduleActif, MODULE_TEMPS_REEL } from '../services/modulesClinique.js';
 import { trialEndFor } from '../config/trial.js';
+import { sessionRevoquee } from '../services/sessions.js';
 
 const onlineUsers = new Map(); // userId → socketId
 const cliniqueDuUser = new Map(); // userId → clinicId (utilisateurs connectés)
@@ -57,6 +58,7 @@ export const clinicSocket = {
     emitToRole(...args) { socketHubInstance?.emitToRole(...args); },
     deconnecterUser(...args) { socketHubInstance?.deconnecterUser(...args); },
     deconnecterClinique(...args) { socketHubInstance?.deconnecterClinique(...args); },
+    deconnecterSession(...args) { socketHubInstance?.deconnecterSession(...args); },
     getOnlineUsers() { return socketHubInstance ? socketHubInstance.getOnlineUsers() : []; }
 };
 
@@ -66,6 +68,9 @@ export function initSocket(io) {
     io.use(async (socket, next) => {
         try {
             const decoded = jwt.verify(socket.handshake.auth?.token || '', JWT_SECRET);
+            // Session fermée par « Déconnexion » : refusée comme dans l'API
+            if (await sessionRevoquee(decoded)) return next(new Error('unauthorized'));
+            socket.data.jti = decoded.jti || null;
             const user = await User.findByPk(decoded.id, { attributes: ['id', 'role', 'clinic_id', 'statut', 'nom', 'prenom'] });
             if (!user || user.statut === 'inactif') return next(new Error('unauthorized'));
             if (!user.clinic_id && user.role !== 'super_admin') return next(new Error('unauthorized'));
@@ -134,6 +139,9 @@ export function initSocket(io) {
     };
 
     socketHubInstance = {
+        notifyQueueChanged(clinicId) {
+            envoyerRoles(clinicId, ['secretary', 'admin', 'doctor', 'nurse'], 'queue_updated', { timestamp: new Date().toISOString() });
+        },
 
         /** Secrétaire → Médecin : RDV créé */
         notifyAppointmentCreated(rdv, medecinId) {
@@ -259,6 +267,13 @@ export function initSocket(io) {
         deconnecterClinique(clinicId) {
             for (const socket of io.sockets.sockets.values()) {
                 if (Number(socket.data.user?.clinicId) === Number(clinicId)) socket.disconnect(true);
+            }
+        },
+
+        /** Ferme les connexions ouvertes avec une session fermée par « Déconnexion » (ce poste seulement) */
+        deconnecterSession(jti) {
+            for (const socket of io.sockets.sockets.values()) {
+                if (jti && socket.data.jti === jti) socket.disconnect(true);
             }
         },
 

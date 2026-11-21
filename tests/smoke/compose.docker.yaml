@@ -8,7 +8,7 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_TLS_CERT: "sans:mailpit"
       MP_SMTP_TLS_KEY: "sans:mailpit"
-    ports: ["127.0.0.1:8026:8025"]
+    ports: ["127.0.0.1:${SMOKE_MAILPIT_PORT:-8026}:8025"]
     networks: [web]
 
   # La base garde la configuration de production (journal binaire actif) : installation par root

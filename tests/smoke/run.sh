@@ -24,8 +24,12 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SMOKE="$ROOT/tests/smoke"
 OUT="${SMOKE_OUT:-$SMOKE/out}"
 mkdir -p "$OUT"
-set -a; . "$SMOKE/smoke.env"; set +a
-export SMOKE_STATE="$OUT/state-$MODE.json" SMOKE_MAILPIT_URL="http://127.0.0.1:8026"
+SMOKE_ENV="${SMOKE_ENV_FILE:-$SMOKE/smoke.env}"
+SMOKE_PROJECT="${SMOKE_PROJECT_NAME:-nextclinic-smoke}"
+[[ "$SMOKE_PROJECT" =~ ^nextclinic-smoke(-[a-z0-9-]+)?$ ]] || { echo "Projet de test invalide" >&2; exit 2; }
+set -a; . "$SMOKE_ENV"; set +a
+[ "$DB_NAME" = nextclinic_smoke ] || { echo "Base de test attendue : nextclinic_smoke" >&2; exit 2; }
+export SMOKE_STATE="$OUT/state-$MODE.json" SMOKE_MAILPIT_URL="http://127.0.0.1:${SMOKE_MAILPIT_PORT:-8026}"
 STATUS=0
 PIDS=()
 
@@ -83,7 +87,8 @@ exploitation() {
     empreinte > "$OUT/empreinte-reference.txt"
     bash "$S/backup.sh" > "$OUT/exploitation-backup.log" 2>&1 || { echo "KO  backup.sh"; tail -20 "$OUT/exploitation-backup.log"; STATUS=1; return; }
     ls -l "$OUT"/sauvegardes | grep -E 'db-|uploads-' | awk '{print "    " $1, $5, $NF}'
-    dump="$(ls "$OUT"/sauvegardes/db-*.sql.gz | head -n 1)"
+    # Sauvegarde que backup.sh vient de produire : la plus récente (horodatage dans le nom)
+    dump="$(ls "$OUT"/sauvegardes/db-*.sql.gz | sort | tail -n 1)"
 
     log "Exploitation : base et volumes détruits (down -v), base vide, puis scripts/restore.sh"
     "${DC[@]}" --profile install down -v >/dev/null 2>&1
@@ -136,7 +141,7 @@ run_tests() { # base_api, front, origine autorisée
 }
 
 if [ "$MODE" = local ]; then
-    LC=(docker compose --env-file "$SMOKE/smoke.env" -f "$SMOKE/compose.local.yaml")
+    LC=(docker compose --env-file "$SMOKE_ENV" -f "$SMOKE/compose.local.yaml")
     cleanup() {
         for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null; done
         [ "${KEEP:-0}" = 1 ] || "${LC[@]}" down -v >/dev/null 2>&1
@@ -165,7 +170,7 @@ elif [ "$MODE" = docker ] || [ "$MODE" = deux-domaines ]; then
         # Seule origine acceptée par l'API : celle du front servi à part (prioritaire sur smoke.env)
         FRONT_SEPARE="http://127.0.0.1:4174"; export FRONTEND_URL="$FRONT_SEPARE" SMOKE_DEUX_DOMAINES=1
     fi
-    DC=(docker compose -p nextclinic-smoke --env-file "$SMOKE/smoke.env" -f "$ROOT/docker-compose.prod.yml" -f "$SMOKE/compose.docker.yaml")
+    DC=(docker compose -p "$SMOKE_PROJECT" --env-file "$SMOKE_ENV" -f "$ROOT/docker-compose.prod.yml" -f "$SMOKE/compose.docker.yaml")
     cleanup() {
         for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null; done
         [ "${KEEP:-0}" = 1 ] || "${DC[@]}" --profile install down -v >/dev/null 2>&1
@@ -173,10 +178,17 @@ elif [ "$MODE" = docker ] || [ "$MODE" = deux-domaines ]; then
     trap cleanup EXIT
     BASE="http://127.0.0.1:${HTTP_PORT}"; export SMOKE_BASE_URL="$BASE"
     # Scripts d'exploitation (scripts/*.sh) appliqués à cette pile de test : jamais à la production
-    export ENV_FILE="$SMOKE/smoke.env" COMPOSE_PROJECT_NAME=nextclinic-smoke COMPOSE_SURCOUCHE="$SMOKE/compose.docker.yaml" \
+    export ENV_FILE="$SMOKE_ENV" COMPOSE_PROJECT_NAME="$SMOKE_PROJECT" COMPOSE_SURCOUCHE="$SMOKE/compose.docker.yaml" \
         BACKUP_DIR="$OUT/sauvegardes" ETAT_DIR="$OUT/etat" CONFIRMER=RESTAURER SANS_PULL=1
     rm -rf "$OUT/sauvegardes" "$OUT/etat"; mkdir -p "$OUT/etat"
-    if [ "${NO_CACHE:-0}" = 1 ]; then log "Construction des images sans cache"; "${DC[@]}" --profile install build --no-cache || exit 1; fi
+    # Toujours une base neuve : une pile de test restée en place (KEEP=1, démo) fausserait l'installation et les empreintes.
+    # Seul le projet de test nextclinic-smoke est concerné (jamais la pile réelle ni d'autres projets).
+    log "Pile de test précédente supprimée (projet $SMOKE_PROJECT uniquement)"
+    "${DC[@]}" --profile install down -v --remove-orphans >/dev/null 2>&1
+    # Images reconstruites AVANT l'installation du schéma (comme scripts/deploy.sh) : sinon db-install
+    # tournerait avec une image restée d'un lancement précédent et installerait un ancien schéma.
+    if [ "${NO_CACHE:-0}" = 1 ]; then log "Construction des images sans cache"; "${DC[@]}" --profile install build --no-cache || exit 1
+    else log "Construction des images"; "${DC[@]}" --profile install build || exit 1; fi
     log "Base et Mailpit"
     "${DC[@]}" up -d --build --wait db mailpit || exit 1
     if [ "${EXPLOITATION:-0}" = 1 ]; then

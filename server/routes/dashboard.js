@@ -23,6 +23,8 @@ async function rdvDuJour(req, where) {
     }));
     return rdvs.map(r => ({
         id: r.id,
+        numeroRdv: r.numeroRdv,
+        arrivedAt: r.heureArrivee,
         patient: r.Patient ? `${r.Patient.prenom} ${r.Patient.nom}` : '—',
         doctor: r.Medecin?.User ? `Dr. ${r.Medecin.User.prenom} ${r.Medecin.User.nom}` : '—',
         time: r.heureDebut?.slice(0, 5),

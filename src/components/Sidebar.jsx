@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { seDeconnecter } from '../api/deconnexion';
 import { getMenuForRole, urlPublique } from '../utils/helpers';
 import {
     LayoutDashboard, Calendar, Users, ClipboardList, CalendarOff, BarChart3,
@@ -14,7 +15,7 @@ const iconMap = {
 };
 
 export default function Sidebar({ open = false, onClose }) {
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
     const navigate = useNavigate();
     const menuItems = getMenuForRole(user?.role);
     const [clinicInfo, setClinicInfo] = React.useState({ name: '', specialite: '' });
@@ -34,8 +35,8 @@ export default function Sidebar({ open = false, onClose }) {
     }, []);
 
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await seDeconnecter();
         navigate('/login');
     };
 

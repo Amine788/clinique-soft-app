@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { seDeconnecter } from '../../api/deconnexion';
 import api from '../../api/axios';
 import { 
     Users, Building2, CreditCard, ShieldAlert, 
@@ -44,7 +45,7 @@ function TrialEnd({ clinic, now }) {
 }
 
 export default function SuperAdminPage() {
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
     const navigate = useNavigate();
     
     const [stats, setStats] = useState(null);
@@ -157,8 +158,8 @@ export default function SuperAdminPage() {
         }
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await seDeconnecter();
         navigate('/login');
     };
 

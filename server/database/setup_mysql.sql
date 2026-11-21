@@ -382,23 +382,6 @@ CREATE TABLE IF NOT EXISTS absences_medecins (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- TABLE 15 — DEPARTEMENTS  (services internes, avec clinic_id)
--- ============================================================
-CREATE TABLE IF NOT EXISTS departements (
-  id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  clinic_id     INT UNSIGNED NOT NULL,
-  nom           VARCHAR(120) NOT NULL,
-  chef          VARCHAR(150) DEFAULT '',
-  lits          INT DEFAULT 0,
-  statut        ENUM('actif','inactif') DEFAULT 'actif',
-  description   TEXT,
-  created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (clinic_id) REFERENCES clinics(id) ON DELETE CASCADE,
-  INDEX idx_clinic (clinic_id)
-) ENGINE=InnoDB;
-
--- ============================================================
 -- TABLE 16 — HOSPITALISATIONS  (avec clinic_id)
 -- Note : createdAt / updatedAt en camelCase, comme déclaré dans le modèle Sequelize
 -- ============================================================

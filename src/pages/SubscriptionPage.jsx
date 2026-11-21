@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { seDeconnecter } from '../api/deconnexion';
 import api from '../api/axios';
 import { CreditCard, ShieldAlert, LogOut, Loader2, Lock, Headphones, Phone, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function SubscriptionPage() {
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
     const navigate = useNavigate();
     const [statusData, setStatusData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -30,8 +31,8 @@ export default function SubscriptionPage() {
         fetchStatus();
     }, []);
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await seDeconnecter();
         navigate('/login');
     };
 

@@ -387,6 +387,7 @@ export default function PatientsPage() {
                                             {/* Actions */}
                                             <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                                                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                    {['secretary', 'admin'].includes(user?.role) && <button className="btn btn-outline btn-sm" onClick={e => { e.stopPropagation(); navigate('/checkin?cin=' + encodeURIComponent(patient.cin?.numero || patient.cinNumero)); }}>Accueillir</button>}
                                                     {canDelete && (
                                                         <button
                                                             onClick={e => handleDelete(e, patient)}

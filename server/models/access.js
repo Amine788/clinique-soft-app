@@ -7,14 +7,12 @@ const id = () => ({ type: D.INTEGER, primaryKey: true, autoIncrement: true });
 const integer = () => ({ type: D.INTEGER, allowNull: false });
 export const PatientAssignment = sequelize.define('PatientAssignment', {
     id: id(), clinic_id: integer(), patientId: integer(),
-    doctorUserId: D.INTEGER, departmentId: D.INTEGER,
+    doctorUserId: D.INTEGER,
+    // « service » : valeur historique conservée pour les anciennes lignes ; plus aucune création.
     kind: { type: D.ENUM('referral', 'replacement', 'service'), allowNull: false },
     startsAt: { type: D.DATE, allowNull: false }, endsAt: { type: D.DATE, allowNull: false },
     reason: { type: D.STRING(1000), allowNull: false }, createdBy: integer(), revokedAt: D.DATE,
 }, { tableName: 'patient_access_assignments' });
-export const NurseService = sequelize.define('NurseService', {
-    id: id(), clinic_id: integer(), userId: integer(), departmentId: integer(),
-}, { tableName: 'nurse_service_memberships' });
 // Habilitation indépendante : aucune route d'administration ordinaire ne peut l'attribuer.
 export const ClinicResponsibility = sequelize.define('ClinicResponsibility', {
     id: id(), clinic_id: integer(), userId: integer(),

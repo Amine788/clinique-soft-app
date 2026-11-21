@@ -57,6 +57,10 @@ if [ -n "$UP_F" ]; then
     "${DC[@]}" run --rm --no-deps -T --entrypoint sh api -c 'find /app/uploads -mindepth 1 -delete && tar -xzf - -C /app/uploads && find /app/uploads -type f | wc -l' < "$UP_F"
 fi
 
+# Compléter les anciennes sauvegardes avec les migrations additives de cette version.
+log "Mise à niveau du schéma restauré (db-install)"
+"${DC[@]}" --profile install run --rm -T db-install
+
 log "Compte limité de l'API (droits sur les tables restaurées)"
 "${DC[@]}" --profile install run --rm -T db-app-account
 

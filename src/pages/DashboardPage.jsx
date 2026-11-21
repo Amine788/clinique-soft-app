@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { formatMAD } from '../utils/helpers';
 import api from '../api/axios';
+import { useSocket } from '../hooks/useSocket';
 import { Users, Calendar, TrendingUp, Activity, CreditCard, Pill, Bell, Stethoscope, Microscope, Droplet, Clock, PlayCircle, BedDouble, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
 import NurseDashboardPage from './nurse/NurseDashboardPage';
@@ -31,14 +32,15 @@ function useDashboard(url) {
             .catch(err => { console.error(err); setError(true); });
     }, [url]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => { load(); const timer = setInterval(load, 15000); return () => clearInterval(timer); }, [load]);
+    useSocket({ queue_updated: load });
     return { data, error, reload: load };
 }
 
 const STATUTS_RDV = {
     planifie: { label: 'Planifié', className: 'bg-gray-100 text-gray-600' },
     confirme: { label: 'Confirmé', className: 'bg-primary-light text-primary' },
-    arrive: { label: 'Chez l’infirmier', className: 'bg-amber-50 text-amber-700' },
+    arrive: { label: 'En salle d’attente', className: 'bg-amber-50 text-amber-700' },
     pret: { label: 'Prêt', className: 'bg-emerald-50 text-emerald-700' },
     en_cours: { label: 'En consultation', className: 'bg-primary text-white' },
     termine: { label: 'Terminé', className: 'bg-gray-100 text-gray-500' },
@@ -102,6 +104,11 @@ function SecretaryDashboard() {
     return (
         <div className="space-y-6">
             <PageHeader title="Tableau de bord" subtitle="Accueil et gestion — aujourd’hui" />
+            <div className="flex flex-wrap gap-3">
+                <Link className="btn btn-primary" to="/patients/create">Nouveau patient</Link>
+                <Link className="btn btn-primary" to="/checkin">Accueil / Salle d’attente</Link>
+                <Link className="btn btn-outline" to="/appointments/new">Prendre rendez-vous</Link>
+            </div>
             {error && <ErrorBanner onRetry={reload} />}
             <KpiGrid>
                 <KpiCard title="Encaissé aujourd’hui" value={stats ? formatMAD(stats.caJour) : '—'} icon={TrendingUp} color="primary" hint="Factures payées" />
@@ -173,9 +180,9 @@ function WaitingList({ items, showDoctor = false, canStart = false }) {
                         <div className="truncate text-xs text-gray-500">{p.time}{showDoctor && ` · ${p.doctor}`}</div>
                     </div>
                     <StatutRdv status={p.status} />
-                    {canStart && p.status === 'pret' && (
+                    {canStart && ['arrive', 'pret', 'en_cours'].includes(p.status) && (
                         <Link
-                            to={`/consultation/${p.id}`}
+                            to={`/consultation/${p.numeroRdv || p.id}`}
                             aria-label={`Commencer la consultation de ${p.patient}`}
                             className="rounded-lg border border-emerald-200 bg-white p-2 text-emerald-600 shadow-sm transition hover:bg-emerald-600 hover:text-white"
                         >

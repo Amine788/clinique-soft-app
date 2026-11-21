@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:deployment": "node --test tests/deployment/*.test.mjs",
+    "predev": "node tooling/prepare-ocr.mjs",
+    "prebuild": "node tooling/prepare-ocr.mjs",
+    "test:ocr": "node --test tests/ocr/*.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",

@@ -53,12 +53,15 @@ sql_root() { "${DC[@]}" exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec 
 # Nombre de tables de la base (0 sur une installation neuve)
 nombre_tables() { sql_root -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()" | tr -d '[:space:]'; }
 
-# /api/health par l'adresse publique (DNS, HTTPS et proxy compris) ; avertit sans échouer
+# /api/health par l'adresse publique : un échec empêche de valider le déploiement.
 controle_public() {
     local url; url="$(valeur FRONTEND_URL)/api/health"
     for _ in $(seq 1 30); do
-        if curl -fsS --max-time 10 "$url" >/dev/null 2>&1; then echo "OK : $url répond"; return 0; fi
+        if curl -fsS --max-time 10 "$url" 2>/dev/null | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"'; then
+            echo "OK : $url répond et confirme son état opérationnel"; return 0
+        fi
         sleep 2
     done
-    echo "ATTENTION : $url ne répond pas (DNS, certificat HTTPS ou pare-feu à vérifier)" >&2
+    echo "ERREUR : $url ne répond pas (DNS, certificat HTTPS ou pare-feu à vérifier)" >&2
+    return 1
 }

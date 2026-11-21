@@ -3,6 +3,16 @@
 // Chemin journalisé sans paramètres de requête et avec les numéros de CIN masqués (données personnelles)
 export const cheminJournal = (url) => url.split('?')[0].replace(/\/[A-Za-z]{1,2}\d{3,}(?=\/|$)/g, '/***');
 
+// Filet de sécurité posé avant les routes : une réponse 500 écrite par le « catch » d'une route ne renvoie
+// jamais de détail interne (message SQL, chemin, champ « details »). Le détail reste dans le journal de la route.
+// Les autres statuts, dont les 5xx voulus (503 « IA non configurée »...), ne sont pas modifiés.
+export const MESSAGE_ERREUR_INTERNE = 'Erreur interne du serveur';
+export function masquerErreursInternes(req, res, next) {
+    const json = res.json.bind(res);
+    res.json = (corps) => json(res.statusCode === 500 ? { error: MESSAGE_ERREUR_INTERNE } : corps);
+    next();
+}
+
 // Dernier middleware d'Express : réponse JSON { error, code }
 export function gestionnaireErreurs(err, req, res, next) {
     // Statut posé volontairement (code de l'application, body-parser, CORS) : message destiné au client

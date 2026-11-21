@@ -28,3 +28,8 @@ seed.js
 backups
 dumps
 coverage
+**/*.local
+
+# Fixtures de démonstration inutilisées en production
+data
+database/setup_mysql.sql

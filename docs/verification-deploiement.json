@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-20",
+  "timezone": "Africa/Casablanca",
+  "project": "clinique-soft-app",
+  "scope": "Préparation technique au déploiement de la version existante ; aucun déploiement réel effectué.",
+  "status": "Rapport historique de préparation, antérieur à la livraison de la fonctionnalité organisation/finance.",
+  "checks": {
+    "lint": "passed",
+    "productionBuild": "passed",
+    "composeConfiguration": "passed",
+    "shellSyntax": "passed",
+    "serverTests": {
+      "passed": 183,
+      "failed": 0
+    },
+    "departmentTestsFinal": {
+      "passed": 55,
+      "failed": 0
+    },
+    "deploymentHealthTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "apiSmokeFinal": {
+      "passed": 338,
+      "failed": 0
+    },
+    "browserPagesFinal": {
+      "passed": 74,
+      "failed": 0
+    },
+    "dependencyAudit": {
+      "clientAllDependencies": 0,
+      "serverAllDependencies": 0
+    },
+    "operations": {
+      "https": true,
+      "httpRedirect": true,
+      "persistenceAfterRestart": true,
+      "persistenceAfterContainerRecreation": true,
+      "backupAndRestoreChecksumIdentical": true,
+      "successiveDeploymentsPreserveData": 2,
+      "rollback": true
+    },
+    "imageContent": {
+      "environmentFilesExcluded": true,
+      "legacyDemoDataExcluded": true,
+      "testsExcluded": true
+    }
+  },
+  "fixes": [
+    "Rendez-vous possibles sans département ; intervention transversale validée dans la même clinique.",
+    "Validation des départements ; conservation des départements référencés ; champ facultatif lits vide compatible.",
+    "Département inactif exclu des droits de service et des nouvelles affectations.",
+    "Contrôle public de santé obligatoire avant validation de la version déployée ou du retour arrière.",
+    "Migrations additives appliquées après restauration et avant redémarrage.",
+    "Piles de test indépendantes : projet, ports, Mailpit et Chrome configurables.",
+    "Fixtures de démonstration exclues de l’image API de production."
+  ],
+  "sourceComparison": {
+    "identicalFilesIgnoringLineEndings": 124,
+    "differentFiles": 57,
+    "onlyOldSourceFile": "src/internal.css",
+    "note": "Aucune fusion automatique des anciennes modifications ; styles différents conservés dans chaque version."
+  },
+  "testHistory": {
+    "initialServerRun": {
+      "passed": 174,
+      "failed": 5,
+      "note": "Régression des rendez-vous sans département corrigée ; suite complète relancée avec succès."
+    },
+    "firstSmokeRun": {
+      "apiFailures": 7,
+      "pageFailures": 1,
+      "note": "Le scénario réutilisait un département désactivé. Scénario corrigé avec test du refus puis réactivation ; nouvelle pile finale : 338 contrôles API et 74 pages réussis. Les vérifications d’exploitation ont toutes réussi dans la première pile."
+    }
+  },
+  "limits": [
+    "Tests sur données fictives et piles isolées ; domaine, secrets, SMTP réel et infrastructure de production non validés.",
+    "Modifications locales non publiées ; conserver les fichiers non suivis lors du transfert ou de la préparation d’un commit.",
+    "La compilation émet un avertissement de taille des fichiers JavaScript ; compilation réussie."
+  ],
+  "modifiedFilesSha256": {
+    "package.json": "9889e129d198d75fc6dfb3712238d83d0e733672a458172d099bc3bbfe856035",
+    "server/package.json": "55474df4cf7c2ea627318d70ea2736b9ef7cde3750c9ffb422d627f5a5e4d2b8",
+    "server/.dockerignore": "774180280ae5a6e1da26dcf3d0d93333c4a07fc5aa682c28b303bba4739552e3",
+    "server/services/departments.js": "bec49a89160200c005b00b6feb13b1047b85b3c179997e76d00fa0e0ed45a609",
+    "server/routes/clinic.js": "fb4b59332c770f414329266eb91145f74a5a4cb83149dd7b9bdc9c80621669de",
+    "server/routes/patientAccess.js": "6661f3eba347fe5d37dd61bac4e6168c02b745d3621790c9c0f3b9128157dd81",
+    "server/services/patientAccess.js": "7a6f20c45c3cd02f2c1276a03c20a801ffc35f8dac1062f5be563da5a6d9b3e4",
+    "server/tests/departmentCompatibility.test.js": "8cb7f1373792000c119e05490b342553314351f2adf4265313fb42f33ba7ad1b",
+    "scripts/_commun.sh": "089c1323bd28446d00ffa236b33ddb000015e9b30c94b8edcfb07d812e837ec8",
+    "scripts/deploy.sh": "b0da2299cb3e9e47f6690270ccfb07c4ef4ae39e727e70c19a71678217ecc3a3",
+    "scripts/restore.sh": "ebda8c656c44ed0731ca430dc7c1c056269fa2731844fc3fd1e3ad8f592cbbf8",
+    "scripts/rollback.sh": "fa9a05eb2287493d0ba05d2cb3d894b6a66a642e43f1b1194319004a56df8251",
+    "tests/deployment/public-health.test.mjs": "65e520981d3b35ac245404ab55157ce0d5780ac857774f63f5644e3aa28428d9",
+    "tests/smoke/run.sh": "71292934c42d7778128bb74a0306bb28fe135c99b4330b83afa032e47a2c24ce",
+    "tests/smoke/api.mjs": "f0d538cd5d23a42063ebf997369150bda2e44109fe46b0ef23f744ba68cfbc59",
+    "tests/smoke/pages.mjs": "d3147af0ba524182e46e62e821444c0bd8b90bc97c75d20ee39b356077b45682",
+    "tests/smoke/compose.docker.yaml": "5c6adff226383d92b186ff420fd14ecc4f489cd17f6f65eafcdce172b23537b7",
+    "tests/smoke/README.md": "aaf018577092a014dfab5937a42da8ba9c5dff0e455e1dc0422f1adb2c67a17c",
+    "docs/DEPLOIEMENT.md": "9260e8164803691c1eaf4899dbcdf12d2d199a50856623604f4c749a40bfe680"
+  },
+  "supersededBy": "verification-organisation.json"
+}

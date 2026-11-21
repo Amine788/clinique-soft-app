@@ -42,6 +42,12 @@ Le super-administrateur est créé au premier démarrage (`SUPER_ADMIN_EMAIL`, `
 connexion, retirer `SUPER_ADMIN_PASSWORD` de `.env.prod` puis relancer `scripts/deploy.sh` (ou `SANS_PULL=1 scripts/deploy.sh`).
 Le script `server/seed.js` (données de démonstration, **supprime** des données) n'est pas inclus dans l'image.
 
+Le déploiement et le retour arrière ne sont validés qu'après une réponse de
+`/api/health` confirmant `status: ok` à l'adresse publique. Une page HTML ou
+une adresse indisponible provoque un échec ; le fichier `.app-version` conserve
+alors la dernière version validée. Les nouveaux conteneurs peuvent déjà avoir démarré :
+consulter les journaux et corriger la panne avant de relancer ou de revenir en arrière.
+
 ## 3. Mise à jour et retour arrière
 
 ```bash
@@ -70,7 +76,9 @@ Planification quotidienne (`crontab -e`) :
 Les sauvegardes contiennent des données de santé : dossier en 700, fichiers en 600, copie **hors du VPS** par
 `BACKUP_RSYNC_DEST` (rsync par SSH avec clé). `restore.sh` demande de taper `RESTAURER`, sauvegarde l'état actuel,
 recrée la base, remplace les fichiers, remet à jour le compte limité puis redémarre.
-Sur un serveur neuf : `.env.prod`, puis `scripts/deploy.sh`, puis `scripts/restore.sh <sauvegarde>`.
+Sur un serveur neuf : `.env.prod`, puis `scripts/deploy.sh`, puis `scripts/restore.sh <sauvegarde>`. La restauration exécute les
+migrations additives de la version installée avant de remettre les droits applicatifs et
+de redémarrer l'API, afin de compléter les sauvegardes antérieures sans effacer leurs données.
 
 ### Test de restauration (chaque mois, sans toucher à la production)
 
@@ -122,3 +130,10 @@ Le développement est un projet distinct (`nextclinic-dev`) : ses volumes ne son
 - DNS : enregistrement A (et AAAA) du domaine vers le VPS avant le premier démarrage.
 - Sortie autorisée : SMTP 587 (e-mails) et HTTPS (API d'IA).
 - Journaux Docker limités (10 Mo × 5 par service).
+
+### Compatibilité des paiements lors d'un retour arrière
+
+Après utilisation du registre des paiements (paiements partiels, patient et assurance), revenir uniquement à une
+version qui prend en charge ce registre. Une ancienne version qui marque une facture intégralement payée
+sans enregistrer son montant ne conserve pas la traçabilité des paiements partiels. Pour un retour à une
+version antérieure à cette fonctionnalité, restaurer aussi sa sauvegarde cohérente selon la procédure ci-dessus.

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Op } from 'sequelize';
 import { Patient, Medecin, RendezVous, Hospitalisation } from '../models/index.js';
-import { PatientAssignment, NurseService, ExceptionalGrant, AccessAudit } from '../models/access.js';
+import { PatientAssignment, ExceptionalGrant, AccessAudit } from '../models/access.js';
 
 const bad = (status, message) => Object.assign(new Error(message), { status });
 const days = (key, fallback) => {
@@ -46,13 +46,10 @@ export function patientAccess(group) {
                 req.accessDoctorId = doctor.id;
                 req.patientAccessIds = ids;
             } else if (role === 'nurse') {
-                const services = await NurseService.findAll({ where: { clinic_id, userId: req.user.id }, attributes: ['departmentId'] });
-                const [stays, assigned] = await Promise.all([
-                    Hospitalisation.findAll({ where: { clinic_id, statut: { [Op.in]: ['admis', 'sortie_demandee'] } }, attributes: ['patientId', 'nurseId'] }),
-                    PatientAssignment.findAll({ where: { clinic_id, departmentId: { [Op.in]: services.map(s => s.departmentId) }, ...activeAssignment(new Date()) }, attributes: ['patientId'] }),
-                ]);
-                req.patientAccessIds = [...new Set([...stays.map(s => s.patientId), ...assigned.map(s => s.patientId)])];
-                req.patientWriteIds = [...new Set([...stays.filter(s => s.nurseId === req.user.id).map(s => s.patientId), ...assigned.map(s => s.patientId)])];
+                // Rôle infirmier : les patients hospitalisés de la clinique ; écriture sur ceux dont il a la charge.
+                const stays = await Hospitalisation.findAll({ where: { clinic_id, statut: { [Op.in]: ['admis', 'sortie_demandee'] } }, attributes: ['patientId', 'nurseId'] });
+                req.patientAccessIds = [...new Set(stays.map(s => s.patientId))];
+                req.patientWriteIds = [...new Set(stays.filter(s => s.nurseId === req.user.id).map(s => s.patientId))];
             }
             // Un grant est toujours explicite, jamais un élargissement implicite d'un rôle.
             if (req.headers['x-exceptional-access']) {
@@ -106,7 +103,7 @@ const administrativeFields = new Set(['error','code','success','message','valid'
     'alertes','rdv','rdvId','heure','date','heureDebut','heureFin','numeroRdv','time','doctor','doctorId','medecinNom','patientNom','patientCin',
     'typeConsultation','salle','medecin','sousTotal','tva','total','assuranceTaux','assuranceMontant','resteACharge','lignes','facture',
     'factureId','sourceType','sourceId','designation','quantite','prixUnitaire','montantTotal','modePaiement','datePaiement','clinic_id',
-    'creeParUserId','estFacture','titre','format','url','face','roomKey','number','beds','price','statusFr','equipements','hospitalisation']);
+    'paiements','montant','payeur','reference','montantEncaisse','soldePatient','soldeAssurance','encaissementHistorique','alreadyPresent','arrivedAt','creeParUserId','estFacture','titre','format','url','face','roomKey','number','beds','price','statusFr','equipements','hospitalisation']);
 function administrativeResponse(value, group) {
     if (value?.toJSON) value = value.toJSON();
     if (Array.isArray(value)) return value.filter(v => group !== 'patients' || v?.type !== 'examen').map(v => administrativeResponse(v, group));

@@ -34,6 +34,7 @@ export function getMenuForRole(role) {
             { name: 'Dashboard Direction', path: '/dashboard', icon: 'LayoutDashboard' },
             { name: 'Utilisateurs', path: '/admin/users', icon: 'Users' },
             { name: 'Ma Clinique', path: '/admin/clinic', icon: 'ClipboardList' },
+            { name: 'Finances', path: '/admin/finances', icon: 'Receipt' },
             { name: 'Performance', path: '/admin/performance', icon: 'BarChart3' },
             { name: 'Absences médecins', path: '/absences', icon: 'CalendarOff' },
             { name: 'Réglages', path: '/admin/settings', icon: 'Settings' },
@@ -58,7 +59,7 @@ export function getMenuForRole(role) {
         secretary: [
             { name: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' },
             { name: 'Rendez-vous', path: '/appointments', icon: 'Calendar' },
-            { name: 'Check-in patients', path: '/checkin', icon: 'UserCheck' },
+            { name: 'Accueil / Salle d’attente', path: '/checkin', icon: 'UserCheck' },
             { name: 'Patients', path: '/patients', icon: 'Users' },
             { name: 'Admissions', path: '/secretary/admissions', icon: 'ClipboardList' },
             { name: 'Chambres', path: '/rooms', icon: 'Bed' },
@@ -79,4 +80,19 @@ export function getMenuForRole(role) {
         ]
     };
     return menus[role] || menus.secretary;
+}
+
+// Statut d'une facture pour l'affichage. Pas de paiement partiel : « partielle » signifie qu'un des deux payeurs
+// (patient ou assurance) a réglé toute sa part et que l'autre reste à encaisser.
+export function libelleStatutFacture(f) {
+    if (f?.statut === 'payee') return 'Payée';
+    if (f?.statut === 'annulee') return 'Annulée';
+    if (f?.statut === 'impayee') return 'Impayée';
+    if (f?.statut === 'partielle') {
+        const patient = Number(f.soldePatient) || 0, assurance = Number(f.soldeAssurance) || 0;
+        if (!patient && assurance) return 'Part patient réglée — assurance en attente';
+        if (patient && !assurance && Number(f.assuranceMontant) > 0) return 'Part assurance réglée — patient en attente';
+        return 'Règlement en cours';
+    }
+    return 'En attente';
 }

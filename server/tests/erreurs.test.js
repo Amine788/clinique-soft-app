@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import multer from 'multer';
-import { cheminJournal, gestionnaireErreurs } from '../middleware/erreurs.js';
+import { cheminJournal, gestionnaireErreurs, masquerErreursInternes } from '../middleware/erreurs.js';
 
 function repondre(err, t) {
     t.mock.method(console, 'error', () => {});
@@ -63,4 +63,20 @@ test('Réponse déjà commencée (flux SSE) : rien n’est renvoyé une seconde 
 
 test('Journal : CIN masqué et paramètres de requête retirés', () => {
     assert.equal(cheminJournal('/api/patients/AB123456/dossier?token=x'), '/api/patients/***/dossier');
+});
+
+test('Filet des routes : une réponse 500 ne renvoie jamais le message interne, les autres statuts sont intacts', () => {
+    const reponse = () => {
+        const res = { statusCode: 200, envoye: null, status(c) { this.statusCode = c; return this; }, json(b) { this.envoye = b; return this; } };
+        masquerErreursInternes({}, res, () => {});
+        return res;
+    };
+    let res = reponse();
+    res.status(500).json({ error: "Unknown column 'x' in 'field list'", details: 'SELECT * FROM patients' });
+    assert.deepEqual(res.envoye, { error: 'Erreur interne du serveur' });
+    for (const [statut, corps] of [[200, { ok: true }], [400, { error: 'Champs manquants' }], [503, { error: 'IA non configurée', code: 'ai_unavailable' }]]) {
+        res = reponse();
+        res.status(statut).json(corps);
+        assert.deepEqual(res.envoye, corps, String(statut));
+    }
 });

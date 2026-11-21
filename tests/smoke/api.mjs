@@ -188,7 +188,13 @@ async function main() {
     await call('JWT', 'GET', '/auth/me', { token: forgeToken({ ...me }, 'autre-secret'), expect: [401, 403], scenario: 'signature invalide' });
     await call('JWT', 'GET', '/auth/me', { token: forgeToken({ ...me, role: 'super_admin' }, 'autre-secret'), expect: [401, 403], scenario: 'rôle falsifié' });
     await call('JWT', 'GET', '/auth/me', { token: forgeToken({ ...me, iat: 1, exp: 2 }, 'autre-secret'), expect: [401, 403], scenario: 'jeton expiré' });
-    record('Déconnexion', '—', '(pas de route serveur)', 'jeton sans état : la déconnexion efface la session côté navigateur', true, 'N/A', 'vérifiée dans le test des pages');
+    // ── Déconnexion : session fermée côté serveur pour ce poste seulement ──
+    await call('Déconnexion', 'POST', '/auth/logout', { expect: 401, scenario: 'sans jeton' });
+    const posteFerme = await login('admin (poste à déconnecter)', adminEmail);
+    await call('Déconnexion', 'POST', '/auth/logout', { token: posteFerme, check: d => d?.success === true ? true : 'réponse inattendue' });
+    await call('Déconnexion', 'GET', '/auth/me', { token: posteFerme, expect: 401, scenario: 'jeton du poste déconnecté refusé' });
+    await call('Déconnexion', 'POST', '/auth/logout', { token: posteFerme, expect: 401, scenario: 'session déjà fermée' });
+    await call('Déconnexion', 'GET', '/auth/me', { token: admin, scenario: 'autre poste du même compte toujours connecté' });
 
     // ── Administration des comptes ──
     await denied('Admin comptes', 'GET', '/admin/users', null);
@@ -246,16 +252,7 @@ async function main() {
     await call('Clinique', 'POST', '/clinic/logo', { token: admin, form: multipart({}, { field: 'logo', data: Buffer.from('<svg onload=alert(1)>'), type: 'image/svg+xml', name: 'x.svg' }), expect: 400, scenario: 'type de fichier refusé (SVG)' });
     const logoUrl = logo.data?.logoUrl || logo.data?.logo || logo.data?.url;
     if (logoUrl) { const lr = await fetch(`${BASE}${logoUrl}`); record('Clinique', 'GET', '/uploads/logos/:fichier', 'logo servi publiquement', lr.status === 200, lr.status); }
-    await call('Clinique', 'GET', '/clinic/departements', { token: admin });
-    const dep = await call('Clinique', 'POST', '/clinic/departements', { token: admin, json: { nom: `Cardiologie ${RUN}`, lits: 10 }, expect: [200, 201] });
-    await call('Clinique', 'POST', '/clinic/departements', { token: admin, json: {}, expect: 400, scenario: 'nom manquant' });
-    const depId = dep.data?.id || dep.data?.departement?.id;
-    const dep2 = await call('Clinique', 'POST', '/clinic/departements', { token: admin, json: { nom: `Pédiatrie ${RUN}`, lits: 4 }, expect: [200, 201], scenario: 'second département' });
-    const dep2Id = dep2.data?.id;
-    await call('Clinique', 'PUT', `/clinic/departements/${depId}`, { token: admin, json: { nom: `Cardio ${RUN}`, lits: 12 } });
-    await call('Clinique', 'PATCH', `/clinic/departements/${depId}/toggle`, { token: admin });
-    await call('Clinique', 'PUT', '/clinic/departements/999999', { token: admin, json: { nom: 'x' }, expect: 404, scenario: 'inexistant' });
-    await call('Clinique', 'POST', '/clinic/departements', { token: tDoc, json: { nom: 'x' }, expect: 403, scenario: 'mauvais rôle' });
+    await call('Clinique', 'GET', '/clinic/departements', { token: admin, expect: 404, scenario: 'départements retirés : une seule clinique, une seule équipe' });
 
     // ── Chambres ──
     await denied('Chambres', 'GET', '/rooms', tPha);
@@ -368,20 +365,18 @@ async function main() {
     await call('Absences', 'PATCH', `/absences/${absId}`, { token: tSec, json: { statut: 'peut-etre' }, expect: 400, scenario: 'statut invalide' });
     await call('Absences', 'PATCH', '/absences/999999', { token: tSec, json: { statut: 'validee' }, expect: 404, scenario: 'inexistante' });
 
-    // Périmètre infirmier (voulu) : patients hospitalisés ou affectés à son service → l'admin affecte
-    await call('Accès patients', 'POST', '/patient-access/nurse-services', { token: admin, json: { userId: nurse.id, departmentId: depId }, expect: [200, 201] });
-    const asg = await call('Accès patients', 'POST', '/patient-access/assignments', { token: admin, json: { patientId: patientNum, departmentId: depId, kind: 'service', startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 86400000).toISOString(), reason: 'Affectation au service (test smoke)' }, expect: 201, scenario: 'affectation au service' });
+    // Périmètre infirmier (rôle) : patients hospitalisés uniquement ; ce patient de consultation n'est pas hospitalisé
     // ── Infirmerie : file, constantes ──
     await denied('Infirmerie', 'GET', '/nurse/queue', tPha);
     await call('Infirmerie', 'GET', '/nurse/queue', { token: tNur });
-    await call('Infirmerie', 'POST', '/nurse/vitals', { token: tNur, json: { rdvId: rdvTodayId, vitals: { temperature: 37.2, tension: '12/8', pouls: 72, saturation: 98 } }, expect: [200, 201] });
+    await call('Infirmerie', 'POST', '/nurse/vitals', { token: tNur, json: { rdvId: rdvTodayId, vitals: { temperature: 37.2, tension: '12/8', pouls: 72, saturation: 98 } }, expect: 404, scenario: 'patient non hospitalisé : hors périmètre du rôle infirmier' });
     await call('Infirmerie', 'POST', '/nurse/vitals', { token: tNur, json: {}, expect: [400, 404], scenario: 'données manquantes' });
     await call('Infirmerie', 'GET', `/nurse/vitals-history/${cin}`, { token: tNur });
     const dossier = patientId;
-    await call('Infirmerie', 'GET', `/nurse/patient-by-dossier/${dossier}`, { token: tNur });
+    await call('Infirmerie', 'GET', `/nurse/patient-by-dossier/${dossier}`, { token: tNur, expect: 404, scenario: 'patient non hospitalisé : hors périmètre du rôle infirmier' });
     await call('Infirmerie', 'GET', '/nurse/patient-by-dossier/PAT-0000-99999', { token: tNur, expect: 404, scenario: 'dossier inexistant' });
     await call('Infirmerie', 'GET', '/nurse/scan/jeton-inconnu', { token: tNur, expect: [400, 404], scenario: 'QR inconnu' });
-    await call('Infirmerie', 'POST', '/nurse/alert', { token: tNur, json: { patientId: patientNum, patientName: 'Smoke Patient', message: 'Alerte smoke', urgency: 'haute' }, expect: [200, 201] });
+    await call('Infirmerie', 'POST', '/nurse/alert', { token: tNur, json: { patientId: patientNum, patientName: 'Smoke Patient', message: 'Alerte smoke', urgency: 'haute' }, expect: 404, scenario: 'patient non hospitalisé : hors périmètre du rôle infirmier' });
     await call('Infirmerie', 'POST', '/nurse/alert', { token: tNur, json: {}, expect: 400, scenario: 'message manquant' });
 
     // ── Examens ──
@@ -429,7 +424,7 @@ async function main() {
     await call('Circuit médicament', 'GET', '/nurse/medications', { token: tPha });
     await call('Circuit médicament', 'POST', `/nurse/prescriptions/${prescId}/advance`, { token: tPha, json: { nextStatus: 'preparee' }, expect: [200, 400, 409], scenario: 'étape suivante' });
     await call('Circuit médicament', 'POST', `/nurse/prescriptions/${prescId}/deliver`, { token: tPha, expect: [200, 400, 409] });
-    await call('Circuit médicament', 'POST', `/nurse/prescriptions/${prescId}/administer`, { token: tNur, json: { itemId: 1, slotIndex: 0, done: true }, expect: [200, 400, 409] });
+    await call('Circuit médicament', 'POST', `/nurse/prescriptions/${prescId}/administer`, { token: tNur, json: { itemId: 1, slotIndex: 0, done: true }, expect: 404, scenario: 'patient non hospitalisé : hors périmètre du rôle infirmier' });
     await call('Circuit médicament', 'POST', '/nurse/prescriptions/999999/deliver', { token: tPha, expect: 404, scenario: 'inexistante' });
     await call('Circuit médicament', 'POST', `/nurse/prescriptions/${prescId}/administer`, { token: tPha, json: {}, expect: 403, scenario: 'mauvais rôle' });
     await call('Pharmacie', 'DELETE', `/pharmacy/products/${code}`, { token: tPha });
@@ -495,10 +490,7 @@ async function main() {
     // ── Accès aux dossiers (affectations, accès exceptionnels, journal) ──
     await call('Accès patients', 'POST', '/patient-access/assignments', { token: admin, json: {}, expect: 400, scenario: 'données manquantes' });
     await call('Accès patients', 'POST', '/patient-access/assignments', { token: tSec, json: { patientId }, expect: 403, scenario: 'mauvais rôle' });
-    const asgId = asg.data?.id || asg.data?.assignment?.id;
-    if (asgId) await call('Accès patients', 'POST', `/patient-access/assignments/${asgId}/revoke`, { token: admin });
-    // Affectation maintenue : le test des pages ouvre le dossier en tant qu'infirmier (périmètre du service)
-    await call('Accès patients', 'POST', '/patient-access/assignments', { token: admin, json: { patientId: patientNum, departmentId: depId, kind: 'service', startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 86400000).toISOString(), reason: 'Affectation maintenue (test des pages)' }, expect: 201, scenario: 'nouvelle affectation au service' });
+    await call('Accès patients', 'POST', '/patient-access/assignments', { token: admin, json: { patientId: patientNum, kind: 'service', startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 86400000).toISOString(), reason: 'Affectation au service (retirée)' }, expect: 403, scenario: 'affectation à un service retirée' });
     const exc = await call('Accès patients', 'POST', '/patient-access/exceptional-access/requests', { token: admin, json: { patientId: patientNum, justification: 'Urgence vitale : patient inconscient, test de fumée NextClinic', scopes: ['patients'] }, expect: [200, 201] });
     await call('Accès patients', 'GET', '/patient-access/exceptional-access/requests', { token: tDoc });
     const excId = exc.data?.id || exc.data?.request?.id;
@@ -511,11 +503,7 @@ async function main() {
     await call('Accès patients', 'GET', '/patient-access/audit', { token: tDoc, scenario: 'médecin : ses propres accès' });
     await call('Accès patients', 'GET', '/patient-access/audit', { token: admin, expect: 403, scenario: 'admin sans habilitation de responsable (voulu)' });
     await call('Accès patients', 'GET', '/patient-access/audit', { expect: 401, scenario: 'sans jeton' });
-    const ns2 = await call('Accès patients', 'POST', '/patient-access/nurse-services', { token: admin, json: { userId: nurse.id, departmentId: dep2Id }, expect: [200, 201], scenario: 'second service' });
-    if (ns2.data?.id) await call('Accès patients', 'DELETE', `/patient-access/nurse-services/${ns2.data.id}`, { token: admin });
-    await call('Clinique', 'DELETE', `/clinic/departements/${dep2Id}`, { token: admin });
-    await call('Clinique', 'DELETE', '/clinic/departements/999999', { token: admin, expect: 404, scenario: 'inexistant' });
-    await call('Accès patients', 'DELETE', '/patient-access/nurse-services/999999', { token: admin, expect: [200, 404], scenario: 'inexistant (suppression idempotente)' });
+    await call('Accès patients', 'POST', '/patient-access/nurse-services', { token: admin, json: { userId: nurse.id, departmentId: 1 }, expect: 404, scenario: 'affectation des infirmiers aux services retirée' });
     await call('Accès patients', 'GET', `/patient-access/authored/${patientNum}`, { token: tDoc });
     await call('Accès patients', 'GET', `/patient-access/authored/${patientNum}`, { token: tSec, expect: 403, scenario: 'mauvais rôle' });
 
@@ -524,7 +512,7 @@ async function main() {
     await call('IA', 'POST', '/ai/patient-summary', { token: tDoc, json: {}, expect: 400, scenario: 'patientId manquant' });
     await call('IA', 'POST', '/ai/chat', { token: tDoc, json: { message: 'Bonjour' }, expect: [200, 503], scenario: 'sans clé API : 503 propre' });
     await call('IA', 'POST', '/ai/chat', { token: tDoc, json: {}, expect: 400, scenario: 'message manquant' });
-    await call('IA', 'POST', '/ai/ocr-cin', { token: tSec, json: { imageBase64: PNG.toString('base64'), mimeType: 'image/png' }, expect: [200, 503], scenario: 'sans clé API : 503 propre' });
+    await call('IA', 'POST', '/ai/ocr-cin', { token: tSec, json: { imageBase64: PNG.toString('base64'), mimeType: 'image/png' }, expect: 410, scenario: 'ancienne API OCR retirée : lecture locale Tesseract.js' });
     await call('IA', 'POST', '/ai/ocr-cin', { token: tNur, json: {}, expect: 403, scenario: 'mauvais rôle' });
     await call('IA', 'POST', '/ai/chat', { json: { message: 'x' }, expect: 401, scenario: 'sans jeton' });
 

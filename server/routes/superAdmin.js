@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateJWT, authorizeRole } from '../middleware/auth.js';
-import { User, Clinic, Medecin, Absence, Departement, Chambre, ProduitPharmacie } from '../models/index.js';
+import { User, Clinic, Medecin, Absence, Chambre, ProduitPharmacie } from '../models/index.js';
 import { cliniqueAvecDonnees } from '../services/historique.js';
 import sequelize from '../config/database.js';
 import { Op } from 'sequelize';
@@ -8,6 +8,9 @@ import { trialEndFor, MAX_TRIAL_EXTENSION_HOURS } from '../config/trial.js';
 import { clinicSocket } from '../socket/clinicSocket.js';
 
 const router = Router();
+
+// Enfants d'abord : ces tables référencent « departements »
+const ANCIENNES_TABLES_DEPARTEMENTS = ['staff_departments', 'doctor_departments', 'clinic_services', 'nurse_service_memberships', 'departements'];
 
 // Toutes les routes nécessitent d'être connecté en tant que super_admin
 router.use(authenticateJWT, authorizeRole('super_admin'));
@@ -194,7 +197,11 @@ router.delete('/clinics/:id', async (req, res) => {
         const medecins = await Medecin.findAll({ where, attributes: ['id'], transaction: t });
         await Absence.destroy({ where: { medecinId: medecins.map(m => m.id) }, transaction: t });
         await Medecin.destroy({ where, transaction: t });
-        await Departement.destroy({ where, transaction: t });
+        // Anciennes tables de départements (plus gérés) : seulement si une base existante les contient encore
+        const tables = new Set((await sequelize.getQueryInterface().showAllTables({ transaction: t })).map(n => typeof n === 'string' ? n : n.tableName));
+        for (const table of ANCIENNES_TABLES_DEPARTEMENTS.filter(n => tables.has(n))) {
+            await sequelize.query(`DELETE FROM \`${table}\` WHERE clinic_id = ?`, { replacements: [clinicId], transaction: t });
+        }
         await Chambre.destroy({ where, transaction: t });
         await ProduitPharmacie.destroy({ where, transaction: t });
         await User.destroy({ where, transaction: t });

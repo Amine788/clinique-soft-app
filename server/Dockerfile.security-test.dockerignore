@@ -24,3 +24,5 @@
 !database/migrations/
 !database/migrations/010_access_columns.js
 !database/migrations/011_audit_protection.js
+!database/migrations/012_departments.js
+!database/migrations/013_organisation_finance.js

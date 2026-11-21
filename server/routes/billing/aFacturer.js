@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import { accessQuery, scopedByPk } from '../../services/patientAccess.js';
 import { authenticateJWT, authorizeRole } from '../../middleware/auth.js';
-import { Patient } from '../../models/index.js';
+import { Facture, LigneFacture, Patient } from '../../models/index.js';
 import { Op } from 'sequelize';
 import { parseMedicaments } from '../../services/posologie.js';
 import { inClinic } from '../../services/tenant.js';
@@ -163,9 +163,13 @@ router.get('/pending/:cin', authenticateJWT, authorizeRole('secretary', 'admin')
             });
         }
 
+        // Exclure aussi les anciennes sources déjà présentes sur une facture en attente.
+        const billed = await LigneFacture.findAll({ include: [{ model: Facture, required: true, where: inClinic(req, { patientId: patient.id, statut: { [Op.ne]: 'annulee' } }) }], attributes: ['sourceType', 'sourceId'] });
+        const used = new Set(billed.map(l => l.sourceType + ':' + l.sourceId));
+        const available = lignesPending.filter(l => !used.has(l.sourceType + ':' + l.sourceId));
         res.json({
             patient: { nom: patient.nom, prenom: patient.prenom, cin: patient.cinNumero },
-            lignes: lignesPending
+            lignes: available
         });
 
     } catch (error) {

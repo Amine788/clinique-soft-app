@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
+import { useSocket } from '../hooks/useSocket';
 import toast from 'react-hot-toast';
 import { CreditCard, Search, CheckCircle, AlertTriangle, Clock, User, Stethoscope, XCircle, QrCode, RefreshCw, LogIn } from 'lucide-react';
 
@@ -16,8 +17,8 @@ export default function CheckinPage() {
     const fetchExpected = useCallback(async () => {
         setFetching(true);
         try {
-            const today = new Date().toISOString().split('T')[0];
-            const { data } = await api.get(`/appointments?date=${today}`);
+            const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+            const { data } = await api.get('/appointments', { params: { date: today } });
             // Filter only those who haven't arrived yet
             setExpectedToday(data.filter(a => a.status === 'planifie' || a.status === 'confirme'));
             // Also update current queue (those who have arrived)
@@ -29,14 +30,15 @@ export default function CheckinPage() {
         }
     }, []);
 
+    useSocket({ queue_updated: fetchExpected });
     useEffect(() => {
         fetchExpected();
         // Refresh every 2 minutes
-        const timer = setInterval(fetchExpected, 120000);
+        const timer = setInterval(fetchExpected, 15000);
         return () => clearInterval(timer);
     }, [fetchExpected]);
 
-    const handleCheckin = async (providedCin) => {
+    const handleCheckin = async (providedCin, rdvId) => {
         const targetCin = (providedCin || cin).toUpperCase();
         if (!CIN_REGEX.test(targetCin)) {
             toast.error('Format CIN invalide');
@@ -45,7 +47,7 @@ export default function CheckinPage() {
 
         setLoading(true);
         try {
-            const { data } = await api.post('/patients/checkin', { cin: targetCin, mode: 'saisie_cin' });
+            const { data } = await api.post('/patients/checkin', { cin: targetCin, mode: 'saisie_cin', rdvId });
             setResult(data);
             toast.success(`✅ ${data.patient.name} pointé avec succès !`);
             setCin('');
@@ -159,7 +161,7 @@ export default function CheckinPage() {
                                             </div>
                                         </div>
                                         <button 
-                                            onClick={() => handleCheckin(rdv.patientCin)}
+                                            onClick={() => handleCheckin(rdv.patientCin, rdv.id)}
                                             className="p-2 bg-gray-100 text-gray-500 hover:bg-success hover:text-white rounded-lg transition-all"
                                             title="Pointer l'arrivée"
                                         >
@@ -199,7 +201,7 @@ export default function CheckinPage() {
                                         <div className="text-sm font-bold text-gray-900 truncate">{p.patient}</div>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 uppercase">
-                                                {p.status === 'arrive' ? 'À l\'infirmerie' : p.status === 'pret' ? 'Prêt pour consultation' : 'En consultation'}
+                                                {p.status === 'arrive' ? 'En salle d’attente' : p.status === 'pret' ? 'Prêt pour consultation' : 'En consultation'}
                                             </span>
                                             <span className="text-[10px] text-muted">{p.time}</span>
                                         </div>

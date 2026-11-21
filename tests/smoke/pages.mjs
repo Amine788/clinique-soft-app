@@ -19,7 +19,7 @@ const STATE = JSON.parse(readFileSync(process.env.SMOKE_STATE || 'smoke-state.js
 const REPORT_FILE = process.env.SMOKE_PAGES_REPORT || '';
 const WAIT = Number(process.env.SMOKE_PAGE_WAIT_MS || 3000);
 const DEUX_DOMAINES = process.env.SMOKE_DEUX_DOMAINES === '1';
-const PORT = 9339;
+const PORT = Number(process.env.SMOKE_CHROME_PORT || 9339);
 const CHROME = process.env.CHROME_PATH || [
     'C:/Program Files/Google/Chrome/Application/chrome.exe',
     '/usr/bin/google-chrome', '/usr/bin/chromium', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -32,7 +32,8 @@ const PAGES = [
     ['/dashboard', CLINIC],
     ['/patients', ['secretary', 'doctor', 'admin', 'nurse']],
     ['/patients/create', ['secretary', 'doctor', 'admin']],
-    [`/patients/${STATE.patientId}/profil`, ['secretary', 'doctor', 'admin', 'nurse']],
+    // Infirmier : uniquement les patients hospitalisés ; le patient du test est un patient de consultation
+    [`/patients/${STATE.patientId}/profil`, ['secretary', 'doctor', 'admin']],
     ['/checkin', ['secretary', 'admin']],
     ['/absences', ['secretary', 'admin']],
     ['/secretary/admissions', ['secretary', 'admin']],
@@ -257,8 +258,11 @@ async function main() {
             await c.send('Page.navigate', { url: FRONT + '/dashboard' });
             await sleep(1500);
             const { result: r2 } = await c.send('Runtime.evaluate', { expression: 'location.pathname', returnByValue: true });
-            const ok = after.path === '/login' && !after.auth && r2.value === '/login';
-            record('Déconnexion (bouton du menu)', 'admin', ok, [], ok ? 'session effacée, /dashboard renvoie vers /login' : `chemin=${after.path} jeton=${after.auth ? 'présent' : 'absent'} puis ${r2.value}`);
+            // La session est aussi fermée côté serveur : l'ancien jeton, même copié, est refusé
+            const ancienJeton = (await fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${sessions.admin.state.token}` } })).status;
+            const ok = after.path === '/login' && !after.auth && r2.value === '/login' && ancienJeton === 401;
+            record('Déconnexion (bouton du menu)', 'admin', ok, [], ok ? 'session effacée et fermée côté serveur (ancien jeton : 401), /dashboard renvoie vers /login'
+                : `chemin=${after.path} jeton=${after.auth ? 'présent' : 'absent'} puis ${r2.value} ; ancien jeton : ${ancienJeton}`);
             await closeTab(c);
         }
     } finally {

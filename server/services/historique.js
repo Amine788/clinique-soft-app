@@ -7,6 +7,7 @@ import {
     HospitalisationVital, HospitalisationAlerte, ExamenPatient, Absence, Medecin,
 } from '../models/index.js';
 import { Prescription } from '../routes/prescriptions.js';
+import { BillingPayment } from '../models/billingPayment.js';
 
 const auMoinsUn = async requetes => (await Promise.all(requetes)).some(n => n > 0);
 
@@ -19,6 +20,7 @@ export async function compteAvecHistorique(user) {
         RendezVous.count({ where: { pointePar: user.id } }),
         Pointage.count({ where: { pointePar: user.id } }),
         Facture.count({ where: { creeParUserId: user.id } }),
+        BillingPayment.count({ where: { creeParUserId: user.id } }),
         Hospitalisation.count({ where: { nurseId: user.id } }),
         HospitalisationSoin.count({ where: { realisePar: user.id } }),
         HospitalisationVital.count({ where: { prisPar: user.id } }),

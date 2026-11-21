@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PatientAssignment, NurseService, ClinicResponsibility, ExceptionalGrant, AccessAudit } from '../models/access.js';
+import { PatientAssignment, ClinicResponsibility, ExceptionalGrant, AccessAudit } from '../models/access.js';
 
 test('Accès : les identifiants de clinique, patient et auteur utilisent des colonnes SQL distinctes', () => {
-    for (const model of [PatientAssignment, NurseService, ClinicResponsibility, ExceptionalGrant, AccessAudit]) {
+    for (const model of [PatientAssignment, ClinicResponsibility, ExceptionalGrant, AccessAudit]) {
         const attributes = Object.values(model.rawAttributes);
         const fields = attributes.map(attribute => attribute.field);
         assert.equal(new Set(fields).size, fields.length, `${model.name} : plusieurs attributs partagent une colonne`);

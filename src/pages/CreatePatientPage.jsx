@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
-import { reduireImage, estImageOcr } from '../utils/image';
+import { reduireImage } from '../utils/image';
+import { extractCin } from '../utils/cinOcr';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
@@ -14,7 +15,7 @@ const BASE_URL = window.location.origin;
 
 export default function CreatePatientPage() {
     const navigate = useNavigate();
-    // L'OCR (POST /ai/ocr-cin) n'est autorisé côté serveur qu'au rôle secretary
+    // Lecture locale de la CIN, sans clé API.
     const canEditMedical = useAuthStore(s => s.user?.role) === 'doctor';
     const canUseOcr = useAuthStore(s => s.user?.role) === 'secretary';
     const [searchParams] = useSearchParams();
@@ -26,6 +27,40 @@ export default function CreatePatientPage() {
     const [scanVerso, setScanVerso] = useState(null);
     const [ocrData, setOcrData] = useState(null);
     const [ocrLoading, setOcrLoading] = useState(false);
+    const [ocrProgress, setOcrProgress] = useState(0);
+    const [ocrError, setOcrError] = useState(null);
+    const ocrController = useRef(null);
+    useEffect(() => () => ocrController.current?.abort(), []);
+    const resetOcr = () => { ocrController.current?.abort(); ocrController.current = null; setOcrData(null); setOcrLoading(false); setOcrError(null); };
+    const handleOcr = async () => {
+        ocrController.current?.abort();
+        const controller = new AbortController();
+        ocrController.current = controller;
+        setOcrData(null); setOcrLoading(true); setOcrProgress(0); setOcrError(null);
+        const timeout = setTimeout(() => controller.abort(), 120000);
+        try {
+            const data = await extractCin(scanRecto, { signal: controller.signal, onProgress: setOcrProgress });
+            if (!controller.signal.aborted) {
+                setOcrData(data);
+                setForm(previous => ({ ...previous,
+                    nom: data.nom || previous.nom, prenom: data.prenom || previous.prenom,
+                    dateNaissance: data.dateNaissance || previous.dateNaissance,
+                    sexe: data.sexe || previous.sexe, ville: data.lieuNaissance || previous.ville,
+                    address: data.adresse || previous.address, cinExpiration: data.dateExpiration || previous.cinExpiration,
+                }));
+                if (!data.nombreChamps) { const message = 'Du texte a été lu, mais aucun champ de la CIN n’a été identifié. Recadrez la carte ou consultez le texte reconnu.'; setOcrError(message); toast.error(message); }
+                else toast.success(data.nombreChamps + ' champs reconnus. Vérifiez-les avant de remplir le dossier.');
+            }
+        } catch (error) {
+            if (ocrController.current === controller) {
+                const message = error.name === 'AbortError' ? 'Lecture interrompue. Vous pouvez réessayer ou saisir les champs à la main.' : error.message || 'Lecture OCR indisponible. Réessayez ou saisissez les champs à la main.';
+                setOcrError(message); toast.error(message);
+            }
+        } finally {
+            clearTimeout(timeout);
+            if (ocrController.current === controller) setOcrLoading(false);
+        }
+    };
     const [form, setForm] = useState({
         nom: '', prenom: '', dateNaissance: '', sexe: 'M', telephone: '', email: '',
         address: '', ville: '', bloodType: '', insurance: '', cinExpiration: '',
@@ -68,7 +103,8 @@ export default function CreatePatientPage() {
 
     // Upload scan
     const handleScanUpload = async (original, face) => {
-        // Photo réduite une fois : même image pour l'archivage et pour l'OCR (V3)
+        if (face === 'recto') resetOcr();
+        // Même image pour l’archivage et la lecture locale.
         let file = original;
         try { file = await reduireImage(original); } catch { /* image illisible par le navigateur : envoyée telle quelle */ }
         if (face === 'recto') setScanRecto(file);
@@ -80,7 +116,7 @@ export default function CreatePatientPage() {
         formData.append('scan', file);
 
         try {
-            await api.post(`/patients/${cin.toUpperCase()}/upload-scan`, formData);
+            await api.post(`/patients/${cin.toUpperCase()}/upload-scan`, formData, { headers: { 'Content-Type': undefined } });
             toast.success(`Scan ${face} uploadé avec succès`);
         } catch (err) {
             console.error("Upload Error:", err);
@@ -279,7 +315,7 @@ export default function CreatePatientPage() {
                                         <img src={URL.createObjectURL(scanRecto)} alt="Recto" className="max-h-full object-contain" />
                                     </div>
                                     <p className="text-xs text-success font-semibold">✅ Scan reçu — {(scanRecto.size / 1024).toFixed(0)} KB</p>
-                                    <button onClick={() => setScanRecto(null)} className="text-xs text-danger hover:underline">Supprimer et re-uploader</button>
+                                    <button onClick={() => { resetOcr(); setScanRecto(null); }} className="text-xs text-danger hover:underline">Supprimer et re-uploader</button>
                                 </div>
                             ) : (
                                 <label className="cursor-pointer block">
@@ -317,59 +353,14 @@ export default function CreatePatientPage() {
 
                     <p className="text-xs text-muted">Formats acceptés : JPG, PNG, PDF — Max 5 MB</p>
 
-                    {/* OCR IA */}
+                    {/* OCR local Tesseract.js */}
                     {scanRecto && canUseOcr && (
                         <div className="bg-primary-light/30 border border-primary/20 rounded-2xl p-4">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-primary mb-2">
-                                <Sparkles size={16} /> Extraction intelligente du texte (IA)
-                            </div>
-                            <p className="text-xs text-muted mb-3">L'IA analyse l'image pour extraire précisément toutes les données de la carte d'identité.</p>
-                            <button disabled={ocrLoading} onClick={async () => {
-                                if (!estImageOcr(scanRecto)) {
-                                    return toast.error("L'extraction IA nécessite une photo (JPEG, PNG ou WebP), pas un PDF.");
-                                }
-                                setOcrLoading(true);
-                                try {
-                                    toast("Analyse de l'image par l'IA en cours...", { icon: "🤖" });
-
-                                    // Convertir le fichier en Base64
-                                    const reader = new FileReader();
-                                    reader.readAsDataURL(scanRecto);
-                                    reader.onload = async () => {
-                                        const base64Str = reader.result.split(',')[1];
-
-                                        try {
-                                            // L'analyse par l'IA dépasse souvent les 10 s par défaut du client (V2)
-                                            const res = await api.post('/ai/ocr-cin', {
-                                                imageBase64: base64Str,
-                                                mimeType: scanRecto.type
-                                            }, { timeout: 60000 });
-
-                                            if (res.data.success && res.data.data) {
-                                                setOcrData(res.data.data);
-                                                toast.success("Données extraites avec succès ! Vérifiez les champs.");
-                                            } else {
-                                                toast.error("L'IA n'a pas pu structurer les données.");
-                                            }
-                                        } catch (apiErr) {
-                                            console.error("API OCR Error:", apiErr);
-                                            toast.error(apiErr.response?.data?.error || "Erreur lors de la connexion au serveur IA");
-                                        } finally {
-                                            setOcrLoading(false);
-                                        }
-                                    };
-                                    reader.onerror = () => {
-                                        toast.error("Erreur de lecture de l'image");
-                                        setOcrLoading(false);
-                                    };
-                                } catch (err) {
-                                    toast.error("Erreur inattendue");
-                                    console.error("OCR error:", err);
-                                    setOcrLoading(false);
-                                }
-                            }} className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm transition flex items-center gap-2 disabled:opacity-60">
-                                {ocrLoading ? <span className="animate-spin">⏳</span> : <Sparkles size={14} />}
-                                {ocrLoading ? "Analyse par IA en cours..." : "Lancer l'Extraction IA"}
+                            <h3 className="text-sm font-semibold text-primary mb-2">Lecture de la CIN — Tesseract.js</h3>
+                            <p className="text-xs text-muted mb-3">OCR gratuit et open source, exécuté dans votre navigateur. Vérifiez les informations reconnues avant de remplir le dossier.</p>
+                            {ocrError && <p role="alert" className="text-danger text-sm mb-3">{ocrError}</p>}
+                            <button disabled={ocrLoading} onClick={handleOcr} className="btn btn-primary disabled:opacity-60">
+                                {ocrLoading ? (ocrProgress ? 'Lecture en cours… ' + ocrProgress + ' %' : 'Chargement du moteur OCR…') : 'Extraire les informations de la CIN'}
                             </button>
                         </div>
                     )}
@@ -377,9 +368,9 @@ export default function CreatePatientPage() {
                     {/* Résultat OCR */}
                     {ocrData && (
                         <div className="bg-white border border-success/30 rounded-2xl p-4">
-                            <div className="flex items-center gap-2 text-sm font-bold text-success mb-3"><Sparkles size={16} /> Données extraites de la carte</div>
+                            <div className="flex items-center gap-2 text-sm font-bold text-success mb-3"><Sparkles size={16} /> Données extraites de la carte — {ocrData.nombreChamps} champs</div>
                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div><span className="text-muted">CIN :</span> <span className="font-bold">{ocrData.cin}</span> {ocrData.cin?.toUpperCase() === cin ? <span className="text-success text-xs">✅ Correspond</span> : <span className="text-danger text-xs">❌ Différent du CIN saisi</span>}</div>
+                                <div><span className="text-muted">CIN :</span> <span className="font-bold">{ocrData.cin}</span> {!ocrData.cin ? <span className="text-warning text-xs">Non reconnu — à vérifier sur la carte</span> : ocrData.cin.toUpperCase() === cin ? <span className="text-success text-xs">✅ Correspond</span> : <span className="text-danger text-xs">❌ Différent du CIN saisi</span>}</div>
                                 <div><span className="text-muted">Nom :</span> <span className="font-bold">{ocrData.nom} {ocrData.prenom}</span></div>
                                 <div><span className="text-muted">Naissance :</span> <span className="font-bold">{ocrData.dateNaissance || '—'}</span></div>
                                 <div><span className="text-muted">Sexe :</span> <span className="font-bold">{ocrData.sexe || '—'}</span></div>
@@ -388,7 +379,9 @@ export default function CreatePatientPage() {
                                 {ocrData.adresse && <div className="col-span-2"><span className="text-muted">Adresse :</span> <span className="font-bold">{ocrData.adresse}</span></div>}
                                 {ocrData.confiance && <div className="col-span-2"><span className="text-muted">Confiance :</span> <span className={`font-bold ${ocrData.confiance >= 0.8 ? 'text-success' : 'text-warning'}`}>{Math.round(ocrData.confiance * 100)}%</span></div>}
                             </div>
-                            <button onClick={() => {
+                            <details className="mt-3 text-sm"><summary className="cursor-pointer">Voir le texte reconnu</summary><pre className="mt-2 whitespace-pre-wrap break-words">{ocrData.texte}</pre></details>
+                            {ocrData.cin && ocrData.cin !== cin && <p role="alert" className="text-danger text-sm mt-2">Le numéro reconnu diffère de la CIN saisie. Vérifiez la carte avant de poursuivre.</p>}
+                            <button disabled={!ocrData.nombreChamps || Boolean(ocrData.cin && ocrData.cin !== cin)} onClick={() => {
                                 setForm(f => ({
                                     ...f,
                                     nom: ocrData.nom || f.nom,
@@ -410,7 +403,7 @@ export default function CreatePatientPage() {
                     <div className="flex justify-between">
                         <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-muted hover:text-gray-700"><ChevronLeft size={16} /> Retour</button>
                         <button onClick={() => setStep(3)} disabled={!scanRecto} className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl text-sm transition shadow-md shadow-primary/25 disabled:opacity-40">
-                            Continuer <ChevronRight size={16} />
+                            {ocrData?.nombreChamps ? 'Continuer vers les informations préremplies' : 'Continuer'} <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
@@ -582,6 +575,7 @@ export default function CreatePatientPage() {
                             </p>
                         </div>
 
+                        <button className="btn btn-primary w-full mb-3" onClick={() => navigate('/checkin?cin=' + encodeURIComponent(createdPatient.cin))}>Accueillir ce patient / Salle d’attente</button>
                         {/* Actions */}
                         <div className="flex flex-wrap gap-3 justify-center w-full">
                             <button

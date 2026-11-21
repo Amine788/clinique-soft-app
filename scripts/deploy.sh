@@ -45,10 +45,11 @@ log "Compte limité de l'API (db-app-account)"
 
 log "Redémarrage de l'API et du proxy"
 "${DC[@]}" up -d --wait
+controle_public
+
 echo "$APP_VERSION" > "$ETAT_DIR/.app-version"
 printf '%s\t%s\tcommit %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$APP_VERSION" "$COMMIT" >> "$ETAT_DIR/deploiements.log"
 "${DC[@]}" ps --format '{{.Service}}\t{{.Status}}'
-controle_public
 
 log "Nettoyage : 5 dernières versions des images conservées"
 for image in nextclinic-api nextclinic-web; do

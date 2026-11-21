@@ -5,6 +5,8 @@ import sequelize from '../config/database.js';
 // FACTURE — ✅ clinic_id / isolation multi-tenant
 // ============================================================
 export const Facture = sequelize.define('Facture', {
+    creationKey: { type: DataTypes.STRING(80), field: 'creation_key' },
+    creationFingerprint: { type: DataTypes.STRING(64), field: 'creation_fingerprint' },
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     clinic_id: { type: DataTypes.INTEGER, allowNull: true, field: 'clinic_id' },
     numero: { type: DataTypes.STRING(20), unique: true, field: 'numero_facture' },
@@ -29,5 +31,6 @@ export const Facture = sequelize.define('Facture', {
     createdAt: { type: DataTypes.DATE, field: 'created_at' },
     updatedAt: { type: DataTypes.DATE, field: 'updated_at' }
 }, { 
-    tableName: 'factures'
+    tableName: 'factures',
+    indexes: [{ name: 'invoice_creation_key', unique: true, fields: ['clinic_id', 'creation_key'] }]
 });

@@ -15,6 +15,7 @@ export default function ConsultationPage() {
     const [rdv, setRdv] = useState(null);
     const [patient, setPatient] = useState(null);
     const [loadingDossier, setLoadingDossier] = useState(true);
+    const [dossierError, setDossierError] = useState(null);
 
     // Ordonnance
     const [medicamentInput, setMedicamentInput] = useState('');
@@ -79,26 +80,23 @@ export default function ConsultationPage() {
     });
 
     useEffect(() => {
-        // Charger le RDV
-        api.get(`/appointments/${rdvId}`)
-            .then(r => {
-                setRdv(r.data);
-                const cin = r.data.patientCin || r.data.patient?.cin?.numero;
-                if (cin) {
-                    // Ne pas retourner la promesse, gérer son propre catch pour éviter de passer en mode DEMO si le check-cin échoue
-                    api.get(`/patients/check-cin/${cin}`)
-                        .then(resp => {
-                            if (resp.data.patient) setPatient(resp.data.patient);
-                        })
-                        .catch(err => console.error("ConsultationPage check-cin error:", err));
+        let active = true;
+        setLoadingDossier(true);
+        setDossierError(null);
+        (async () => {
+            try {
+                const { data: visit } = await api.get(`/appointments/${rdvId}`);
+                const { data: dossier } = await api.get(`/patients/check-cin/${visit.patientCin}`);
+                if (!dossier.patient) throw new Error('Dossier patient introuvable');
+                if (['arrive', 'pret'].includes(visit.statut)) {
+                    await api.put(`/appointments/${rdvId}/status`, { status: 'en_cours' });
+                    visit.statut = 'en_cours';
                 }
-            })
-            .catch(err => {
-                console.error("ConsultationPage get rdv error:", err);
-                // RDV non trouvé : mode démo avec données fictives
-                setRdv({ id: rdvId, patientCin: 'DEMO', patientNom: 'Patient Demo', typeConsultation: 'Consultation', motif: 'Consultation de démonstration' });
-            })
-            .finally(() => setLoadingDossier(false));
+                if (active) { setRdv(visit); setPatient(dossier.patient); }
+            } catch (error) {
+                if (active) setDossierError(error.response?.data?.error || error.message || 'Consultation indisponible');
+            } finally { if (active) setLoadingDossier(false); }
+        })();
 
         // Charger le catalogue d'examens
         api.get('/examens/catalog').then(r => setExamensCatalog(r.data)).catch(() => { });
@@ -106,7 +104,8 @@ export default function ConsultationPage() {
         // Charger les infos de la clinique
         api.get('/clinic').then(r => setClinicInfo(r.data)).catch(() => { });
 
-    }, [rdvId, patient?.id]);
+        return () => { active = false; };
+    }, [rdvId]);
 
 
     const fetchExamHistory = useCallback(() => {
@@ -238,6 +237,8 @@ export default function ConsultationPage() {
 
     const patientNom = patient ? `${patient.prenom} ${patient.nom}` : rdv?.patientNom || 'Patient';
     const patientCin = patient?.cin?.numero || rdv?.patientCin || '—';
+
+    if (dossierError) return <div role="alert" className="card p-6 space-y-4"><p>{dossierError}</p><button className="btn btn-outline" onClick={() => navigate('/dashboard')}>Retour au tableau de bord</button></div>;
 
     return (
         <div className="space-y-5 max-w-4xl mx-auto">

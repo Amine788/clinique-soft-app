@@ -7,7 +7,8 @@ import sequelize from './config/database.js';
 import { verifyAuditProtection } from './services/auditProtection.js';
 import { initSocket, chargerReglagesTempsReel } from './socket/clinicSocket.js';
 import { demarrerRappels } from './services/rappels.js';
-import { cheminJournal, gestionnaireErreurs } from './middleware/erreurs.js';
+import { demarrerPurges } from './services/purges.js';
+import { cheminJournal, gestionnaireErreurs, masquerErreursInternes } from './middleware/erreurs.js';
 import authRoutes from './routes/auth.js';
 import patientRoutes from './routes/patients.js';
 import appointmentRoutes from './routes/appointments.js';
@@ -98,6 +99,9 @@ app.use('/api', (req, res, next) => {
     next();
 });
 
+// Aucune réponse 500 d'une route ne renvoie de détail interne (middleware/erreurs.js)
+app.use('/api', masquerErreursInternes);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
@@ -187,6 +191,7 @@ async function start() {
         console.log(`   🔌 Socket.io : actif (rooms: role:doctor | role:pharmacist | role:secretary)`);
         console.log(`   📧 Emails : ${process.env.SMTP_HOST || 'Gmail SMTP'}\n`);
         demarrerRappels();
+        demarrerPurges();
     });
 }
 

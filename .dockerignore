@@ -40,3 +40,7 @@ coverage
 # Scripts d'exploitation et version en service : jamais dans une image
 scripts
 .app-version
+**/*.local
+
+# Généré depuis npm ci pendant la compilation
+public/ocr/runtime

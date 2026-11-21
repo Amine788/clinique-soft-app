@@ -1,6 +1,5 @@
 // Relations entre les modèles : importé une seule fois par models/index.js, après la définition de tous les modèles.
 import { Clinic } from './clinic.js';
-import { Departement } from './departement.js';
 import { User } from './user.js';
 import { Patient } from './patient.js';
 import { CinScan } from './cinScan.js';
@@ -87,10 +86,6 @@ Patient.hasMany(ExamenPatient, { foreignKey: 'patient_id' });
 // Facture ↔ Clinic
 Facture.belongsTo(Clinic, { foreignKey: 'clinic_id' });
 Clinic.hasMany(Facture, { foreignKey: 'clinic_id' });
-
-// Departement ↔ Clinic
-Departement.belongsTo(Clinic, { foreignKey: 'clinic_id' });
-Clinic.hasMany(Departement, { foreignKey: 'clinic_id' });
 
 // Facture ↔ Patient
 Facture.belongsTo(Patient, { foreignKey: 'patient_id' });

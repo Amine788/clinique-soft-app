@@ -8,6 +8,7 @@ import { moduleActif, MODULE_EMAILS_PATIENTS } from '../services/modulesClinique
 import { absenceValideeLe } from './absences.js';
 const messageAbsence = a => `Le médecin est absent du ${a.dateDebut} au ${a.dateFin} (absence validée) : choisissez une autre date ou un autre médecin.`;
 
+import { clinicSocket } from '../socket/clinicSocket.js';
 const router = Router();
 router.use(authenticateJWT, requireClinicId, patientAccess('appointments'));
 
@@ -45,6 +46,7 @@ router.get('/', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin', '
 
         res.json(rdvs.map(r => ({
             id: r.numeroRdv,
+            arrivedAt: r.heureArrivee,
             patientId: r.Patient?.numeroDossier,
             patientCin: r.patientCin,
             patient: r.Patient ? `${r.Patient.prenom} ${r.Patient.nom}` : '—',
@@ -62,7 +64,7 @@ router.get('/', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin', '
         })));
     } catch (error) {
         console.error('[APPOINTMENTS GET] Erreur :', error.message);
-        res.status(500).json({ error: 'Erreur serveur' });
+        res.status(error.status || 500).json({ error: error.status ? error.message : 'Erreur serveur' });
     }
 });
 
@@ -243,7 +245,7 @@ router.post('/', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin'),
         });
     } catch (error) {
         console.error('[APPOINTMENTS POST] Erreur :', error.message);
-        res.status(500).json({ error: 'Erreur serveur lors de la création du RDV' });
+        res.status(error.status || 500).json({ error: error.status ? error.message : 'Erreur serveur lors de la création du RDV' });
     }
 });
 
@@ -252,7 +254,7 @@ router.get('/:id', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin'
     try {
         const clinicId = req.user.clinic_id;
         const rdv = await RendezVous.findOne(await accessQuery(req, RendezVous, {
-            where: { numeroRdv: req.params.id, clinic_id: clinicId },
+            where: { ...(/^[0-9]+$/.test(req.params.id) ? { id: Number(req.params.id) } : { numeroRdv: req.params.id }), clinic_id: clinicId },
             include: [{ model: Patient, attributes: ['nom', 'prenom', 'cinNumero'] }]
         }));
         if (!rdv) return res.status(404).json({ error: 'RDV non trouvé' });
@@ -276,9 +278,12 @@ router.get('/:id', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin'
 router.put('/:id/status', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin'), async (req, res) => {
     try {
         const clinicId = req.user.clinic_id;
-        const rdv = await RendezVous.findOne(await accessQuery(req, RendezVous, { where: { numeroRdv: req.params.id, clinic_id: clinicId } }));
+        const rdv = await RendezVous.findOne(await accessQuery(req, RendezVous, { where: { ...(/^[0-9]+$/.test(req.params.id) ? { id: Number(req.params.id) } : { numeroRdv: req.params.id }), clinic_id: clinicId } }));
         if (!rdv) return res.status(404).json({ error: 'RDV non trouvé' });
+        if (req.user.role === 'doctor' && rdv.medecinId !== req.accessDoctorId) return res.status(403).json({ error: 'Vous ne pouvez modifier que vos propres consultations' });
+        if (!RendezVous.rawAttributes.statut.values.includes(req.body.status)) return res.status(400).json({ error: 'Statut de rendez-vous invalide' });
         await updateScoped(req, rdv, { statut: req.body.status });
+        clinicSocket?.notifyQueueChanged?.(clinicId);
 
         res.json({ id: rdv.numeroRdv, status: rdv.statut });
     } catch {
@@ -290,7 +295,7 @@ router.put('/:id/status', authenticateJWT, authorizeRole('secretary', 'doctor', 
 router.patch('/:id', authenticateJWT, authorizeRole('secretary', 'doctor', 'admin'), async (req, res) => {
     try {
         const clinicId = req.user.clinic_id;
-        const rdv = await RendezVous.findOne(await accessQuery(req, RendezVous, { where: { numeroRdv: req.params.id, clinic_id: clinicId } }));
+        const rdv = await RendezVous.findOne(await accessQuery(req, RendezVous, { where: { ...(/^[0-9]+$/.test(req.params.id) ? { id: Number(req.params.id) } : { numeroRdv: req.params.id }), clinic_id: clinicId } }));
         if (!rdv) return res.status(404).json({ error: 'RDV non trouvé' });
 
         const { date, heure, typeConsultation, motif, statut } = req.body;

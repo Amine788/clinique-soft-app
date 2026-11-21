@@ -78,7 +78,7 @@ test('Super-admin : gestion de la plateforme oui, données des cliniques non (re
         '/api/rooms', `/api/rooms/${A.chambre.id}`, '/api/hospitalisations/active', '/api/hospitalisations/admissions',
         '/api/examens', `/api/examens/patient/${A.patient.cinNumero}`, '/api/billing', `/api/billing/patient/${A.patient.cinNumero}`,
         '/api/absences', '/api/dashboard/admin', '/api/dashboard/secretary', '/api/nurse/hospitalized', '/api/nurse/queue',
-        '/api/admin/users', '/api/performance/overview', '/api/clinic', '/api/clinic/departements', '/api/patient-access/audit',
+        '/api/admin/users', '/api/performance/overview', '/api/clinic', '/api/patient-access/audit',
     ];
     for (const url of urls) {
         const r = await appel('GET', url);

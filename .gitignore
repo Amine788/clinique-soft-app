@@ -73,3 +73,6 @@ dumps/
 coverage/
 # Version des images en service sur le serveur (écrite par scripts/deploy.sh et scripts/rollback.sh)
 .app-version
+
+# Moteur OCR copié depuis les dépendances au démarrage et au build
+public/ocr/runtime/

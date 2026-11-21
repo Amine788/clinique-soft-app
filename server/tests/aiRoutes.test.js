@@ -77,17 +77,14 @@ test('IA existante : résumé patient et chat conservent leur réponse SSE', asy
     }
 });
 
-test('IA existante : OCR CIN conservé pour la secrétaire et fermé aux autres rôles', async () => {
-    const response = await client(server.base, A.users.secretary)('POST', '/api/ai/ocr-cin', { imageBase64: 'AAAA', mimeType: 'image/png' });
-    assert.equal(response.status, 200, JSON.stringify(response.body));
-    assert.equal(response.body.success, true);
-    assert.equal(response.body.data.cin, 'TEST123456');
-    mode = 'truncated';
-    try {
-        const truncated = await client(server.base, A.users.secretary)('POST', '/api/ai/ocr-cin', { imageBase64: 'AAAA' });
-        assert.equal(truncated.status, 502);
-        assert.equal(truncated.body.code, 'AI_INVALID_RESPONSE');
-    } finally { mode = 'normal'; }
+test('OCR CIN : ancienne API retirée, aucun appel Anthropic avec ou sans clé', async () => {
+    const before = calls;
+    for (const base of [server.base, withoutKey.base]) {
+        const response = await client(base, A.users.secretary)('POST', '/api/ai/ocr-cin', { imageBase64: 'AAAA', mimeType: 'image/png' });
+        assert.equal(response.status, 410, JSON.stringify(response.body));
+        assert.equal(response.body.code, 'OCR_LOCAL');
+    }
+    assert.equal(calls, before);
     assert.equal((await client(server.base, A.users.doctor)('POST', '/api/ai/ocr-cin', { imageBase64: 'AAAA' })).status, 403);
 });
 
@@ -96,7 +93,6 @@ test('IA existante : absence de clé = message explicite, sans appel au fourniss
     for (const [user, path, body] of [
         [A.users.doctor, '/patient-summary', { patientId: A.patient.id }],
         [A.users.secretary, '/chat', { message: 'Test fictif' }],
-        [A.users.secretary, '/ocr-cin', { imageBase64: 'AAAA' }],
     ]) {
         const response = await client(withoutKey.base, user)('POST', `/api/ai${path}`, body);
         assert.equal(response.status, 503, JSON.stringify(response.body));

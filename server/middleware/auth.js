@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import cls from 'cls-hooked';
 import { User, Clinic } from '../models/index.js';
 import { trialEndFor, TRIAL_EXPIRED_MESSAGE } from '../config/trial.js';
+import { sessionRevoquee } from '../services/sessions.js';
 
 // Secret de signature des sessions : obligatoire, sans valeur par défaut. Un secret écrit dans le code
 // permettrait à quiconque le lit de fabriquer une session valide pour n'importe quel compte.
@@ -20,6 +21,11 @@ export async function authenticateJWT(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Session fermée par « Déconnexion » : le jeton n'est plus accepté, même avant son expiration
+        if (await sessionRevoquee(decoded)) {
+            return res.status(401).json({ error: 'Session fermée. Veuillez vous reconnecter.', code: 'token_invalid' });
+        }
 
         // Rafraîchir le clinic_id depuis la BDD pour éviter les tokens périmés
         const dbUser = await User.findByPk(decoded.id, { attributes: ['id', 'clinic_id', 'statut', 'role', 'nom', 'prenom'] });

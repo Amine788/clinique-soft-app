@@ -13,7 +13,8 @@
         "db:install": "node database/install.js",
         "db:seed-examens": "node database/seedExamens.js",
         "check:services": "node scripts/checkServices.js",
-        "test": "node --test --test-concurrency=1 \"tests/*.test.js\""
+        "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
+        "test:facturation": "node --test --test-concurrency=1 tests/facturationPaiements.test.js"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.78.0",
@@ -35,5 +36,9 @@
     },
     "devDependencies": {
         "socket.io-client": "^4.8.4"
+    },
+    "overrides": {
+        "qs": "^6.16.2",
+        "uuid": "^11.1.1"
     }
 }

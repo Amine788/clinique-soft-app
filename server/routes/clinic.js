@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { Clinic, Departement } from '../models/index.js';
+import { Clinic } from '../models/index.js';
 import { authenticateJWT, authorizeRole } from '../middleware/auth.js';
 import { trialEndFor } from '../config/trial.js';
 import { majTempsReel } from '../socket/clinicSocket.js';
@@ -121,104 +121,6 @@ router.post('/logo', authenticateJWT, authorizeRole('admin'), (req, res) => {
             res.status(500).json({ error: error.message });
         }
     });
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DÉPARTEMENTS — CRUD complet
-// ─────────────────────────────────────────────────────────────────────────────
-
-// GET /api/clinic/departements — Liste tous les départements de la clinique
-router.get('/departements', authenticateJWT, async (req, res) => {
-    try {
-        const clinicId = getClinicId(req, res);
-        if (!clinicId) return;
-
-        const deps = await Departement.findAll({
-            where: { clinic_id: clinicId },
-            order: [['createdAt', 'ASC']]
-        });
-        res.json(deps);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// POST /api/clinic/departements — Créer un département
-router.post('/departements', authenticateJWT, authorizeRole('admin'), async (req, res) => {
-    const { nom, chef, lits, statut, description } = req.body;
-    if (!nom) return res.status(400).json({ error: 'Le nom du département est obligatoire' });
-    try {
-        const clinicId = getClinicId(req, res);
-        if (!clinicId) return;
-
-        const dep = await Departement.create({
-            clinic_id: clinicId,
-            nom,
-            chef: chef || '',
-            lits: lits ? parseInt(lits) : 0,
-            statut: statut || 'actif',
-            description: description || null
-        });
-        res.status(201).json(dep);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// PUT /api/clinic/departements/:id — Modifier un département
-router.put('/departements/:id', authenticateJWT, authorizeRole('admin'), async (req, res) => {
-    const { nom, chef, lits, statut, description } = req.body;
-    try {
-        const clinicId = getClinicId(req, res);
-        if (!clinicId) return;
-
-        const dep = await Departement.findOne({ where: { id: req.params.id, clinic_id: clinicId } });
-        if (!dep) return res.status(404).json({ error: 'Département non trouvé' });
-
-        await dep.update({
-            nom: nom || dep.nom,
-            chef: chef !== undefined ? chef : dep.chef,
-            lits: lits !== undefined ? parseInt(lits) : dep.lits,
-            statut: statut || dep.statut,
-            description: description !== undefined ? description : dep.description
-        });
-        res.json(dep);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// PATCH /api/clinic/departements/:id/toggle — Activer / Désactiver
-router.patch('/departements/:id/toggle', authenticateJWT, authorizeRole('admin'), async (req, res) => {
-    try {
-        const clinicId = getClinicId(req, res);
-        if (!clinicId) return;
-
-        const dep = await Departement.findOne({ where: { id: req.params.id, clinic_id: clinicId } });
-        if (!dep) return res.status(404).json({ error: 'Département non trouvé' });
-
-        const newStatut = dep.statut === 'actif' ? 'inactif' : 'actif';
-        await dep.update({ statut: newStatut });
-        res.json({ success: true, statut: newStatut });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// DELETE /api/clinic/departements/:id — Supprimer un département
-router.delete('/departements/:id', authenticateJWT, authorizeRole('admin'), async (req, res) => {
-    try {
-        const clinicId = getClinicId(req, res);
-        if (!clinicId) return;
-
-        const dep = await Departement.findOne({ where: { id: req.params.id, clinic_id: clinicId } });
-        if (!dep) return res.status(404).json({ error: 'Département non trouvé' });
-
-        await dep.destroy();
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
 });
 
 export default router;

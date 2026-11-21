@@ -22,8 +22,9 @@ docker image inspect "nextclinic-api:$VERSION" "nextclinic-web:$VERSION" >/dev/n
 export APP_VERSION="$VERSION"
 log "Redémarrage sur la version $VERSION"
 "${DC[@]}" up -d --wait --no-build api proxy
+controle_public
+
 echo "$VERSION" > "$ETAT_DIR/.app-version"
 printf '%s\t%s\tretour arrière\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$VERSION" >> "$ETAT_DIR/deploiements.log"
 "${DC[@]}" ps --format '{{.Service}}\t{{.Status}}'
-controle_public
 log "Version en service : $VERSION"
