@@ -52,7 +52,7 @@ function VitalItem({ icon, label, value, unit }) {
       <div style={{ width:34, height:34, borderRadius:10, background:"#EEF4FC", color:"#004AAD", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><Ico size={16} aria-hidden="true" /></div>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:10, color:"#94a3b8", fontWeight:700, textTransform:"uppercase", letterSpacing:".06em" }}>{label}</div>
-        <div style={{ fontSize:16, fontWeight:800, color:"#0f172a", marginTop:1 }}>{value || <span style={{color:"#cbd5e1",fontWeight:400,fontSize:13}}>—</span>} {value && <span style={{fontSize:11,fontWeight:500,color:"#64748b"}}>{unit}</span>}</div>
+        <div style={{ fontSize:16, fontWeight:700, color:"#0f172a", marginTop:1 }}>{value || <span style={{color:"#cbd5e1",fontWeight:400,fontSize:13}}>—</span>} {value && <span style={{fontSize:11,fontWeight:500,color:"#64748b"}}>{unit}</span>}</div>
       </div>
     </div>
   );
@@ -109,8 +109,8 @@ function AlertModal({ patient, onClose, onSend }) {
   };
 
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(10,15,28,.75)", zIndex:2000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)", padding:16 }}>
-      <div style={{ background:"#fff", borderRadius:20, width:"100%", maxWidth:460, boxShadow:"0 32px 64px rgba(0,0,0,.3)", overflow:"hidden" }}>
+    <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.5)", zIndex:2000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)", padding:16 }}>
+      <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:460, boxShadow:"0 32px 64px rgba(0,0,0,.3)", overflow:"hidden" }}>
         <div style={{ background:"#dc2626", padding:"18px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:36, height:36, borderRadius:10, background:"rgba(255,255,255,.2)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}><TriangleAlert size={18} aria-hidden="true" /></div>
@@ -177,15 +177,15 @@ function ConfirmModal({ data, onConfirm, onClose }) {
     setConfirming(false);
   };
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(10,15,28,.7)", zIndex:2100, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)", padding:16 }}>
-      <div style={{ background:"#fff", borderRadius:20, width:"100%", maxWidth:400, boxShadow:"0 32px 64px rgba(0,0,0,.3)", padding:28 }}>
+    <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.5)", zIndex:2100, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)", padding:16 }}>
+      <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:400, boxShadow:"0 32px 64px rgba(0,0,0,.3)", padding:28 }}>
         <div style={{ textAlign:"center", marginBottom:20 }}>
           <div style={{ width:56, height:56, borderRadius:16, background:"#EEF4FC", color:"#004AAD", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 12px" }}><Pill size={26} aria-hidden="true" /></div>
-          <h3 style={{ fontWeight:800, fontSize:18, color:"#0f172a", margin:0 }}>Confirmer l'administration</h3>
+          <h3 style={{ fontWeight:700, fontSize:18, color:"#0f172a", margin:0 }}>Confirmer l'administration</h3>
           <p style={{ color:"#64748b", fontSize:13, marginTop:6, lineHeight:1.5 }}>Cette action sera horodatée et irréversible.</p>
         </div>
         <div style={{ background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:12, padding:"14px 16px", marginBottom:20 }}>
-          <div style={{ fontWeight:800, fontSize:15, color:"#0f172a" }}>{data.med}</div>
+          <div style={{ fontWeight:700, fontSize:15, color:"#0f172a" }}>{data.med}</div>
           <div style={{ fontSize:13, color:"#64748b", marginTop:4 }}>{data.dose} · {data.moment}</div>
           <div style={{ fontSize:12, color:"#94a3b8", marginTop:6, display:"flex", alignItems:"center", gap:5 }}>
             <Icon.User />{data.patientName} · {data.slotLabel} ({data.slotTime})
@@ -266,7 +266,7 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
 
   return (
     <>
-      <div style={{ position:"fixed", inset:0, background:"rgba(10,15,28,.5)", zIndex:900, backdropFilter:"blur(2px)" }} onClick={onClose} />
+      <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.5)", zIndex:900, backdropFilter:"blur(2px)" }} onClick={onClose} />
       <div style={{
         position:"fixed", top:0, right:0, bottom:0, width:"min(500px,100vw)",
         background:"#fff", zIndex:1000, display:"flex", flexDirection:"column",
@@ -276,11 +276,11 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
         <div style={{ background:"#0f172a", padding:"20px 20px 16px", flexShrink:0 }}>
           <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:14 }}>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <div style={{ width:52, height:52, borderRadius:"50%", background:avatarColor(patient.name)+"30", border:`2px solid ${avatarColor(patient.name)}60`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:avatarColor(patient.name) }}>
+              <div style={{ width:52, height:52, borderRadius:"50%", background:avatarColor(patient.name)+"30", border:`2px solid ${avatarColor(patient.name)}60`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:700, color:avatarColor(patient.name) }}>
                 {initiales(patient.name)}
               </div>
               <div>
-                <div style={{ color:"#f1f5f9", fontWeight:800, fontSize:17 }}>{patient.name}</div>
+                <div style={{ color:"#f1f5f9", fontWeight:700, fontSize:17 }}>{patient.name}</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:4 }}>
                   {patient.room && <span style={{ background:"rgba(255,255,255,.1)", color:"#cbd5e1", fontSize:11, padding:"2px 8px", borderRadius:6, display:"flex", alignItems:"center", gap:3 }}><Icon.Bed />{patient.room}</span>}
                   {patient.age && <span style={{ background:"rgba(255,255,255,.1)", color:"#cbd5e1", fontSize:11, padding:"2px 8px", borderRadius:6 }}>{patient.age} ans</span>}
@@ -333,7 +333,7 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
               marginBottom:-1, transition:"all .15s", display:"flex", alignItems:"center", justifyContent:"center", gap:5
             }}>
               {t.label}
-              {t.badge && <span style={{ background:"#ef4444", color:"#fff", borderRadius:99, fontSize:10, fontWeight:800, padding:"1px 5px" }}>{t.badge}</span>}
+              {t.badge && <span style={{ background:"#ef4444", color:"#fff", borderRadius:99, fontSize:10, fontWeight:700, padding:"1px 5px" }}>{t.badge}</span>}
             </button>
           ))}
         </div>
@@ -373,7 +373,7 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
                           <div style={{ fontSize:12, color:"#475569", marginTop:2 }}>Dr. {presc.doctor || patient.doctor} · {presc.createdAt}</div>
                         </div>
                         <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
-                          <span style={{ background:cfg.bg, color:cfg.color, fontSize:10, fontWeight:800, padding:"2px 10px", borderRadius:99 }}>{cfg.label}</span>
+                          <span style={{ background:cfg.bg, color:cfg.color, fontSize:10, fontWeight:700, padding:"2px 10px", borderRadius:99 }}>{cfg.label}</span>
                           <div style={{ fontSize:11, color:"#64748b" }}>{doneSlots}/{totalSlots} prises</div>
                         </div>
                       </div>
@@ -391,7 +391,7 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
                           return (
                             <div key={item.id || idx} style={{ border:`1px solid ${allItemDone ? "#bbf7d0" : "#e2e8f0"}`, borderRadius:10, padding:"10px 12px", background: allItemDone ? "#f0fdf4" : "#fff" }}>
                               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
-                                <div style={{ width:32, height:32, borderRadius:8, background:allItemDone?"#dcfce7":"#eff6ff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                                <div style={{ width:32, height:32, borderRadius:8, background:allItemDone?"#dcfce7":"#EEF4FC", display:"flex", alignItems:"center", justifyContent:"center" }}>
                                   <Icon.Pill />
                                 </div>
                                 <div style={{ flex:1 }}>
@@ -490,7 +490,7 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
               <div style={{ padding:"12px 14px", background: patient.bloodType ? (BLOOD_COLOR[patient.bloodType]+"10"||"#f8fafc") : "#f8fafc", border:`1px solid ${patient.bloodType ? (BLOOD_COLOR[patient.bloodType]+"30"||"#e2e8f0") : "#e2e8f0"}`, borderRadius:12 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", marginBottom:4 }}>Groupe sanguin</div>
                 {patient.bloodType
-                  ? <span style={{ fontSize:28, fontWeight:800, color:BLOOD_COLOR[patient.bloodType]||"#0f172a" }}>{patient.bloodType}</span>
+                  ? <span style={{ fontSize:28, fontWeight:700, color:BLOOD_COLOR[patient.bloodType]||"#0f172a" }}>{patient.bloodType}</span>
                   : <span style={{ fontSize:13, color:"#94a3b8" }}>Non renseigné</span>
                 }
               </div>
@@ -501,10 +501,10 @@ function PatientPanel({ patient, onClose, onAlertClick, onAdminister, onSaveVita
                   : <span style={{ fontSize:12, color:"#059669" }}>Aucune allergie connue</span>
                 }
               </div>
-              <div style={{ padding:"12px 14px", background:"#eff6ff", border:"1px solid #bfdbfe", borderRadius:12 }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#1d4ed8", textTransform:"uppercase", marginBottom:8, display:"flex", alignItems:"center", gap:5 }}><HeartPulse size={12} aria-hidden="true" />Maladies chroniques ({patient.chronic?.length||0})</div>
+              <div style={{ padding:"12px 14px", background:"#EEF4FC", border:"1px solid #D9E6F8", borderRadius:12 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#003D8F", textTransform:"uppercase", marginBottom:8, display:"flex", alignItems:"center", gap:5 }}><HeartPulse size={12} aria-hidden="true" />Maladies chroniques ({patient.chronic?.length||0})</div>
                 {patient.chronic?.length > 0
-                  ? <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>{patient.chronic.map((c,i) => <span key={i} style={{ background:"#bfdbfe", color:"#1e40af", fontSize:12, fontWeight:600, padding:"3px 10px", borderRadius:99 }}>{c}</span>)}</div>
+                  ? <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>{patient.chronic.map((c,i) => <span key={i} style={{ background:"#D9E6F8", color:"#003D8F", fontSize:12, fontWeight:600, padding:"3px 10px", borderRadius:99 }}>{c}</span>)}</div>
                   : <span style={{ fontSize:12, color:"#059669" }}>Aucune maladie chronique</span>
                 }
               </div>
@@ -543,16 +543,16 @@ function PatientCard({ patient, onClick }) {
         cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:14,
         boxShadow:"0 1px 8px rgba(0,0,0,.04)"
       }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow="0 6px 24px rgba(37,99,235,.12)"; e.currentTarget.style.borderColor="#bfdbfe"; e.currentTarget.style.transform="translateY(-1px)"; }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow="0 6px 24px rgba(0,74,173,.10)"; e.currentTarget.style.borderColor="#B3CDF1"; e.currentTarget.style.transform="translateY(-1px)"; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow="0 1px 8px rgba(0,0,0,.04)"; e.currentTarget.style.borderColor="#e2e8f0"; e.currentTarget.style.transform="none"; }}
     >
-      <div style={{ width:46, height:46, borderRadius:"50%", background:avatarColor(patient.name)+"20", border:`2px solid ${avatarColor(patient.name)}40`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, fontWeight:800, color:avatarColor(patient.name), flexShrink:0 }}>
+      <div style={{ width:46, height:46, borderRadius:"50%", background:avatarColor(patient.name)+"20", border:`2px solid ${avatarColor(patient.name)}40`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, fontWeight:700, color:avatarColor(patient.name), flexShrink:0 }}>
         {initiales(patient.name)}
       </div>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
           <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{patient.name}</div>
-          {isLate && <span style={{ background:"#fef2f2", color:"#ef4444", fontSize:10, fontWeight:800, padding:"1px 6px", borderRadius:99, flexShrink:0 }}>En retard</span>}
+          {isLate && <span style={{ background:"#fef2f2", color:"#ef4444", fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:99, flexShrink:0 }}>En retard</span>}
         </div>
         <div style={{ display:"flex", gap:8, fontSize:11, color:"#64748b", flexWrap:"wrap" }}>
           {patient.room && <span style={{ display:"flex", alignItems:"center", gap:3 }}><Icon.Bed />{patient.room}</span>}
@@ -569,7 +569,7 @@ function PatientCard({ patient, onClick }) {
         </div>
       </div>
       {pending > 0 && (
-        <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:99, padding:"3px 8px", fontSize:11, fontWeight:800, color:"#ef4444", flexShrink:0 }}>
+        <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:99, padding:"3px 8px", fontSize:11, fontWeight:700, color:"#ef4444", flexShrink:0 }}>
           {pending} restant{pending>1?"s":""}
         </div>
       )}
@@ -586,7 +586,7 @@ function KpiCard({ icon, label, value, color, sub }) {
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
         <div>
           <div style={{ fontSize:10, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".06em", marginBottom:8 }}>{label}</div>
-          <div style={{ fontSize:28, fontWeight:800, color }}>{value}</div>
+          <div style={{ fontSize:28, fontWeight:700, color }}>{value}</div>
           {sub && <div style={{ fontSize:11, color:"#94a3b8", marginTop:3 }}>{sub}</div>}
         </div>
         <div style={{ width:38, height:38, borderRadius:10, background:color+"14", color, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><Ico size={18} aria-hidden="true" /></div>

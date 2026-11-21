@@ -21,9 +21,9 @@ const G = {
   bg: "#f8fafc",
   surface: "#ffffff",
   surfaceL: "#f1f5f9",
-  border: "rgba(0,74,173,0.12)",
+  border: "#e6eaf0",
   borderL: "rgba(0,74,173,0.25)",
-  text: "#1e293b",
+  text: "#0f172a",
   muted: "#64748b",
   info: "#3b82f6",
   success: "#10b981",
@@ -63,7 +63,7 @@ function VitalCard({ label, value, unit, sub, color = G.primary, icon }) {
       <div style={{ width: 30, height: 30, borderRadius: 8, background: `${color}14`, color, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
         <Ico size={16} aria-hidden="true" />
       </div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: G.text, lineHeight: 1 }}>
+      <div style={{ fontSize: 22, fontWeight: 700, color: G.text, lineHeight: 1 }}>
         {value || "—"}<span style={{ fontSize: 13, color: G.muted, marginLeft: 4, fontWeight: 400 }}>{unit}</span>
       </div>
       <div style={{ fontSize: 11, color: G.muted, marginTop: 4, fontWeight: 500 }}>{label}</div>
@@ -136,16 +136,16 @@ function drawPatientBadge(canvas, patient, qrCanvas) {
   ctx.fillText(`Dossier ${patient.id}`, 148, 171, 300);
 
   // Détails (2 colonnes, puis allergies sur toute la largeur)
-  const field = (label, value, x, y, color = "#1e293b", max = 190) => {
+  const field = (label, value, x, y, color = G.text, max = 190) => {
     ctx.font = `700 10px ${FONT}`; ctx.fillStyle = "#94a3b8"; ctx.fillText(label, x, y);
     ctx.font = `600 15px ${FONT}`; ctx.fillStyle = color; ctx.fillText(value, x, y + 21, max);
   };
   field("NÉ(E) LE", patient.dob || "Non renseigné", 44, 232);
   field("CIN", patient.cin || "Non renseigné", 250, 232);
-  field("GROUPE SANGUIN", patient.bloodType || "Non affiché", 44, 292, patient.bloodType ? "#dc2626" : "#1e293b");
+  field("GROUPE SANGUIN", patient.bloodType || "Non affiché", 44, 292, patient.bloodType ? "#dc2626" : G.text);
   field("ASSURANCE", patient.insurance || "Non renseignée", 250, 292);
   const hasAllergies = patient.allergies?.length > 0;
-  field("ALLERGIES", hasAllergies ? patient.allergies.join(", ") : "Non affichées", 44, 352, hasAllergies ? "#dc2626" : "#1e293b", 396);
+  field("ALLERGIES", hasAllergies ? patient.allergies.join(", ") : "Non affichées", 44, 352, hasAllergies ? "#dc2626" : G.text, 396);
 
   // Séparateur
   ctx.fillStyle = "#e6eaf0"; ctx.fillRect(468, 100, 1, 290);
@@ -366,7 +366,7 @@ export default function PatientProfileAdvanced() {
     return (
       <div style={{ maxWidth: 600, margin: "60px auto", padding: 24, background: "white", borderRadius: 16, border: `1px solid ${G.border}`, textAlign: "center" }}>
         <TriangleAlert size={40} color={G.danger} style={{ display: "block", margin: "0 auto 16px" }} aria-hidden="true" />
-        <h3 style={{ fontWeight: 800, fontSize: 18, color: G.danger, marginBottom: 8 }}>Une erreur est survenue</h3>
+        <h3 style={{ fontWeight: 700, fontSize: 18, color: G.danger, marginBottom: 8 }}>Une erreur est survenue</h3>
         <p style={{ color: G.muted, fontSize: 14, marginBottom: 20 }}>{error || "Ce patient n'existe pas ou vous n'avez pas l'accès requis."}</p>
         <button onClick={() => navigate(-1)} style={{ padding: "10px 24px", background: G.primary, color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>
           Retourner
@@ -383,7 +383,7 @@ export default function PatientProfileAdvanced() {
           <ArrowLeft size={20} color={G.primary} />
         </button>
         <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: G.text }}>Dossier Médical</h1>
+          <h1 className="page-title">Dossier Médical</h1>
           <p style={{ margin: 0, fontSize: 13, color: G.muted }}>Dernière mise à jour : {new Date().toLocaleDateString('fr-FR')}</p>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
@@ -427,11 +427,11 @@ export default function PatientProfileAdvanced() {
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: G.primary }} />
         
         <div style={{ display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ width: 100, height: 100, borderRadius: "50%", background: G.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, fontWeight: 800, color: "white" }}>
+          <div style={{ width: 100, height: 100, borderRadius: "50%", background: G.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, fontWeight: 700, color: "white" }}>
             {patientName.split(/\s+/).filter(Boolean).map(n => n[0]).join("").toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 250 }}>
-            <div style={{ fontSize: 30, fontWeight: 800, color: G.text, letterSpacing: "-0.5px" }}>{patientName}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: G.text, letterSpacing: "-0.5px" }}>{patientName}</div>
             <div style={{ display: "flex", gap: 15, color: G.muted, fontSize: 14, marginTop: 4, fontWeight: 500 }}>
               <span>{dobFormatted} ({patientAge} ans)</span>
               <span>·</span>
@@ -446,14 +446,14 @@ export default function PatientProfileAdvanced() {
           </div>
           <div style={{ textAlign: "center", padding: "0 20px" }}>
             <ScoreRing score={patientData.bloodType ? 90 : 75} />
-            <div style={{ fontSize: 11, fontWeight: 800, color: G.muted, marginTop: 4 }}>COMPLÉTUDE DOSSIER</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: G.muted, marginTop: 4 }}>COMPLÉTUDE DOSSIER</div>
           </div>
         </div>
 
         <NavyDivider />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
           {canReadMedical && (<div>
-            <div style={{ fontSize: 10, fontWeight: 800, color: G.muted, letterSpacing: "0.05em", marginBottom: 6 }}>ALLERGIES</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: G.muted, letterSpacing: "0.05em", marginBottom: 6 }}>ALLERGIES</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {patientData.allergies?.length > 0 ? (
                 patientData.allergies.map(a => <Tag key={a} color={G.danger}>{a}</Tag>)
@@ -463,7 +463,7 @@ export default function PatientProfileAdvanced() {
             </div>
           </div>)}
           {user?.role === 'doctor' && (<div>
-            <div style={{ fontSize: 10, fontWeight: 800, color: G.muted, letterSpacing: "0.05em", marginBottom: 6 }}>MALADIES CHRONIQUES</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: G.muted, letterSpacing: "0.05em", marginBottom: 6 }}>MALADIES CHRONIQUES</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {patientData.chronic?.length > 0 ? (
                 patientData.chronic.map(c => <Tag key={c} color={G.warn}>{c}</Tag>)
@@ -498,7 +498,7 @@ export default function PatientProfileAdvanced() {
 
           <div style={{ background: "white", borderRadius: 20, border: `1px solid ${G.border}`, padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-              <div style={{ fontWeight: 800, fontSize: 16, color: G.primary }}>Historique des Mesures</div>
+              <div style={{ fontWeight: 700, fontSize: 16, color: G.primary }}>Historique des Mesures</div>
               <Tag color={G.success}>Suivi actif</Tag>
             </div>
             {vitalsHistory.length === 0 ? (
@@ -526,7 +526,7 @@ export default function PatientProfileAdvanced() {
       {canReadMedical && tab === 1 && (
         <div style={{ background: "white", borderRadius: 20, border: `1px solid ${G.border}`, padding: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: G.primary }}>Médicaments et Ordonnances</h3>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: G.primary }}>Médicaments et Ordonnances</h3>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               {canPrescribe && (
               <button
@@ -555,7 +555,7 @@ export default function PatientProfileAdvanced() {
                 <div key={pres.id} style={{ border: `1px solid ${G.border}`, borderRadius: 16, padding: 20, background: G.surfaceL }}>
                   <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, borderBottom: "1px solid rgba(0,74,173,0.06)", paddingBottom: 12, marginBottom: 14 }}>
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: 15, color: G.primary }}>Ordonnance N° {pres.numero}</div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: G.primary }}>Ordonnance N° {pres.numero}</div>
                       <div style={{ fontSize: 12, color: G.muted, marginTop: 2 }}>Prescrit par {pres.medecinNom} ({pres.medecinSpecialite || "Médecin"})</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
@@ -598,7 +598,7 @@ export default function PatientProfileAdvanced() {
       {/* Tab 2: Historique (Timeline) */}
       {tab === 2 && (
         <div style={{ background: "white", borderRadius: 20, border: `1px solid ${G.border}`, padding: 24 }}>
-          <h3 style={{ margin: "0 0 20px 0", fontSize: 18, fontWeight: 800, color: G.primary }}>Historique des Visites & Événements</h3>
+          <h3 style={{ margin: "0 0 20px 0", fontSize: 18, fontWeight: 700, color: G.primary }}>Historique des Visites & Événements</h3>
           
           {appointments.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px 0", color: G.muted, fontSize: 14 }}>Aucun historique de rendez-vous ou de visites.</div>
@@ -611,7 +611,7 @@ export default function PatientProfileAdvanced() {
                   </div>
                   <div style={{ flex: 1, paddingBottom: 20, borderBottom: i < appointments.length - 1 ? `1px solid ${G.border}` : "none" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <div style={{ fontWeight: 800, fontSize: 15 }}>{e.motif || "Consultation médicale"}</div>
+                      <div style={{ fontWeight: 700, fontSize: 15 }}>{e.motif || "Consultation médicale"}</div>
                       <div style={{ fontSize: 12, color: G.muted, fontWeight: 600 }}>{new Date(e.date).toLocaleDateString('fr-FR')}</div>
                     </div>
                     <div style={{ fontSize: 12, color: G.primary, fontWeight: 700, marginTop: 4 }}>{e.doctor}</div>
@@ -635,7 +635,7 @@ export default function PatientProfileAdvanced() {
           </div>
           <canvas ref={canvasRef} width={720} height={440} role="img" aria-label={`Carte patient ${patientForBadge.name} avec QR code du dossier`} style={{ width: "100%", maxWidth: 600, borderRadius: 16, boxShadow: '0 12px 32px -12px rgba(15,23,42,0.18)', marginBottom: 24 }} />
           <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
-            <button onClick={downloadBadge} style={{ background: G.primary, color: "white", border: "none", borderRadius: 12, padding: "12px 32px", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={downloadBadge} style={{ background: G.primary, color: "white", border: "none", borderRadius: 12, padding: "12px 32px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <Download size={18} /> Télécharger le Badge HD
             </button>
           </div>
@@ -656,15 +656,15 @@ export default function PatientProfileAdvanced() {
       {/* ── Modal: Nouvelle Prescription ── */}
       {showAddPrescription && (
         <div style={{
-          position: "fixed", inset: 0, zIndex: 1000, background: "rgba(15,23,42,0.6)",
+          position: "fixed", inset: 0, zIndex: 1000, background: "rgba(15,23,42,0.5)",
           backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16
         }}>
           <div style={{
-            background: "white", borderRadius: 20, width: "100%", maxWidth: 540,
+            background: "white", borderRadius: 16, width: "100%", maxWidth: 540,
             maxHeight: "90vh", overflowY: "auto", padding: 28, boxShadow: "0 24px 60px rgba(0,0,0,0.15)"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: G.primary }}>Nouvelle Prescription</h3>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: G.primary }}>Nouvelle Prescription</h3>
               <button onClick={() => setShowAddPrescription(false)} style={{ background: "none", border: "none", cursor: "pointer", color: G.muted, display: "flex" }} aria-label="Fermer"><X size={20} aria-hidden="true" /></button>
             </div>
 
@@ -672,7 +672,7 @@ export default function PatientProfileAdvanced() {
               {/* Draft List */}
               {newMedicaments.length > 0 && (
                 <div style={{ background: G.bg, borderRadius: 12, padding: 14, marginBottom: 20, border: `1.5px solid ${G.border}` }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: G.muted, marginBottom: 8, textTransform: "uppercase" }}>Médicaments ajoutés :</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: G.muted, marginBottom: 8, textTransform: "uppercase" }}>Médicaments ajoutés :</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {newMedicaments.map((m, i) => (
                       <div key={i} style={{ background: "white", padding: "8px 12px", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center", border: `1px solid ${G.border}` }}>
@@ -691,7 +691,7 @@ export default function PatientProfileAdvanced() {
 
               {/* Add Medicament Form Section */}
               <div style={{ background: G.bg, borderRadius: 12, padding: 14, marginBottom: 20, border: `1px solid ${G.border}` }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: G.primary, marginBottom: 12, textTransform: "uppercase" }}>Formulaire Médicament</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: G.primary, marginBottom: 12, textTransform: "uppercase" }}>Formulaire Médicament</div>
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div>

@@ -402,7 +402,7 @@ export default function NurseMedicationTracking() {
                               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                 <div style={{
                                   width: 32, height: 32, borderRadius: 8,
-                                  background: "#eef2ff", color: "var(--accent)", display: "flex",
+                                  background: "#EEF4FC", color: "var(--accent)", display: "flex",
                                   alignItems: "center", justifyContent: "center"
                                 }}><Ic.Pill /></div>
                                 <div>
@@ -445,18 +445,18 @@ export default function NurseMedicationTracking() {
       {confirmModal && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 1000,
-          background: "rgba(15,23,42,.5)",
+          background: "rgba(15,23,42,.5)", backdropFilter: "blur(4px)",
           display: "flex", alignItems: "center", justifyContent: "center",
           animation: "fadeIn .15s ease"
         }}>
           <div style={{
-            background: "var(--card)", borderRadius: 14, padding: 28,
+            background: "var(--card)", borderRadius: 16, padding: 28,
             width: "100%", maxWidth: 400, boxShadow: "0 20px 50px rgba(0,0,0,.15)",
             animation: "pop .15s ease"
           }}>
             <div style={{ textAlign: "center", marginBottom: 22 }}>
               <div style={{
-                width: 48, height: 48, borderRadius: 12, background: "#eef2ff", color: "var(--accent)",
+                width: 48, height: 48, borderRadius: 12, background: "#EEF4FC", color: "var(--accent)",
                 display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px"
               }}><Ic.Pill /></div>
               <h3 style={{ fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Confirmer l'administration</h3>

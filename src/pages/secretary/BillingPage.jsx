@@ -31,7 +31,7 @@ function calcTotals(lignes, assuranceTaux) {
 }
 
 const SOURCE_CONFIG = {
-    consultation: { label: 'Consultation', color: 'bg-blue-50 text-blue-700 border-blue-200', icon: Stethoscope, iconColor: 'text-blue-500' },
+    consultation: { label: 'Consultation', color: 'bg-brand-50 text-brand-700 border-brand-200', icon: Stethoscope, iconColor: 'text-brand-500' },
     medicament:   { label: 'Pharmacie',    color: 'bg-green-50 text-green-700 border-green-200', icon: Pill,        iconColor: 'text-green-500' },
     examen:       { label: 'Labo / Radio', color: 'bg-purple-50 text-purple-700 border-purple-200', icon: Microscope, iconColor: 'text-purple-500' },
     chambre:      { label: 'Hospitalisation', color: 'bg-amber-50 text-amber-700 border-amber-200', icon: BedDouble, iconColor: 'text-amber-500' },
@@ -556,7 +556,7 @@ export default function BillingPage() {
                                             <td className="px-4 py-3 font-mono text-xs">{f.patientCin}</td>
                                             <td className="px-4 py-3">
                                                 <div className="flex gap-1">
-                                                    {counts.consultation > 0 && <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700"><Stethoscope size={10} />{counts.consultation}</span>}
+                                                    {counts.consultation > 0 && <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-700"><Stethoscope size={10} />{counts.consultation}</span>}
                                                     {counts.medicament > 0 && <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-green-50 text-green-700"><Pill size={10} />{counts.medicament}</span>}
                                                     {counts.examen > 0 && <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700"><Microscope size={10} />{counts.examen}</span>}
                                                     {counts.chambre > 0 && <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700"><BedDouble size={10} />{counts.chambre}</span>}

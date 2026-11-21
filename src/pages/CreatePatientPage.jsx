@@ -188,7 +188,7 @@ export default function CreatePatientPage() {
                     .box { text-align:center; padding:32px; border: 2px solid #e5e7eb; border-radius:16px; }
                     h2 { font-size:18px; font-weight:700; margin:0 0 4px; color:#111827; }
                     p { font-size:13px; color:#6b7280; margin:4px 0; }
-                    .dossier { font-size:14px; font-weight:700; color:#2563eb; margin:8px 0; }
+                    .dossier { font-size:14px; font-weight:700; color:#004AAD; margin:8px 0; }
                     img { margin:16px 0; }
                     .scan-txt { font-size:11px; color:#9ca3af; margin-top:8px; }
                 </style>
@@ -606,7 +606,7 @@ export default function CreatePatientPage() {
                     </div>
 
                     {/* Conseil */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700 flex items-start gap-2">
+                    <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 text-xs text-brand-700 flex items-start gap-2">
                         <Shield size={14} className="mt-0.5 flex-shrink-0" />
                         <span>
                             <strong>Conseil :</strong> Imprimez ce QR code et collez-le sur la fiche physique du patient ou sur son bracelet d'identification pour un accès rapide lors des consultations.

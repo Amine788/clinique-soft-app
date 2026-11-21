@@ -127,14 +127,14 @@ function QrCameraScanner({ onResult, onClose }) {
                                             position: "absolute", width: 28, height: 28,
                                             top: c[0] === "t" ? 0 : undefined, bottom: c[0] === "b" ? 0 : undefined,
                                             left: c[1] === "l" ? 0 : undefined, right: c[1] === "r" ? 0 : undefined,
-                                            borderTop: c[0] === "t" ? "3px solid #60a5fa" : undefined,
-                                            borderBottom: c[0] === "b" ? "3px solid #60a5fa" : undefined,
-                                            borderLeft: c[1] === "l" ? "3px solid #60a5fa" : undefined,
-                                            borderRight: c[1] === "r" ? "3px solid #60a5fa" : undefined,
+                                            borderTop: c[0] === "t" ? "3px solid #7FAAE6" : undefined,
+                                            borderBottom: c[0] === "b" ? "3px solid #7FAAE6" : undefined,
+                                            borderLeft: c[1] === "l" ? "3px solid #7FAAE6" : undefined,
+                                            borderRight: c[1] === "r" ? "3px solid #7FAAE6" : undefined,
                                         }} />
                                     ))}
                                     <style>{`@keyframes scanAnim{0%{top:8%}50%{top:82%}100%{top:8%}}`}</style>
-                                    <div style={{ position: "absolute", left: "8%", right: "8%", height: 2, background: "linear-gradient(90deg,transparent,#60a5fa,transparent)", animation: "scanAnim 1.8s ease-in-out infinite" }} />
+                                    <div style={{ position: "absolute", left: "8%", right: "8%", height: 2, background: "linear-gradient(90deg,transparent,#7FAAE6,transparent)", animation: "scanAnim 1.8s ease-in-out infinite" }} />
                                 </div>
                             </div>
                             {!ready && (
@@ -186,8 +186,8 @@ function PatientDetailCard({ patient, onClose, onSaveVitals }) {
     ];
 
     return (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(10,15,28,.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)", padding: 16 }}>
-            <div style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 64px rgba(0,0,0,.4)", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)", padding: 16 }}>
+            <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 32px 64px rgba(0,0,0,.4)", display: "flex", flexDirection: "column" }}>
 
                 {/* ── Header patient ── */}
                 <div style={{ background: "#0f172a", padding: "20px 20px 16px", borderRadius: "20px 20px 0 0", position: "relative" }}>
@@ -276,8 +276,8 @@ function PatientDetailCard({ patient, onClose, onSaveVitals }) {
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
                             padding: "12px 16px", background: "none", border: "none", cursor: "pointer",
                             fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500,
-                            color: activeTab === t.id ? "#2563eb" : "#64748b",
-                            borderBottom: activeTab === t.id ? "2px solid #2563eb" : "2px solid transparent",
+                            color: activeTab === t.id ? "#004AAD" : "#64748b",
+                            borderBottom: activeTab === t.id ? "2px solid #004AAD" : "2px solid transparent",
                             marginBottom: -1, transition: "all .15s"
                         }}>
                             {t.label}
@@ -316,7 +316,7 @@ function PatientDetailCard({ patient, onClose, onSaveVitals }) {
                             <div style={{ padding: "12px 14px", background: patient.bloodType ? (BLOOD_COLOR[patient.bloodType] + "10") : "#f8fafc", border: `1px solid ${patient.bloodType ? (BLOOD_COLOR[patient.bloodType] + "30") : "#e2e8f0"}`, borderRadius: 12 }}>
                                 <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>Groupe sanguin</div>
                                 {patient.bloodType
-                                    ? <span style={{ fontSize: 26, fontWeight: 800, color: BLOOD_COLOR[patient.bloodType] || "#0f172a" }}>{patient.bloodType}</span>
+                                    ? <span style={{ fontSize: 26, fontWeight: 700, color: BLOOD_COLOR[patient.bloodType] || "#0f172a" }}>{patient.bloodType}</span>
                                     : <span style={{ fontSize: 13, color: "#94a3b8" }}>Non renseigné</span>
                                 }
                             </div>
@@ -335,12 +335,12 @@ function PatientDetailCard({ patient, onClose, onSaveVitals }) {
                             </div>
 
                             {/* Chroniques */}
-                            <div style={{ padding: "12px 14px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12 }}>
-                                <div style={{ fontSize: 10, fontWeight: 700, color: "#1d4ed8", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><HeartPulse size={12} aria-hidden="true" />Maladies chroniques ({patient.chronic?.length || 0})</div>
+                            <div style={{ padding: "12px 14px", background: "#EEF4FC", border: "1px solid #D9E6F8", borderRadius: 12 }}>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: "#003D8F", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><HeartPulse size={12} aria-hidden="true" />Maladies chroniques ({patient.chronic?.length || 0})</div>
                                 {patient.chronic?.length > 0
                                     ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                                         {patient.chronic.map((c, i) => (
-                                            <span key={i} style={{ background: "#bfdbfe", color: "#1e40af", fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{c}</span>
+                                            <span key={i} style={{ background: "#D9E6F8", color: "#003D8F", fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{c}</span>
                                         ))}
                                     </div>
                                     : <span style={{ fontSize: 12, color: "#059669" }}>Aucune maladie chronique</span>
@@ -546,7 +546,7 @@ export default function NurseQRPage() {
                                 onChange={e => setManualId(e.target.value)}
                                 onKeyDown={e => e.key === "Enter" && handleManual()}
                                 style={{ flex: 1, border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "10px 12px", fontSize: 13, outline: "none", fontFamily: "monospace", transition: "border-color .15s" }}
-                                onFocus={e => e.target.style.borderColor = "#2563eb"}
+                                onFocus={e => e.target.style.borderColor = "#004AAD"}
                                 onBlur={e => e.target.style.borderColor = "#e5e7eb"}
                             />
                             <button
@@ -567,7 +567,7 @@ export default function NurseQRPage() {
 
                         {/* Loading */}
                         {loading && (
-                            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, fontSize: 13, color: "#2563eb" }}>
+                            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#EEF4FC", border: "1px solid #D9E6F8", borderRadius: 10, fontSize: 13, color: "#004AAD" }}>
                                 <style>{`@keyframes spin2{to{transform:rotate(360deg)}}`}</style>
                                 <LoaderCircle size={16} style={{ animation: "spin2 1s linear infinite", display: "inline-block" }} aria-hidden="true" />
                                 Recherche du dossier patient…
@@ -585,7 +585,7 @@ export default function NurseQRPage() {
                                         key={h.id}
                                         onClick={() => loadPatient(h.dossierId)}
                                         style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: 10, cursor: "pointer", textAlign: "left", transition: "all .15s" }}
-                                        onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
+                                        onMouseEnter={e => e.currentTarget.style.background = "#EEF4FC"}
                                         onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
                                     >
                                         <div style={{ width: 32, height: 32, borderRadius: "50%", background: avatarBg(h.nom) + "20", color: avatarBg(h.nom), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
@@ -617,11 +617,11 @@ export default function NurseQRPage() {
                                     <button
                                         key={p.id}
                                         onClick={() => p.patientId && loadPatient(p.patientId)}
-                                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: i === 0 ? "#eff6ff" : "#f9fafb", border: i === 0 ? "1.5px solid #bfdbfe" : "1px solid #f0f0f0", borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%", transition: "all .15s" }}
-                                        onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
-                                        onMouseLeave={e => e.currentTarget.style.background = i === 0 ? "#eff6ff" : "#f9fafb"}
+                                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: i === 0 ? "#EEF4FC" : "#f9fafb", border: i === 0 ? "1.5px solid #D9E6F8" : "1px solid #f0f0f0", borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%", transition: "all .15s" }}
+                                        onMouseEnter={e => e.currentTarget.style.background = "#EEF4FC"}
+                                        onMouseLeave={e => e.currentTarget.style.background = i === 0 ? "#EEF4FC" : "#f9fafb"}
                                     >
-                                        <div style={{ fontSize: 11, fontWeight: 700, color: i === 0 ? "#2563eb" : "#9ca3af", width: 18, textAlign: "center", flexShrink: 0 }}>{i + 1}</div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: i === 0 ? "#004AAD" : "#9ca3af", width: 18, textAlign: "center", flexShrink: 0 }}>{i + 1}</div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
                                             <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.nom}</div>
                                             <div style={{ fontSize: 11, color: "#6b7280" }}>{p.rdv} · {p.motif || "Consultation"}</div>

@@ -196,7 +196,7 @@ export default function PharmacyStockPage() {
                                     <td className="px-5 py-4 text-right text-sm font-medium">{formatMAD(p.sellPrice)}</td>
                                     <td className="px-5 py-4 text-center">
                                         <div className="flex justify-center items-center gap-2">
-                                            <button onClick={() => setSelectedProduct(p)} className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold transition" title="Ajuster le stock">
+                                            <button onClick={() => setSelectedProduct(p)} className="px-3 py-1.5 bg-brand-50 text-brand-600 hover:bg-brand-100 rounded-lg text-xs font-semibold transition" title="Ajuster le stock">
                                                 Ajuster
                                             </button>
                                             <button onClick={() => setProductToDelete(p)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="Supprimer le produit">
@@ -245,8 +245,8 @@ export default function PharmacyStockPage() {
                             <button onClick={() => setSelectedProduct(null)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"><X size={18} /></button>
                         </div>
                         <div className="p-5 space-y-4">
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                                <span className="text-xs font-semibold text-blue-600 uppercase">Produit sélectionné</span>
+                            <div className="bg-brand-50 border border-brand-100 rounded-xl p-3">
+                                <span className="text-xs font-semibold text-brand-600 uppercase">Produit sélectionné</span>
                                 <div className="font-bold text-gray-900 mt-1">{selectedProduct.name}</div>
                                 <div className="text-xs text-muted flex justify-between mt-1">
                                     <span>Stock Actuel: <strong className="text-gray-900">{selectedProduct.stock}</strong></span>

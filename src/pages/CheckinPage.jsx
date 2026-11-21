@@ -192,7 +192,7 @@ export default function CheckinPage() {
                             ) : queue.map((p, i) => (
                                 <div key={p.id} className="p-4 border-b border-gray-50 flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-                                        p.status === 'en_cours' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' :
+                                        p.status === 'en_cours' ? 'bg-primary text-white shadow-lg shadow-brand-200' :
                                         p.status === 'pret' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500'
                                     }`}>
                                         {i + 1}
@@ -208,7 +208,7 @@ export default function CheckinPage() {
                                     </div>
                                     {p.status === 'en_cours' && (
                                         <div className="flex gap-0.5">
-                                            {[1, 2, 3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
+                                            {[1, 2, 3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-brand-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
                                         </div>
                                     )}
                                 </div>
@@ -223,7 +223,7 @@ export default function CheckinPage() {
 
 function SectionTitle({ icon, title }) {
     return (
-        <h2 className="font-bold text-gray-800 flex items-center gap-2 text-sm uppercase letter-spacing-wide">
+        <h2 className="font-bold text-gray-800 flex items-center gap-2 text-sm uppercase tracking-wide">
             {icon} {title}
         </h2>
     );

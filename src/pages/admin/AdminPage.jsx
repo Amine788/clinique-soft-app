@@ -14,7 +14,7 @@ import {
 
 /* ─── Config par rôle ─── */
 const ROLE_CONFIG = {
-    doctor:         { label: 'Médecin',        icon: Stethoscope,   color: 'bg-blue-50 text-blue-700 border-blue-200',   badge: 'bg-blue-100 text-blue-700',   dot: 'bg-blue-500' },
+    doctor:         { label: 'Médecin',        icon: Stethoscope,   color: 'bg-brand-50 text-brand-700 border-brand-200',   badge: 'bg-brand-100 text-brand-700',   dot: 'bg-brand-500' },
     secretary:      { label: 'Secrétaire',      icon: ClipboardList, color: 'bg-teal-50 text-teal-700 border-teal-200',   badge: 'bg-teal-100 text-teal-700',   dot: 'bg-teal-500' },
     pharmacist:     { label: 'Pharmacien',      icon: Pill,          color: 'bg-green-50 text-green-700 border-green-200', badge: 'bg-green-100 text-green-700', dot: 'bg-green-500' },
     lab_technician: { label: 'Laborantin',      icon: Microscope,    color: 'bg-purple-50 text-purple-700 border-purple-200', badge: 'bg-purple-100 text-purple-700', dot: 'bg-purple-500' },
@@ -171,14 +171,14 @@ export default function AdminPage({ tab = 'users' }) {
                                             <Icon size={16} className={cfg.dot.replace('bg-', 'text-')} />
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
                                         </div>
-                                        <div className="text-2xl font-black text-gray-900">{stats[role] ?? 0}</div>
+                                        <div className="text-2xl font-bold text-gray-900">{stats[role] ?? 0}</div>
                                         <div className="text-xs text-muted mt-0.5">compte(s)</div>
                                     </button>
                                 );
                             })}
                             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-4 shadow-md text-white">
                                 <div className="text-xs font-bold opacity-80 uppercase tracking-wide mb-1">Total actifs</div>
-                                <div className="text-3xl font-black">{stats.actifs ?? 0}</div>
+                                <div className="text-3xl font-bold">{stats.actifs ?? 0}</div>
                                 <div className="text-xs opacity-70 mt-0.5">/ {stats.total ?? 0} comptes</div>
                             </div>
                         </div>
@@ -287,7 +287,7 @@ export default function AdminPage({ tab = 'users' }) {
                                                 <td className="px-5 py-3">
                                                     <div className="flex items-center gap-1">
                                                         <button onClick={() => setModalEdit(user)} title="Modifier"
-                                                            className="p-1.5 hover:bg-blue-50 text-blue-500 rounded-lg transition">
+                                                            className="p-1.5 hover:bg-brand-50 text-brand-500 rounded-lg transition">
                                                             <Edit2 size={14} />
                                                         </button>
                                                         <button onClick={() => setModalPassword(user)} title="Changer le mot de passe"

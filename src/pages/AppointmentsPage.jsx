@@ -71,12 +71,12 @@ function EditModal({ rdv, onClose, onSaved }) {
 
     return (
         <div style={{
-            position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)',
+            position: 'fixed', inset: 0, backgroundColor: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }} onClick={onClose}>
             <div style={{
-                background: 'white', borderRadius: '20px', padding: '28px',
-                width: '480px', maxWidth: '95vw', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                background: 'white', borderRadius: '16px', padding: '28px',
+                width: '480px', maxWidth: '95vw', boxShadow: 'var(--shadow-xl)',
             }} onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
@@ -96,7 +96,7 @@ function EditModal({ rdv, onClose, onSaved }) {
                     <div><strong>Patient :</strong> {rdv.patient}</div>
                     <div><strong>Médecin :</strong> {rdv.doctor}</div>
                     {rdv.patientPhone && <div><strong>Tél :</strong> {rdv.patientPhone}</div>}
-                    <div><strong>N° RDV :</strong> <span style={{ fontFamily: 'monospace', color: '#4f46e5' }}>{rdv.id}</span></div>
+                    <div><strong>N° RDV :</strong> <span style={{ fontFamily: 'monospace', color: '#004AAD' }}>{rdv.id}</span></div>
                 </div>
 
                 {/* Formulaire */}
@@ -117,8 +117,8 @@ function EditModal({ rdv, onClose, onSaved }) {
                                 <button key={h} onClick={() => setForm(f => ({ ...f, heure: h }))}
                                     style={{
                                         padding: '6px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                                        border: form.heure === h ? '2px solid #4f46e5' : '1px solid #e5e7eb',
-                                        background: form.heure === h ? '#4f46e5' : 'white',
+                                        border: form.heure === h ? '2px solid #004AAD' : '1px solid #e5e7eb',
+                                        background: form.heure === h ? '#004AAD' : 'white',
                                         color: form.heure === h ? 'white' : '#374151',
                                         transition: 'all 0.15s',
                                     }}>
@@ -165,7 +165,7 @@ function EditModal({ rdv, onClose, onSaved }) {
                         Annuler
                     </button>
                     <button onClick={handleSave} disabled={saving}
-                        style={{ flex: 2, padding: '10px', border: 'none', borderRadius: '12px', background: saving ? '#a5b4fc' : '#4f46e5', color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        style={{ flex: 2, padding: '10px', border: 'none', borderRadius: '12px', background: saving ? '#7FAAE6' : '#004AAD', color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                         {saving ? '⏳ Enregistrement...' : <><Save size={15} /> Enregistrer</>}
                     </button>
                 </div>

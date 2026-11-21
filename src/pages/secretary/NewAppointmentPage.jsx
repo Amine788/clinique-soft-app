@@ -456,8 +456,8 @@ export default function NewAppointmentPage() {
                             ? selectedRoom.price * jours : 0;
                         const total = typeConsultation === 'preoperation' ? prixChambre : prixConsult;
                         return (
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm space-y-1">
-                                <div className="font-semibold text-blue-700 mb-2">💰 Estimation financière</div>
+                            <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 text-sm space-y-1">
+                                <div className="font-semibold text-brand-700 mb-2">💰 Estimation financière</div>
                                 {typeConsultation === 'preoperation' ? (
                                     <>
                                         <div className="flex justify-between"><span>Chambre ({jours} nuit(s) × {selectedRoom?.price || '?'} DH)</span><span className="font-bold">{prixChambre} DH</span></div>
@@ -465,7 +465,7 @@ export default function NewAppointmentPage() {
                                 ) : (
                                     <div className="flex justify-between"><span>Consultation</span><span className="font-bold">{prixConsult} DH</span></div>
                                 )}
-                                <div className="flex justify-between border-t border-blue-200 pt-1 mt-1 font-bold text-blue-800">
+                                <div className="flex justify-between border-t border-brand-200 pt-1 mt-1 font-bold text-brand-800">
                                     <span>Total estimé</span><span>{total} DH</span>
                                 </div>
                             </div>

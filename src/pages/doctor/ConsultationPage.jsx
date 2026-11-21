@@ -247,7 +247,7 @@ export default function ConsultationPage() {
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate('/doctor/agenda')} className="p-1.5 hover:bg-gray-100 rounded-xl text-muted"><ArrowLeft size={18} /></button>
                     <div>
-                        <h1 className="text-xl font-bold text-gray-900">🩺 Consultation en cours</h1>
+                        <h1 className="page-title">🩺 Consultation en cours</h1>
                         <p className="text-sm text-muted">{rdv?.typeConsultation} — {rdv?.motif}</p>
                     </div>
                 </div>
@@ -261,7 +261,7 @@ export default function ConsultationPage() {
             {loadingDossier ? (
                 <div className="bg-white rounded-2xl border p-4 text-muted text-sm">Chargement du dossier...</div>
             ) : (
-                <div className={`rounded-2xl border p-4 flex items-start gap-4 ${patient?.allergies?.length ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-100'}`}>
+                <div className={`rounded-2xl border p-4 flex items-start gap-4 ${patient?.allergies?.length ? 'bg-orange-50 border-orange-200' : 'bg-brand-50 border-brand-100'}`}>
                     <div className="w-10 h-10 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm flex-shrink-0">
                         {patientNom.charAt(0)}
                     </div>
@@ -438,8 +438,8 @@ export default function ConsultationPage() {
             {activeTab === 'examens' && (
                 <div className="space-y-4">
                     {examensEnvoyes ? (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-                            <div className="flex items-center gap-2 text-blue-700 font-bold">
+                        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-5">
+                            <div className="flex items-center gap-2 text-brand-700 font-bold">
                                 <CheckCircle size={18} /> Demande d'examens envoyée au laboratoire/radiologie
                             </div>
                         </div>
@@ -560,11 +560,11 @@ export default function ConsultationPage() {
             {activeTab === 'hospitalisation' && (
                 <div className="space-y-4">
                     {hospCreee ? (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-                            <div className="flex items-center gap-2 text-blue-700 font-bold">
+                        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-5">
+                            <div className="flex items-center gap-2 text-brand-700 font-bold">
                                 <CheckCircle size={18} /> Demande d'hospitalisation envoyée
                             </div>
-                            <div className="text-sm text-blue-600 mt-1">La secrétaire a été notifiée en temps réel et peut affecter un lit et une Nurse.</div>
+                            <div className="text-sm text-brand-600 mt-1">La secrétaire a été notifiée en temps réel et peut affecter un lit et une Nurse.</div>
                         </div>
                     ) : (
                         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4">

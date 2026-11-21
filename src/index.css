@@ -303,6 +303,16 @@ body {
   :where(.topbar ~ main) :is(input, textarea)::placeholder { color: var(--color-slate-400); }
   /* Chiffres de largeur fixe dans les tableaux : montants et dates alignés */
   :where(.topbar ~ main td) { font-variant-numeric: tabular-nums; }
+
+  /* Focus clavier visible et identique dans la barre latérale, l'en-tête et les pages */
+  :where(.sidebar, .topbar, .topbar ~ main) :where(button, a, summary, [role="button"], [role="tab"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  /* Action indisponible : curseur explicite */
+  :where(.topbar ~ main) :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  /* En-têtes de tableau : même gris et même graisse partout (les classes des pages restent prioritaires) */
+  :where(.topbar ~ main th) { color: var(--color-gray-500); font-weight: 600; }
 }
 
 /* ── Scrollbar style ── */
@@ -339,13 +349,13 @@ body {
   .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8125rem; border-radius: 0.625rem; }
 }
 
-/* ── Badges ── */
+/* ── Badges (même forme que les pastilles de statut du tableau de bord) ── */
 .badge {
-  @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] inline-flex items-center;
+  @apply px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 whitespace-nowrap;
 }
-.badge-success { background: #E8F8F0; color: #1a8a4a; }
-.badge-warning { background: #FFFBEB; color: #B45309; }
-.badge-danger  { background: #FEF2F2; color: #DC2626; }
+.badge-success { background: var(--color-emerald-50); color: var(--color-emerald-700); }
+.badge-warning { background: var(--color-amber-50); color: var(--color-amber-700); }
+.badge-danger  { background: var(--color-red-50); color: var(--color-red-600); }
 .badge-info    { background: var(--primary-light); color: var(--primary); }
 .badge-primary { background: var(--primary-light); color: var(--primary); }
 

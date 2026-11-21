@@ -50,7 +50,7 @@ export default function SubscriptionPage() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
-            <div className="w-full max-w-[640px] bg-white rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-gray-150 overflow-hidden">
+            <div className="w-full max-w-[640px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
                 
                 {/* Header Banner */}
                 <div className={`p-8 text-center text-white ${isSuspended ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-amber-500 to-amber-600'}`}>

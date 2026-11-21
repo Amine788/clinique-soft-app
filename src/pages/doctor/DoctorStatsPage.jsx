@@ -5,7 +5,7 @@ import api from '../../api/axios';
 import { BarChart3, TrendingUp, Users, Calendar, Download } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+const COLORS = ['#004AAD', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export default function DoctorStatsPage() {
     const { user } = useAuthStore();
@@ -71,7 +71,7 @@ export default function DoctorStatsPage() {
                             <XAxis dataKey="day" tick={{ fontSize: 11 }} />
                             <YAxis tick={{ fontSize: 11 }} />
                             <Tooltip />
-                            <Bar dataKey="consultations" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="consultations" fill="#004AAD" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -103,7 +103,7 @@ export default function DoctorStatsPage() {
                             <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
                             <Tooltip />
                             <Legend />
-                            <Line yAxisId="left" type="monotone" dataKey="consultations" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} />
+                            <Line yAxisId="left" type="monotone" dataKey="consultations" stroke="#004AAD" strokeWidth={2} dot={{ r: 4 }} />
                             <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
                         </LineChart>
                     </ResponsiveContainer>

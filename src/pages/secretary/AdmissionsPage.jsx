@@ -15,7 +15,7 @@ const statusColor = {
     occupied:    { bg: 'bg-red-50 border-red-200',        badge: 'bg-red-100 text-red-800',        dot: 'bg-red-500',     label: '🔴 Occupée' },
     reserved:    { bg: 'bg-yellow-50 border-yellow-200',  badge: 'bg-yellow-100 text-yellow-800',  dot: 'bg-yellow-500',  label: '🟡 Réservée' },
     maintenance: { bg: 'bg-orange-50 border-orange-200',  badge: 'bg-orange-100 text-orange-800',  dot: 'bg-orange-500',  label: '🟠 Nettoyage' },
-    hors_service:{ bg: 'bg-slate-100 border-slate-300',   badge: 'bg-slate-200 text-slate-600',    dot: 'bg-slate-400',   label: '⚫ Hors service' },
+    hors_service:{ bg: 'bg-gray-100 border-gray-300',   badge: 'bg-gray-200 text-gray-600',    dot: 'bg-gray-400',   label: '⚫ Hors service' },
 };
 
 function daysSince(date) {
@@ -154,29 +154,29 @@ export default function SecretaryAdmissionsPage() {
     const pendingAdmissions = admissions.length;
 
     const stats = [
-        { label: 'Chambres total',    val: totalRooms,        color: 'text-slate-800',    bg: 'bg-white border border-slate-100' },
+        { label: 'Chambres total',    val: totalRooms,        color: 'text-gray-800',    bg: 'bg-white border border-gray-100' },
         { label: 'Libres 🟢',         val: freeRooms,         color: 'text-green-700',    bg: 'bg-green-50 border border-green-200' },
         { label: 'Occupées 🔴',       val: occupiedRooms,     color: 'text-red-700',      bg: 'bg-red-50 border border-red-200' },
         { label: 'Réservées 🟡',      val: reservedRooms,     color: 'text-yellow-700',   bg: 'bg-yellow-50 border border-yellow-200' },
         { label: 'Nettoyage 🟠',      val: cleaningRooms,     color: 'text-orange-700',   bg: 'bg-orange-50 border border-orange-200' },
-        { label: 'Taux occupation',   val: `${occupancyRate}%`, color: 'text-white',      bg: 'bg-slate-900' },
+        { label: 'Taux occupation',   val: `${occupancyRate}%`, color: 'text-white',      bg: 'bg-primary-dark' },
     ];
 
     return (
-        <div className="flex flex-col min-h-[calc(100vh-100px)] p-6 bg-slate-50 font-sans">
+        <div className="flex flex-col min-h-[calc(100vh-100px)] font-sans">
             {/* ── Header ── */}
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="page-title flex items-center gap-2">
                         🏢 Admissions &amp; Chambres
                     </h1>
-                    <p className="text-slate-500 text-sm mt-0.5">
+                    <p className="text-gray-500 text-sm mt-0.5">
                         Gestion des admissions, sorties et suivi de l'occupation en temps réel
                     </p>
                 </div>
                 <button
                     onClick={loadAllData}
-                    className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition shadow-sm text-slate-600"
+                    className="p-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 transition shadow-sm text-gray-600"
                 >
                     <RefreshCw size={16} />
                 </button>
@@ -186,8 +186,8 @@ export default function SecretaryAdmissionsPage() {
             <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
                 {stats.map((s, i) => (
                     <div key={i} className={`p-4 rounded-2xl shadow-sm ${s.bg} flex flex-col justify-between`}>
-                        <span className="text-[10px] uppercase font-bold text-slate-400">{s.label}</span>
-                        <span className={`text-2xl font-black mt-2 ${s.color}`}>{s.val}</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400">{s.label}</span>
+                        <span className={`text-2xl font-bold mt-2 ${s.color}`}>{s.val}</span>
                     </div>
                 ))}
             </div>
@@ -198,7 +198,7 @@ export default function SecretaryAdmissionsPage() {
                     {pendingAdmissions > 0 && (
                         <div
                             onClick={() => setActiveTab('admissions')}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-xs font-bold text-blue-800 cursor-pointer hover:bg-blue-100 transition"
+                            className="flex items-center gap-2 px-4 py-2 bg-brand-50 border border-brand-200 rounded-xl text-xs font-bold text-brand-800 cursor-pointer hover:bg-brand-100 transition"
                         >
                             <ClipboardList size={14} />
                             {pendingAdmissions} admission{pendingAdmissions > 1 ? 's' : ''} en attente
@@ -217,7 +217,7 @@ export default function SecretaryAdmissionsPage() {
             )}
 
             {/* ── Onglets ── */}
-            <div className="flex border-b border-slate-200 mb-6">
+            <div className="flex border-b border-gray-200 mb-6">
                 {[
                     { id: 'admissions', label: '📥 Demandes d\'admission', count: pendingAdmissions },
                     { id: 'discharges', label: '📤 Sorties', count: dischargeRequests.length },
@@ -228,13 +228,13 @@ export default function SecretaryAdmissionsPage() {
                         onClick={() => { setActiveTab(tab.id); setSelectedHosp(null); }}
                         className={`px-5 py-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 ${
                             activeTab === tab.id
-                                ? 'border-slate-950 text-slate-950'
-                                : 'border-transparent text-slate-500 hover:text-slate-900'
+                                ? 'border-gray-950 text-gray-950'
+                                : 'border-transparent text-gray-500 hover:text-gray-900'
                         }`}
                     >
                         {tab.label}
                         {tab.count !== null && tab.count > 0 && (
-                            <span className="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[9px] font-extrabold">
+                            <span className="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-bold">
                                 {tab.count}
                             </span>
                         )}
@@ -249,20 +249,20 @@ export default function SecretaryAdmissionsPage() {
                 {activeTab === 'admissions' && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         {/* Liste demandes */}
-                        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-3">
-                            <h2 className="font-extrabold text-sm text-slate-800">
+                        <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-3">
+                            <h2 className="font-bold text-sm text-gray-800">
                                 Demandes en attente d'affectation
                                 {admissions.length > 0 && (
-                                    <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-bold">
+                                    <span className="ml-2 px-2 py-0.5 bg-brand-100 text-brand-800 rounded-full text-[10px] font-bold">
                                         {admissions.length}
                                     </span>
                                 )}
                             </h2>
 
                             {loading ? (
-                                <p className="text-xs text-slate-400 text-center py-10">Chargement...</p>
+                                <p className="text-xs text-gray-400 text-center py-10">Chargement...</p>
                             ) : admissions.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400">
+                                <div className="text-center py-12 text-gray-400">
                                     <div className="text-4xl mb-2">✅</div>
                                     <p className="text-sm font-medium">Aucune demande en attente</p>
                                 </div>
@@ -277,8 +277,8 @@ export default function SecretaryAdmissionsPage() {
                                         }}
                                         className={`p-4 border rounded-2xl cursor-pointer transition-all ${
                                             selectedHosp?.id === a.id
-                                                ? 'bg-slate-900 text-white border-transparent shadow-lg'
-                                                : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                                                ? 'bg-primary-dark text-white border-transparent shadow-lg'
+                                                : 'bg-gray-50 border-gray-100 hover:bg-gray-100'
                                         }`}
                                     >
                                         <div className="flex justify-between items-start">
@@ -286,27 +286,27 @@ export default function SecretaryAdmissionsPage() {
                                                 <h3 className="font-bold text-xs">
                                                     {a.Patient?.prenom} {a.Patient?.nom}
                                                 </h3>
-                                                <p className={`text-[10px] mt-1 ${selectedHosp?.id === a.id ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <p className={`text-[10px] mt-1 ${selectedHosp?.id === a.id ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     Dossier: {a.Patient?.numeroDossier} · CIN: {a.Patient?.cinNumero}
                                                 </p>
-                                                <p className={`text-[10px] mt-1 font-semibold ${selectedHosp?.id === a.id ? 'text-slate-300' : 'text-slate-600'}`}>
+                                                <p className={`text-[10px] mt-1 font-semibold ${selectedHosp?.id === a.id ? 'text-gray-300' : 'text-gray-600'}`}>
                                                     Dr. {a.Medecin?.User?.prenom} {a.Medecin?.User?.nom}
                                                 </p>
                                                 {a.diagnostic && (
-                                                    <p className={`text-[10px] mt-0.5 italic ${selectedHosp?.id === a.id ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                    <p className={`text-[10px] mt-0.5 italic ${selectedHosp?.id === a.id ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {a.diagnostic}
                                                     </p>
                                                 )}
                                             </div>
                                             <div className="flex flex-col items-end gap-1">
-                                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                                                     a.etat === 'critique' ? 'bg-red-500 text-white animate-pulse' :
                                                     a.etat === 'surveillance' ? 'bg-yellow-500 text-white' :
-                                                    'bg-slate-200 text-slate-700'
+                                                    'bg-gray-200 text-gray-700'
                                                 }`}>
                                                     {a.etat}
                                                 </span>
-                                                <ChevronRight size={14} className={selectedHosp?.id === a.id ? 'text-white' : 'text-slate-400'} />
+                                                <ChevronRight size={14} className={selectedHosp?.id === a.id ? 'text-white' : 'text-gray-400'} />
                                             </div>
                                         </div>
                                     </div>
@@ -315,26 +315,26 @@ export default function SecretaryAdmissionsPage() {
                         </div>
 
                         {/* Formulaire d'affectation */}
-                        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                            <h2 className="font-extrabold text-sm text-slate-800 mb-4">
+                        <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                            <h2 className="font-bold text-sm text-gray-800 mb-4">
                                 Affecter chambre &amp; Nurse
                             </h2>
                             {selectedHosp ? (
                                 <form onSubmit={handleAdmit} className="space-y-4">
                                     {/* Résumé patient */}
-                                    <div className="p-4 bg-slate-50 rounded-2xl text-xs space-y-1.5">
-                                        <span className="text-slate-400 block text-[10px] font-semibold uppercase tracking-wider mb-1">Patient</span>
-                                        <span className="font-black text-slate-900 text-sm block">
+                                    <div className="p-4 bg-gray-50 rounded-2xl text-xs space-y-1.5">
+                                        <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider mb-1">Patient</span>
+                                        <span className="font-bold text-gray-900 text-sm block">
                                             {selectedHosp.Patient?.prenom} {selectedHosp.Patient?.nom}
                                         </span>
-                                        <span className="text-slate-500">
+                                        <span className="text-gray-500">
                                             Prescrit par Dr. {selectedHosp.Medecin?.User?.prenom} {selectedHosp.Medecin?.User?.nom}
                                         </span>
                                         {selectedHosp.motif && (
-                                            <span className="text-slate-500 italic block">"{selectedHosp.motif}"</span>
+                                            <span className="text-gray-500 italic block">"{selectedHosp.motif}"</span>
                                         )}
                                         {selectedHosp.dateSortieEstimee && (
-                                            <span className="text-slate-500 block">
+                                            <span className="text-gray-500 block">
                                                 Prévue du {new Date(selectedHosp.dateAdmission).toLocaleDateString('fr-FR')} au {new Date(selectedHosp.dateSortieEstimee).toLocaleDateString('fr-FR')}
                                             </span>
                                         )}
@@ -342,14 +342,14 @@ export default function SecretaryAdmissionsPage() {
 
                                     {/* Chambre libre */}
                                     <div>
-                                        <label className="text-[10px] font-semibold text-slate-500 block mb-1.5 uppercase tracking-wider">
+                                        <label className="text-[10px] font-semibold text-gray-500 block mb-1.5 uppercase tracking-wider">
                                             Chambre libre *
                                         </label>
                                         <select
                                             value={selectedChambreId}
                                             onChange={e => setSelectedChambreId(e.target.value)}
                                             required
-                                            className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                            className="w-full px-3 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
                                         >
                                             <option value="">Sélectionner une chambre libre...</option>
                                             {rooms.filter(r => r.status === 'available').map(r => (
@@ -366,7 +366,7 @@ export default function SecretaryAdmissionsPage() {
 
                                     {/* Lit */}
                                     <div>
-                                        <label className="text-[10px] font-semibold text-slate-500 block mb-1.5 uppercase tracking-wider">
+                                        <label className="text-[10px] font-semibold text-gray-500 block mb-1.5 uppercase tracking-wider">
                                             Numéro de lit / Emplacement
                                         </label>
                                         <input
@@ -374,20 +374,20 @@ export default function SecretaryAdmissionsPage() {
                                             value={lit}
                                             onChange={e => setLit(e.target.value)}
                                             placeholder="Ex: Lit A, Lit 02..."
-                                            className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                            className="w-full px-3 py-2.5 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30"
                                         />
                                     </div>
 
                                     {/* Nurse */}
                                     <div>
-                                        <label className="text-[10px] font-semibold text-slate-500 block mb-1.5 uppercase tracking-wider">
+                                        <label className="text-[10px] font-semibold text-gray-500 block mb-1.5 uppercase tracking-wider">
                                             Infirmier(ère) responsable *
                                         </label>
                                         <select
                                             value={selectedNurseId}
                                             onChange={e => setSelectedNurseId(e.target.value)}
                                             required
-                                            className="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                            className="w-full px-3 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
                                         >
                                             <option value="">Sélectionner un(e) infirmier(ère)...</option>
                                             {nurses.map(n => (
@@ -401,7 +401,7 @@ export default function SecretaryAdmissionsPage() {
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-extrabold hover:bg-slate-800 transition disabled:opacity-60 flex items-center justify-center gap-2"
+                                        className="w-full py-3 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary-hover transition disabled:opacity-60 flex items-center justify-center gap-2"
                                     >
                                         {submitting ? (
                                             <><RefreshCw size={14} className="animate-spin" /> Validation...</>
@@ -411,7 +411,7 @@ export default function SecretaryAdmissionsPage() {
                                     </button>
                                 </form>
                             ) : (
-                                <div className="text-center py-16 text-slate-400">
+                                <div className="text-center py-16 text-gray-400">
                                     <BedDouble size={32} className="mx-auto mb-3 opacity-30" />
                                     <p className="text-xs font-medium">Sélectionnez une demande à gauche</p>
                                     <p className="text-[10px] mt-1">pour affecter une chambre et un(e) infirmier(ère)</p>
@@ -423,8 +423,8 @@ export default function SecretaryAdmissionsPage() {
 
                 {/* ────────────── TAB SORTIES ────────────── */}
                 {activeTab === 'discharges' && (
-                    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-4">
-                        <h2 className="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
+                        <h2 className="font-bold text-sm text-gray-800 flex items-center gap-2">
                             <LogOut size={16} />
                             Demandes de sortie validées par le médecin
                             {dischargeRequests.length > 0 && (
@@ -435,18 +435,18 @@ export default function SecretaryAdmissionsPage() {
                         </h2>
 
                         {loading ? (
-                            <p className="text-xs text-slate-400 text-center py-10">Chargement...</p>
+                            <p className="text-xs text-gray-400 text-center py-10">Chargement...</p>
                         ) : dischargeRequests.length === 0 ? (
-                            <div className="text-center py-12 text-slate-400">
+                            <div className="text-center py-12 text-gray-400">
                                 <div className="text-4xl mb-2">✅</div>
                                 <p className="text-sm font-medium">Aucune sortie en attente de finalisation</p>
                                 <p className="text-xs mt-1">Les demandes de sortie validées par le médecin apparaîtront ici</p>
                             </div>
                         ) : (
-                            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                                 <table className="w-full text-left text-xs border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50 text-slate-400 border-b border-slate-100">
+                                        <tr className="bg-gray-50 text-gray-400 border-b border-gray-100">
                                             <th className="p-3 font-semibold">Patient</th>
                                             <th className="p-3 font-semibold">Chambre / Lit</th>
                                             <th className="p-3 font-semibold">Médecin référent</th>
@@ -455,38 +455,38 @@ export default function SecretaryAdmissionsPage() {
                                             <th className="p-3 text-right font-semibold">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100">
+                                    <tbody className="divide-y divide-gray-100">
                                         {dischargeRequests.map(h => (
-                                            <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
+                                            <tr key={h.id} className="hover:bg-gray-50/80 transition-colors">
                                                 <td className="p-3">
-                                                    <span className="font-bold text-slate-900 block">
+                                                    <span className="font-bold text-gray-900 block">
                                                         {h.Patient?.prenom} {h.Patient?.nom}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-400">
+                                                    <span className="text-[10px] text-gray-400">
                                                         {h.Patient?.cinNumero}
                                                     </span>
                                                 </td>
                                                 <td className="p-3">
-                                                    <span className="font-semibold text-slate-700">
+                                                    <span className="font-semibold text-gray-700">
                                                         Ch. {h.Chambre?.numero || '—'}
                                                     </span>
-                                                    <span className="text-slate-500 ml-1">· {h.lit || '—'}</span>
+                                                    <span className="text-gray-500 ml-1">· {h.lit || '—'}</span>
                                                 </td>
-                                                <td className="p-3 text-slate-600">
+                                                <td className="p-3 text-gray-600">
                                                     Dr. {h.Medecin?.User?.prenom} {h.Medecin?.User?.nom}
                                                 </td>
-                                                <td className="p-3 text-slate-600">
+                                                <td className="p-3 text-gray-600">
                                                     {new Date(h.dateAdmission).toLocaleDateString('fr-FR')}
                                                 </td>
                                                 <td className="p-3">
-                                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-bold">
+                                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded font-bold">
                                                         {daysSince(h.dateAdmission)}
                                                     </span>
                                                 </td>
                                                 <td className="p-3 text-right">
                                                     <button
                                                         onClick={() => handleCloseHosp(h.id)}
-                                                        className="bg-slate-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-slate-700 transition text-[10px] uppercase tracking-wider"
+                                                        className="bg-primary text-white font-bold px-3 py-1.5 rounded-lg hover:bg-primary-hover transition text-[10px] uppercase tracking-wider"
                                                     >
                                                         Clôturer le séjour
                                                     </button>
@@ -504,13 +504,13 @@ export default function SecretaryAdmissionsPage() {
                 {activeTab === 'chambres' && (
                     <div className="space-y-6">
                         {/* Toutes les chambres */}
-                        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                            <h2 className="font-extrabold text-sm text-slate-800 mb-4 flex items-center gap-2">
+                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                            <h2 className="font-bold text-sm text-gray-800 mb-4 flex items-center gap-2">
                                 <Home size={16} />
                                 Vue d'ensemble des chambres
                             </h2>
                             {loading ? (
-                                <p className="text-xs text-slate-400 text-center py-10">Chargement...</p>
+                                <p className="text-xs text-gray-400 text-center py-10">Chargement...</p>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                                     {rooms.map(r => {
@@ -518,32 +518,32 @@ export default function SecretaryAdmissionsPage() {
                                         return (
                                             <div key={r.id} className={`p-4 border rounded-2xl text-xs transition-all ${sc.bg}`}>
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <span className="font-black text-slate-900">Chambre {r.number}</span>
-                                                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${sc.badge}`}>
+                                                    <span className="font-bold text-gray-900">Chambre {r.number}</span>
+                                                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${sc.badge}`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`}></span>
                                                         {sc.label.split(' ').slice(1).join(' ')}
                                                     </span>
                                                 </div>
-                                                <p className="text-slate-500 text-[10px]">
+                                                <p className="text-gray-500 text-[10px]">
                                                     {r.type} · {r.beds} lit{r.beds > 1 ? 's' : ''}
                                                     {r.price ? ` · ${r.price} MAD/nuit` : ''}
                                                 </p>
 
                                                 {/* Patient occupant */}
                                                 {r.hospitalisation && (
-                                                    <div className="mt-3 pt-2 border-t border-slate-200/70 space-y-0.5">
-                                                        <span className="font-bold text-slate-800 block">
+                                                    <div className="mt-3 pt-2 border-t border-gray-200/70 space-y-0.5">
+                                                        <span className="font-bold text-gray-800 block">
                                                             {r.hospitalisation.patient?.prenom} {r.hospitalisation.patient?.nom}
                                                         </span>
-                                                        <span className="text-[10px] text-slate-500">
+                                                        <span className="text-[10px] text-gray-500">
                                                             Dr. {r.hospitalisation.medecin?.prenom} {r.hospitalisation.medecin?.nom}
                                                         </span>
                                                         {r.hospitalisation.nurse && (
-                                                            <span className="text-[10px] text-slate-500 block">
+                                                            <span className="text-[10px] text-gray-500 block">
                                                                 Nurse: {r.hospitalisation.nurse.prenom} {r.hospitalisation.nurse.nom}
                                                             </span>
                                                         )}
-                                                        <span className="text-[10px] text-slate-400">
+                                                        <span className="text-[10px] text-gray-400">
                                                             <Clock size={9} className="inline mr-0.5" />
                                                             Depuis le {new Date(r.hospitalisation.dateAdmission).toLocaleDateString('fr-FR')}
                                                         </span>
@@ -563,7 +563,7 @@ export default function SecretaryAdmissionsPage() {
                                         );
                                     })}
                                     {rooms.length === 0 && (
-                                        <div className="col-span-full text-center py-12 text-slate-400">
+                                        <div className="col-span-full text-center py-12 text-gray-400">
                                             <BedDouble size={32} className="mx-auto mb-2 opacity-30" />
                                             <p className="text-sm">Aucune chambre enregistrée</p>
                                         </div>
@@ -574,8 +574,8 @@ export default function SecretaryAdmissionsPage() {
 
                         {/* Chambres en nettoyage séparément */}
                         {rooms.filter(r => r.status === 'maintenance').length > 0 && (
-                            <div className="bg-orange-50 border border-orange-200 rounded-3xl p-6">
-                                <h3 className="font-extrabold text-sm text-orange-800 mb-3 flex items-center gap-2">
+                            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6">
+                                <h3 className="font-bold text-sm text-orange-800 mb-3 flex items-center gap-2">
                                     🧹 Chambres en cours de nettoyage
                                     <span className="px-2 py-0.5 bg-orange-200 text-orange-800 rounded-full text-[10px] font-bold">
                                         {rooms.filter(r => r.status === 'maintenance').length}

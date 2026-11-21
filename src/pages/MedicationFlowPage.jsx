@@ -94,7 +94,7 @@ function PrescCard({ presc, patient, role, canAct, onAction }) {
             fontSize: 17, fontWeight: 700, color: "#004AAD"
           }}>{patient.name.charAt(0)}</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 15 }}>{patient.name}</div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{patient.name}</div>
             <div style={{ display: "flex", gap: 10, marginTop: 3 }}>
               <span style={{ fontSize: 11, color: "#64748b", display: "flex", alignItems: "center", gap: 3 }}><Ic.Home />{patient.room || 'Ambulatoire'}</span>
               <span style={{ fontSize: 11, color: "#64748b", display: "flex", alignItems: "center", gap: 3 }}><Ic.User />{presc.doctor}</span>
@@ -136,7 +136,7 @@ function PrescCard({ presc, patient, role, canAct, onAction }) {
                     </div>
                     <span style={{
                       padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700,
-                      background: "#eff6ff", color: "#2563eb"
+                      background: "#EEF4FC", color: "#004AAD"
                     }}>Qté : {item.qty}</span>
                   </div>
                   {itemSlots.length > 0 && (
@@ -385,7 +385,7 @@ export default function MedicationFlowFull() {
                 <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>
                   <m.icon size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} aria-hidden="true" />{m.label}
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: m.color }}>{stats[s]}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: m.color }}>{stats[s]}</div>
                 <div style={{ height: 3, background: "var(--card2)", borderRadius: 99, marginTop: 10, overflow: "hidden" }}>
                   <div style={{
                     height: "100%", borderRadius: 99, background: m.color,
@@ -445,12 +445,12 @@ export default function MedicationFlowFull() {
         return (
           <div style={{
             position: "fixed", inset: 0, zIndex: 1000,
-            background: "rgba(5,10,20,.8)", backdropFilter: "blur(6px)",
+            background: "rgba(15,23,42,.5)", backdropFilter: "blur(4px)",
             display: "flex", alignItems: "center", justifyContent: "center",
             animation: "fadeIn .15s ease"
           }}>
             <div style={{
-              background: "var(--card)", borderRadius: 20, padding: 32,
+              background: "var(--card)", borderRadius: 16, padding: 32,
               width: "100%", maxWidth: 430,
               border: `1px solid ${next.color}44`,
               boxShadow: "0 24px 48px -12px rgb(15 23 42 / .25)",
@@ -458,7 +458,7 @@ export default function MedicationFlowFull() {
             }}>
               <div style={{ textAlign: "center", marginBottom: 24 }}>
                 <div style={{ width: 56, height: 56, borderRadius: 16, background: next.color + "18", color: next.color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}><next.icon size={26} aria-hidden="true" /></div>
-                <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 8, color: "var(--text)" }}>Confirmer l'action</h3>
+                <h3 style={{ fontWeight: 700, fontSize: 18, marginBottom: 8, color: "var(--text)" }}>Confirmer l'action</h3>
                 <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.7 }}>
                   Vous allez marquer cette ordonnance comme<br />
                   <strong style={{ color: next.color }}>« {next.label} »</strong>
@@ -468,7 +468,7 @@ export default function MedicationFlowFull() {
                 background: "var(--card2)", border: "1px solid var(--border)",
                 borderRadius: 12, padding: "14px 18px", marginBottom: 24
               }}>
-                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>{patient.name}</div>
+                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{patient.name}</div>
                 <div style={{ fontSize: 12, color: "var(--muted)" }}>{patient.room || 'Ambulatoire'} · {presc.doctor}</div>
                 <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>
                   {presc.items.map(i => i.med).join(", ")}

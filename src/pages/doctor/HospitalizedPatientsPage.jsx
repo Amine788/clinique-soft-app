@@ -196,36 +196,36 @@ export default function DoctorHospitalizedPage() {
 
     // ─────────────────────────────────────────────────────────
     return (
-        <div className="flex flex-col h-[calc(100vh-100px)] p-6 bg-slate-50 overflow-hidden font-sans">
+        <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden font-sans">
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="page-title flex items-center gap-2">
                         <BedDouble size={22} className="text-primary" aria-hidden="true" /> Patients Hospitalisés
                     </h1>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-gray-500 text-sm">
                         Supervision médicale et collaboration temps réel · {patients.length} patient{patients.length > 1 ? 's' : ''}
                     </p>
                 </div>
-                <button onClick={loadPatients} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition shadow-sm text-slate-600">
+                <button onClick={loadPatients} className="p-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 transition shadow-sm text-gray-600">
                     <RefreshCw size={16} />
                 </button>
             </div>
 
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
                 {/* ── Liste patients ── */}
-                <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col min-h-0">
-                    <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-0">
+                    <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                         <div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Sous votre responsabilité</span>
-                            <span className="ml-2 px-2 py-0.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-full">{patients.length}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Sous votre responsabilité</span>
+                            <span className="ml-2 px-2 py-0.5 bg-brand-50 text-brand-700 font-bold text-xs rounded-full">{patients.length}</span>
                         </div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loading ? (
-                            <div className="text-center py-10 text-slate-400 text-sm">Chargement...</div>
+                            <div className="text-center py-10 text-gray-400 text-sm">Chargement...</div>
                         ) : patients.length === 0 ? (
-                            <div className="text-center py-12 text-slate-400">
+                            <div className="text-center py-12 text-gray-400">
                                 <BedDouble size={36} strokeWidth={1.5} className="mx-auto mb-2" aria-hidden="true" />
                                 <div className="text-sm font-medium">Aucun patient hospitalisé</div>
                                 <div className="text-xs mt-1">Les hospitalisations créées lors des consultations apparaîtront ici</div>
@@ -241,8 +241,8 @@ export default function DoctorHospitalizedPage() {
                                         onClick={() => selectPatient(p)}
                                         className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                                             isSelected
-                                                ? 'bg-slate-900 text-white border-transparent shadow-lg'
-                                                : 'bg-white hover:bg-slate-50 border-slate-100'
+                                                ? 'bg-primary-dark text-white border-transparent shadow-lg'
+                                                : 'bg-white hover:bg-gray-50 border-gray-100'
                                         }`}
                                     >
                                         <div className="flex justify-between items-start">
@@ -250,28 +250,28 @@ export default function DoctorHospitalizedPage() {
                                                 <h3 className="font-bold text-sm truncate">
                                                     {p.Patient?.prenom} {p.Patient?.nom}
                                                 </h3>
-                                                <p className={`text-xs mt-1 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <p className={`text-xs mt-1 ${isSelected ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     Ch. {p.Chambre?.numero || '—'} · {p.lit || '—'}
                                                 </p>
                                                 {p.diagnostic && (
-                                                    <p className={`text-[10px] mt-1 italic ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
+                                                    <p className={`text-[10px] mt-1 italic ${isSelected ? 'text-gray-400' : 'text-gray-400'}`}>
                                                         {p.diagnostic}
                                                     </p>
                                                 )}
                                                 <div className="flex items-center gap-1.5 mt-2">
                                                     <span className={`w-1.5 h-1.5 rounded-full ${ec.dot}`}></span>
                                                     <span className={`text-[10px] font-bold uppercase ${
-                                                        isSelected ? 'text-slate-300' : 'text-slate-600'
+                                                        isSelected ? 'text-gray-300' : 'text-gray-600'
                                                     }`}>{ec.label}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 shrink-0">
                                                 {activeAlerts > 0 && (
-                                                    <span className="px-2 py-0.5 bg-red-600 text-white font-extrabold text-xs rounded-full animate-bounce">
+                                                    <span className="px-2 py-0.5 bg-red-600 text-white font-bold text-xs rounded-full animate-bounce">
                                                         {activeAlerts}
                                                     </span>
                                                 )}
-                                                <ChevronRight size={16} className={isSelected ? 'text-white' : 'text-slate-400'} />
+                                                <ChevronRight size={16} className={isSelected ? 'text-white' : 'text-gray-400'} />
                                             </div>
                                         </div>
                                     </div>
@@ -282,20 +282,20 @@ export default function DoctorHospitalizedPage() {
                 </div>
 
                 {/* ── Fiche détaillée ── */}
-                <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col min-h-0">
+                <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-0">
                     {selectedHosp ? (
                         <>
                             {/* Header fiche */}
-                            <div className="p-6 bg-slate-900 text-white rounded-t-3xl">
+                            <div className="p-6 bg-primary-dark text-white rounded-t-2xl">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h2 className="text-lg font-black">
+                                        <h2 className="text-lg font-bold">
                                             {selectedHosp.Patient?.prenom} {selectedHosp.Patient?.nom}
                                         </h2>
-                                        <p className="text-slate-400 text-xs mt-1">
+                                        <p className="text-gray-400 text-xs mt-1">
                                             Ch. {selectedHosp.Chambre?.numero || '—'} · {selectedHosp.lit || '—'} · {selectedHosp.diagnostic || 'Pas de diagnostic'}
                                         </p>
-                                        <p className="text-slate-500 text-[10px] mt-0.5">
+                                        <p className="text-gray-500 text-[10px] mt-0.5">
                                             Nurse : {selectedHosp.nurse ? `${selectedHosp.nurse.prenom} ${selectedHosp.nurse.nom}` : 'Non assignée'}
                                         </p>
                                     </div>
@@ -313,10 +313,10 @@ export default function DoctorHospitalizedPage() {
                                                     key={e}
                                                     onClick={() => changeEtat(e)}
                                                     disabled={changingEtat || selectedHosp.etat === e}
-                                                    className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase transition ${
+                                                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase transition ${
                                                         selectedHosp.etat === e
                                                             ? etatConfig[e]?.badge + ' opacity-100 cursor-default'
-                                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600 opacity-70'
+                                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 opacity-70'
                                                     }`}
                                                 >
                                                     {e}
@@ -328,7 +328,7 @@ export default function DoctorHospitalizedPage() {
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex border-b border-slate-100 bg-slate-50/50 px-4 overflow-x-auto">
+                            <div className="flex border-b border-gray-100 bg-gray-50/50 px-4 overflow-x-auto">
                                 {[
                                     { id: 'resume',    label: 'Résumé' },
                                     { id: 'treatment', label: 'Traitement' },
@@ -342,8 +342,8 @@ export default function DoctorHospitalizedPage() {
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`px-4 py-3 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
                                             activeTab === tab.id
-                                                ? 'border-slate-900 text-slate-900'
-                                                : 'border-transparent text-slate-500 hover:text-slate-900'
+                                                ? 'border-gray-900 text-gray-900'
+                                                : 'border-transparent text-gray-500 hover:text-gray-900'
                                         }`}
                                     >
                                         {tab.label}
@@ -357,8 +357,8 @@ export default function DoctorHospitalizedPage() {
                                 {/* ── RÉSUMÉ ── */}
                                 {activeTab === 'resume' && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="bg-slate-50 p-5 rounded-2xl space-y-3">
-                                            <h3 className="font-extrabold text-xs text-slate-700 uppercase tracking-wider">Patient</h3>
+                                        <div className="bg-gray-50 p-5 rounded-2xl space-y-3">
+                                            <h3 className="font-bold text-xs text-gray-700 uppercase tracking-wider">Patient</h3>
                                             <div className="grid grid-cols-2 gap-3 text-xs">
                                                 {[
                                                     { label: 'Dossier', val: selectedHosp.Patient?.numeroDossier },
@@ -367,31 +367,31 @@ export default function DoctorHospitalizedPage() {
                                                     { label: 'Âge', val: selectedHosp.age ? `${selectedHosp.age} ans` : '—' },
                                                 ].map(({ label, val }) => (
                                                     <div key={label}>
-                                                        <span className="text-slate-400 block mb-0.5">{label}</span>
-                                                        <span className="font-bold text-slate-800">{val || '—'}</span>
+                                                        <span className="text-gray-400 block mb-0.5">{label}</span>
+                                                        <span className="font-bold text-gray-800">{val || '—'}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        <div className="bg-slate-50 p-5 rounded-2xl space-y-3">
-                                            <h3 className="font-extrabold text-xs text-slate-700 uppercase tracking-wider">Hospitalisation</h3>
+                                        <div className="bg-gray-50 p-5 rounded-2xl space-y-3">
+                                            <h3 className="font-bold text-xs text-gray-700 uppercase tracking-wider">Hospitalisation</h3>
                                             <div className="space-y-2.5 text-xs">
                                                 <div>
-                                                    <span className="text-slate-400 block mb-0.5">Date d'admission</span>
-                                                    <span className="font-bold text-slate-800">
+                                                    <span className="text-gray-400 block mb-0.5">Date d'admission</span>
+                                                    <span className="font-bold text-gray-800">
                                                         {new Date(selectedHosp.dateAdmission).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-slate-400 block mb-0.5">Infirmier(ère)</span>
-                                                    <span className="font-bold text-slate-800">
+                                                    <span className="text-gray-400 block mb-0.5">Infirmier(ère)</span>
+                                                    <span className="font-bold text-gray-800">
                                                         {selectedHosp.nurse ? `${selectedHosp.nurse.prenom} ${selectedHosp.nurse.nom}` : 'Non assigné(e)'}
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-slate-400 block mb-0.5">Motif</span>
-                                                    <span className="font-semibold text-slate-700 italic">
+                                                    <span className="text-gray-400 block mb-0.5">Motif</span>
+                                                    <span className="font-semibold text-gray-700 italic">
                                                         "{selectedHosp.motif || 'Non spécifié'}"
                                                     </span>
                                                 </div>
@@ -409,16 +409,16 @@ export default function DoctorHospitalizedPage() {
                                                 { icon: <Droplets size={14} />, label: 'Glycémie', val: last.glycemie ? `${last.glycemie} g/L` : '—', alert: parseFloat(last.glycemie) > 1.4 || parseFloat(last.glycemie) < 0.7 },
                                             ];
                                             return (
-                                                <div className="md:col-span-2 bg-slate-50 p-5 rounded-2xl">
-                                                    <h3 className="font-extrabold text-xs text-slate-700 uppercase tracking-wider mb-3">
-                                                        Dernières constantes <span className="text-slate-400 font-normal normal-case ml-1">({new Date(last.prisAt).toLocaleString('fr-FR')})</span>
+                                                <div className="md:col-span-2 bg-gray-50 p-5 rounded-2xl">
+                                                    <h3 className="font-bold text-xs text-gray-700 uppercase tracking-wider mb-3">
+                                                        Dernières constantes <span className="text-gray-400 font-normal normal-case ml-1">({new Date(last.prisAt).toLocaleString('fr-FR')})</span>
                                                     </h3>
                                                     <div className="grid grid-cols-5 gap-3">
                                                         {vitalsDisplay.map((v, i) => (
-                                                            <div key={i} className={`p-3 rounded-xl text-center text-xs ${v.alert ? 'bg-red-50 border border-red-200' : 'bg-white border border-slate-100'}`}>
-                                                                <div className={`flex justify-center mb-1 ${v.alert ? 'text-red-600' : 'text-slate-500'}`}>{v.icon}</div>
-                                                                <span className={`font-black block ${v.alert ? 'text-red-700' : 'text-slate-800'}`}>{v.val}</span>
-                                                                <span className="text-[10px] text-slate-400">{v.label}</span>
+                                                            <div key={i} className={`p-3 rounded-xl text-center text-xs ${v.alert ? 'bg-red-50 border border-red-200' : 'bg-white border border-gray-100'}`}>
+                                                                <div className={`flex justify-center mb-1 ${v.alert ? 'text-red-600' : 'text-gray-500'}`}>{v.icon}</div>
+                                                                <span className={`font-bold block ${v.alert ? 'text-red-700' : 'text-gray-800'}`}>{v.val}</span>
+                                                                <span className="text-[10px] text-gray-400">{v.label}</span>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -432,8 +432,8 @@ export default function DoctorHospitalizedPage() {
                                 {activeTab === 'treatment' && (
                                     <div className="space-y-6">
                                         {/* Formulaire ajout */}
-                                        <div className="bg-slate-50 p-5 rounded-2xl space-y-3">
-                                            <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                        <div className="bg-gray-50 p-5 rounded-2xl space-y-3">
+                                            <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
                                                 <PlusCircle size={16} /> Ajouter un médicament
                                             </h3>
                                             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -443,19 +443,19 @@ export default function DoctorHospitalizedPage() {
                                                     value={newMedName}
                                                     onChange={e => setNewMedName(e.target.value)}
                                                     onKeyDown={e => e.key === 'Enter' && addMedication()}
-                                                    className="px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                                                    className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white"
                                                 />
                                                 <input
                                                     type="text"
                                                     placeholder="Dosage..."
                                                     value={newMedDose}
                                                     onChange={e => setNewMedDose(e.target.value)}
-                                                    className="px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
+                                                    className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/30 bg-white"
                                                 />
                                                 <select
                                                     value={newMedFreq}
                                                     onChange={e => setNewMedFreq(parseInt(e.target.value))}
-                                                    className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none"
+                                                    className="px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none"
                                                 >
                                                     <option value={1}>1×/jour</option>
                                                     <option value={2}>2×/jour</option>
@@ -464,7 +464,7 @@ export default function DoctorHospitalizedPage() {
                                                 </select>
                                                 <button
                                                     onClick={addMedication}
-                                                    className="bg-slate-900 text-white font-bold text-xs py-2 px-4 rounded-lg hover:bg-slate-800 flex items-center justify-center gap-1"
+                                                    className="bg-primary text-white font-bold text-xs py-2 px-4 rounded-lg hover:bg-primary-hover flex items-center justify-center gap-1"
                                                 >
                                                     <Plus size={14} /> Ajouter
                                                 </button>
@@ -473,27 +473,27 @@ export default function DoctorHospitalizedPage() {
 
                                         {/* Liste traitements */}
                                         <div className="space-y-2">
-                                            <h3 className="font-bold text-sm text-slate-800">
+                                            <h3 className="font-bold text-sm text-gray-800">
                                                 Traitement en cours
-                                                <span className="ml-2 text-slate-400 font-normal text-xs">
+                                                <span className="ml-2 text-gray-400 font-normal text-xs">
                                                     (synchronisé en temps réel chez l'infirmier(ère))
                                                 </span>
                                             </h3>
                                             {treatmentList.length === 0 ? (
-                                                <p className="text-xs text-slate-400 italic p-4 bg-slate-50 rounded-xl">
+                                                <p className="text-xs text-gray-400 italic p-4 bg-gray-50 rounded-xl">
                                                     Aucun traitement actif — ajoutez un médicament ci-dessus
                                                 </p>
                                             ) : (
-                                                <div className="border border-slate-100 rounded-xl overflow-hidden divide-y divide-slate-100">
+                                                <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
                                                     {treatmentList.map((m, idx) => (
-                                                        <div key={m.id || idx} className="flex justify-between items-center p-4 text-xs hover:bg-slate-50 transition-colors">
+                                                        <div key={m.id || idx} className="flex justify-between items-center p-4 text-xs hover:bg-gray-50 transition-colors">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="w-7 h-7 rounded-lg bg-primary-light flex items-center justify-center text-primary">
                                                                     <Pill size={14} aria-hidden="true" />
                                                                 </div>
                                                                 <div>
-                                                                    <span className="font-bold text-slate-900 block">{nomMedicament(m)}</span>
-                                                                    <span className="text-slate-500">
+                                                                    <span className="font-bold text-gray-900 block">{nomMedicament(m)}</span>
+                                                                    <span className="text-gray-500">
                                                                         {posologieMedicament(m)} · {m.timesPerDay}×/jour · {m.moment}
                                                                     </span>
                                                                 </div>
@@ -516,19 +516,19 @@ export default function DoctorHospitalizedPage() {
                                 {/* ── CONSTANTES ── */}
                                 {activeTab === 'vitals' && (
                                     <div className="space-y-4">
-                                        <h3 className="font-bold text-sm text-slate-800">
+                                        <h3 className="font-bold text-sm text-gray-800">
                                             Historique des constantes vitales
-                                            <span className="ml-2 text-xs font-normal text-slate-400">(saisies par l'infirmier(ère))</span>
+                                            <span className="ml-2 text-xs font-normal text-gray-400">(saisies par l'infirmier(ère))</span>
                                         </h3>
                                         {!selectedHosp.vitals || selectedHosp.vitals.length === 0 ? (
-                                            <p className="text-xs text-slate-400 italic p-4 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-gray-400 italic p-4 bg-gray-50 rounded-xl">
                                                 Aucune constante enregistrée — l'infirmier(ère) doit saisir les premières mesures
                                             </p>
                                         ) : (
-                                            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                                            <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                                                 <table className="w-full text-left text-xs border-collapse">
                                                     <thead>
-                                                        <tr className="bg-slate-50 text-slate-400 border-b border-slate-100">
+                                                        <tr className="bg-gray-50 text-gray-400 border-b border-gray-100">
                                                             <th className="p-3">Date/Heure</th>
                                                             <th className="p-3">Temp</th>
                                                             <th className="p-3">Tension</th>
@@ -538,20 +538,20 @@ export default function DoctorHospitalizedPage() {
                                                             <th className="p-3">Pris par</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody className="divide-y divide-slate-100">
+                                                    <tbody className="divide-y divide-gray-100">
                                                         {selectedHosp.vitals.map(v => {
                                                             const tempAlert = parseFloat(v.temperature) > 38.5 || parseFloat(v.temperature) < 35.5;
                                                             const sat = parseInt(v.saturation);
                                                             const satAlert = !isNaN(sat) && sat < 94;
                                                             return (
-                                                                <tr key={v.id} className="hover:bg-slate-50/50">
+                                                                <tr key={v.id} className="hover:bg-gray-50/50">
                                                                     <td className="p-3 font-semibold">{new Date(v.prisAt).toLocaleString('fr-FR')}</td>
                                                                     <td className={`p-3 font-bold ${tempAlert ? 'text-red-600' : ''}`}>{v.temperature || '—'} °C</td>
-                                                                    <td className="p-3 font-bold text-blue-700">{v.tension || '—'}</td>
+                                                                    <td className="p-3 font-bold text-brand-700">{v.tension || '—'}</td>
                                                                     <td className={`p-3 font-bold ${satAlert ? 'text-red-600' : 'text-green-700'}`}>{v.saturation || '—'} %</td>
                                                                     <td className="p-3 font-bold">{v.pouls || '—'}</td>
                                                                     <td className="p-3 font-bold">{v.glycemie || '—'}</td>
-                                                                    <td className="p-3 text-slate-500">
+                                                                    <td className="p-3 text-gray-500">
                                                                         {v.nurseActorVitals ? `${v.nurseActorVitals.prenom} ${v.nurseActorVitals.nom}` : 'Nurse'}
                                                                     </td>
                                                                 </tr>
@@ -569,7 +569,7 @@ export default function DoctorHospitalizedPage() {
                                     <div className="space-y-5">
                                         {/* Alertes actives */}
                                         <div>
-                                            <h3 className="font-bold text-sm text-slate-800 mb-3">Alertes actives</h3>
+                                            <h3 className="font-bold text-sm text-gray-800 mb-3">Alertes actives</h3>
                                             {selectedHosp.alertes?.filter(a => a.statut === 'active').length === 0 ? (
                                                 <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-xs flex items-center gap-2">
                                                     <CheckCircle size={16} /> Aucune alerte active.
@@ -591,14 +591,14 @@ export default function DoctorHospitalizedPage() {
                                                                         : <TriangleAlert size={12} className="inline -mt-0.5 mr-1" aria-hidden="true" />}
                                                                     {a.typeAlerte} — {a.urgency}
                                                                 </span>
-                                                                <span className="text-slate-700">{a.description}</span>
-                                                                <span className="text-slate-400 block mt-1 text-[10px]">
+                                                                <span className="text-gray-700">{a.description}</span>
+                                                                <span className="text-gray-400 block mt-1 text-[10px]">
                                                                     {new Date(a.creeAt).toLocaleString('fr-FR')}
                                                                 </span>
                                                             </div>
                                                             <button
                                                                 onClick={() => resolveAlert(a.id)}
-                                                                className="bg-slate-900 hover:bg-slate-700 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] ml-4 shrink-0 transition"
+                                                                className="bg-primary hover:bg-primary-hover text-white font-bold px-3 py-1.5 rounded-lg text-[10px] ml-4 shrink-0 transition"
                                                             >
                                                                 Résoudre
                                                             </button>
@@ -610,10 +610,10 @@ export default function DoctorHospitalizedPage() {
                                         {/* Alertes résolues */}
                                         {selectedHosp.alertes?.filter(a => a.statut === 'resolue').length > 0 && (
                                             <div>
-                                                <h3 className="font-bold text-sm text-slate-800 mb-3">Alertes résolues</h3>
+                                                <h3 className="font-bold text-sm text-gray-800 mb-3">Alertes résolues</h3>
                                                 <div className="space-y-2">
                                                     {selectedHosp.alertes.filter(a => a.statut === 'resolue').map(a => (
-                                                        <div key={a.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-500 flex justify-between items-center">
+                                                        <div key={a.id} className="p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs text-gray-500 flex justify-between items-center">
                                                             <div>
                                                                 <span className="font-semibold block">{a.typeAlerte} · {a.description}</span>
                                                                 {a.resoluAt && (
@@ -635,15 +635,15 @@ export default function DoctorHospitalizedPage() {
                                 {/* ── EXAMENS ── */}
                                 {activeTab === 'examens' && canPrescribeExams && (
                                     <div className="space-y-4">
-                                        <div className="bg-slate-50 p-5 rounded-2xl space-y-4">
-                                            <h3 className="font-bold text-sm text-slate-800">Prescrire un examen</h3>
+                                        <div className="bg-gray-50 p-5 rounded-2xl space-y-4">
+                                            <h3 className="font-bold text-sm text-gray-800">Prescrire un examen</h3>
                                             <div className="space-y-3">
                                                 <div>
-                                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Type d'examen *</label>
+                                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Type d'examen *</label>
                                                     <select
                                                         value={selectedExamId}
                                                         onChange={e => setSelectedExamId(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"
+                                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none"
                                                     >
                                                         <option value="">Sélectionner un examen...</option>
                                                         {examCatalog.map(e => (
@@ -654,18 +654,18 @@ export default function DoctorHospitalizedPage() {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Indications cliniques</label>
+                                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Indications cliniques</label>
                                                     <textarea
                                                         value={examNotes}
                                                         onChange={e => setExamNotes(e.target.value)}
                                                         placeholder="Notes pour le laboratoire ou la radiologie..."
                                                         rows={2}
-                                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none resize-none"
+                                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none resize-none"
                                                     />
                                                 </div>
                                                 <button
                                                     onClick={prescribeExam}
-                                                    className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition"
+                                                    className="bg-primary hover:bg-primary-hover text-white text-xs font-bold py-2.5 px-4 rounded-xl transition"
                                                 >
                                                     <FlaskConical size={14} className="inline -mt-0.5 mr-1.5" aria-hidden="true" />Envoyer la prescription
                                                 </button>
@@ -680,7 +680,7 @@ export default function DoctorHospitalizedPage() {
                                         {selectedHosp.statut === 'sortie_demandee' ? (
                                             <div className="p-6 border border-yellow-200 bg-yellow-50 rounded-2xl text-center space-y-3">
                                                 <Hourglass size={28} strokeWidth={1.75} className="mx-auto text-yellow-700" aria-hidden="true" />
-                                                <h3 className="font-extrabold text-sm text-yellow-800">Sortie en cours de traitement</h3>
+                                                <h3 className="font-bold text-sm text-yellow-800">Sortie en cours de traitement</h3>
                                                 <p className="text-xs text-yellow-700">
                                                     La secrétaire finalise les documents administratifs et la facturation du séjour.
                                                 </p>
@@ -688,7 +688,7 @@ export default function DoctorHospitalizedPage() {
                                         ) : (
                                             <div className="p-6 border border-orange-100 bg-orange-50/50 rounded-2xl text-center space-y-4">
                                                 <DoorOpen size={28} strokeWidth={1.75} className="mx-auto text-orange-700" aria-hidden="true" />
-                                                <h3 className="font-extrabold text-sm text-orange-800">Demande de Sortie Médicale</h3>
+                                                <h3 className="font-bold text-sm text-orange-800">Demande de Sortie Médicale</h3>
                                                 <p className="text-xs text-orange-700 leading-relaxed">
                                                     En validant la sortie, la secrétaire recevra une notification pour finaliser les documents et la facturation. La chambre passera ensuite en nettoyage.
                                                 </p>
@@ -705,7 +705,7 @@ export default function DoctorHospitalizedPage() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col justify-center items-center text-slate-400 py-20">
+                        <div className="flex-1 flex flex-col justify-center items-center text-gray-400 py-20">
                             <BedDouble size={44} strokeWidth={1.5} className="mb-3" aria-hidden="true" />
                             <p className="text-sm font-semibold">Sélectionnez un patient</p>
                             <p className="text-xs mt-1">pour voir son dossier clinique complet</p>

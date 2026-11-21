@@ -166,7 +166,7 @@ export default function SuperAdminPage() {
     if (loading && !stats) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-                <Loader2 size={40} className="animate-spin text-indigo-600 mb-4" />
+                <Loader2 size={40} className="animate-spin text-brand-600 mb-4" />
                 <p className="text-gray-500 font-medium">Chargement de la console Super Admin...</p>
             </div>
         );
@@ -194,7 +194,7 @@ export default function SuperAdminPage() {
             {/* Header / Topbar */}
             <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-600 text-white rounded-xl shadow-md">
+                    <div className="p-2 bg-brand-600 text-white rounded-xl shadow-md">
                         <Building2 size={24} />
                     </div>
                     <div>
@@ -214,7 +214,7 @@ export default function SuperAdminPage() {
                     <div className="w-px h-6 bg-gray-200" />
                     <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-gray-700">{user?.name}</span>
-                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold uppercase">Super Admin</span>
+                        <span className="px-2 py-0.5 bg-brand-100 text-brand-700 rounded-full text-xs font-bold uppercase">Super Admin</span>
                     </div>
                     <button 
                         onClick={handleLogout}
@@ -231,36 +231,36 @@ export default function SuperAdminPage() {
                 {/* Stats Summary Panel */}
                 {stats && (
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm flex items-center justify-between">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-1">Cliniques</span>
-                                <span className="text-3xl font-extrabold text-gray-900">{stats.totalClinics}</span>
+                                <span className="text-3xl font-bold text-gray-900">{stats.totalClinics}</span>
                                 <div className="text-xs text-gray-500 mt-2">
                                     <span className="text-emerald-600 font-bold">{stats.activeClinics}</span> actives • <span className="text-amber-500 font-bold">{stats.trialClinics}</span> essais
                                 </div>
                             </div>
-                            <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
+                            <div className="p-4 bg-brand-50 text-brand-600 rounded-2xl">
                                 <Building2 size={24} />
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm flex items-center justify-between">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-1">Comptes Utilisateurs</span>
-                                <span className="text-3xl font-extrabold text-gray-900">{stats.totalUsers}</span>
+                                <span className="text-3xl font-bold text-gray-900">{stats.totalUsers}</span>
                                 <div className="text-xs text-gray-500 mt-2">
                                     Médecins, secrétaires, admins
                                 </div>
                             </div>
-                            <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl">
+                            <div className="p-4 bg-brand-50 text-brand-600 rounded-2xl">
                                 <Users size={24} />
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm flex items-center justify-between">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-1">Chiffre Affaires Est.</span>
-                                <span className="text-3xl font-extrabold text-gray-900 text-emerald-600">
+                                <span className="text-3xl font-bold text-gray-900 text-emerald-600">
                                     {stats.estimatedMRR.toLocaleString('fr-FR')} DH
                                 </span>
                                 <div className="text-xs text-gray-500 mt-2">
@@ -272,10 +272,10 @@ export default function SuperAdminPage() {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm flex items-center justify-between">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block mb-1">Cliniques Suspendues</span>
-                                <span className="text-3xl font-extrabold text-red-600">{stats.suspendedClinics}</span>
+                                <span className="text-3xl font-bold text-red-600">{stats.suspendedClinics}</span>
                                 <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> Bloquées pour impayé
                                 </div>
@@ -291,19 +291,19 @@ export default function SuperAdminPage() {
                 <div className="border-b border-gray-200 flex gap-6">
                     <button
                         onClick={() => setActiveTab('overview')}
-                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'overview' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
+                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'overview' ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
                     >
                         Vue d'ensemble
                     </button>
                     <button
                         onClick={() => setActiveTab('clinics')}
-                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'clinics' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
+                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'clinics' ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
                     >
                         Gestion des Cliniques ({clinics.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('users')}
-                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'users' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
+                        className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'users' ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
                     >
                         Utilisateurs Globaux ({allUsers.length})
                     </button>
@@ -313,7 +313,7 @@ export default function SuperAdminPage() {
                 {activeTab === 'overview' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Left Card: Role Breakdown */}
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm space-y-6">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-6">
                             <h3 className="text-base font-bold text-gray-900">Répartition des rôles sur la plateforme</h3>
                             <div className="space-y-4">
                                 {[
@@ -341,7 +341,7 @@ export default function SuperAdminPage() {
                         </div>
 
                         {/* Right Card: Platform Details */}
-                        <div className="bg-white rounded-2xl p-6 border border-gray-150 shadow-sm space-y-4">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
                             <h3 className="text-base font-bold text-gray-900">Informations & Intégrité du Système</h3>
                             <div className="space-y-3 text-sm text-gray-600">
                                 <div className="flex justify-between py-2 border-b border-gray-100">
@@ -369,7 +369,7 @@ export default function SuperAdminPage() {
 
                 {/* Tab 2: Clinics Management */}
                 {activeTab === 'clinics' && (
-                    <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden space-y-4 p-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden space-y-4 p-6">
                         
                         {/* Search Bar */}
                         <div className="relative max-w-md">
@@ -379,7 +379,7 @@ export default function SuperAdminPage() {
                                 value={clinicSearch}
                                 onChange={e => setClinicSearch(e.target.value)}
                                 placeholder="Rechercher une clinique par nom, email..."
-                                className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+                                className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition"
                             />
                         </div>
 
@@ -472,7 +472,7 @@ export default function SuperAdminPage() {
 
                 {/* Tab 3: Global Users List */}
                 {activeTab === 'users' && (
-                    <div className="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden space-y-4 p-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden space-y-4 p-6">
                         
                         {/* Search and Filters bar */}
                         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -483,7 +483,7 @@ export default function SuperAdminPage() {
                                     value={userSearch}
                                     onChange={e => setUserSearch(e.target.value)}
                                     placeholder="Rechercher utilisateur par nom, email, clinique..."
-                                    className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition"
+                                    className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition"
                                 />
                             </div>
 
@@ -539,7 +539,7 @@ export default function SuperAdminPage() {
                                     ) : (
                                         filteredUsers.map(u => (
                                             <tr key={u.id} className="hover:bg-gray-50/50 transition">
-                                                <td className="px-6 py-4 font-mono font-semibold text-indigo-700">{u.matricule}</td>
+                                                <td className="px-6 py-4 font-mono font-semibold text-brand-700">{u.matricule}</td>
                                                 <td className="px-6 py-4 font-bold text-gray-900">{u.prenom} {u.nom}</td>
                                                 <td className="px-6 py-4 text-gray-500">{u.email}</td>
                                                 <td className="px-6 py-4 capitalize font-medium text-gray-700">
@@ -551,7 +551,7 @@ export default function SuperAdminPage() {
                                                      u.role === 'super_admin' ? 'Super Admin' :
                                                      'Secrétaire'}
                                                 </td>
-                                                <td className="px-6 py-4 font-semibold text-gray-650">{u.clinicName}</td>
+                                                <td className="px-6 py-4 font-semibold text-gray-600">{u.clinicName}</td>
                                                 <td className="px-6 py-4 text-gray-500">{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${

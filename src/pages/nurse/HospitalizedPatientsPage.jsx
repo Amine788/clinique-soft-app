@@ -128,18 +128,18 @@ export default function NurseHospitalizedPage() {
 
     // ─────────────────────────────────────────────────────────
     return (
-        <div className="flex flex-col h-[calc(100vh-100px)] p-6 bg-slate-50 overflow-hidden font-sans">
+        <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden font-sans">
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="page-title flex items-center gap-2">
                         <Syringe size={22} className="text-primary" aria-hidden="true" /> Mes Patients Hospitalisés
                     </h1>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-gray-500 text-sm">
                         Médicaments, constantes et alertes médecin · {patients.length} patient{patients.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                <button onClick={loadPatients} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition shadow-sm text-slate-600">
+                <button onClick={loadPatients} className="p-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 transition shadow-sm text-gray-600">
                     <RefreshCw size={16} />
                 </button>
             </div>
@@ -147,19 +147,19 @@ export default function NurseHospitalizedPage() {
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
 
                 {/* ── Liste patients ── */}
-                <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col min-h-0">
-                    <div className="p-5 border-b border-slate-100">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Patients sous votre garde</span>
-                        <span className="ml-2 px-2 py-0.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-full">{patients.length}</span>
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-0">
+                    <div className="p-5 border-b border-gray-100">
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Patients sous votre garde</span>
+                        <span className="ml-2 px-2 py-0.5 bg-brand-50 text-brand-700 font-bold text-xs rounded-full">{patients.length}</span>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loading ? (
-                            <div className="text-center py-10 text-slate-400 text-sm">Chargement...</div>
+                            <div className="text-center py-10 text-gray-400 text-sm">Chargement...</div>
                         ) : patients.length === 0 ? (
-                            <div className="text-center py-12 text-slate-400">
+                            <div className="text-center py-12 text-gray-400">
                                 <UserRound size={36} strokeWidth={1.5} className="mx-auto mb-2" aria-hidden="true" />
                                 <div className="text-sm font-medium">Aucun patient assigné</div>
-                                <div className="text-xs mt-1 text-slate-300">La secrétaire vous assignera des patients</div>
+                                <div className="text-xs mt-1 text-gray-300">La secrétaire vous assignera des patients</div>
                             </div>
                         ) : (
                             patients.map(p => {
@@ -172,8 +172,8 @@ export default function NurseHospitalizedPage() {
                                         onClick={() => selectPatient(p)}
                                         className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                                             isSelected
-                                                ? 'bg-slate-900 text-white border-transparent shadow-lg'
-                                                : 'bg-white hover:bg-slate-50 border-slate-100'
+                                                ? 'bg-primary-dark text-white border-transparent shadow-lg'
+                                                : 'bg-white hover:bg-gray-50 border-gray-100'
                                         }`}
                                     >
                                         <div className="flex justify-between items-start">
@@ -181,25 +181,25 @@ export default function NurseHospitalizedPage() {
                                                 <h3 className="font-bold text-sm truncate">
                                                     {p.Patient?.prenom} {p.Patient?.nom}
                                                 </h3>
-                                                <p className={`text-xs mt-1 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                <p className={`text-xs mt-1 ${isSelected ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     Ch. {p.Chambre?.numero || '—'} · {p.lit || '—'}
                                                 </p>
-                                                <p className={`text-[10px] mt-1 font-semibold ${isSelected ? 'text-slate-300' : 'text-blue-600'}`}>
+                                                <p className={`text-[10px] mt-1 font-semibold ${isSelected ? 'text-gray-300' : 'text-brand-600'}`}>
                                                     Dr. {p.Medecin?.User?.prenom} {p.Medecin?.User?.nom}
                                                 </p>
                                                 {nextMed && (
-                                                    <p className={`text-[10px] mt-1 flex items-center gap-0.5 ${isSelected ? 'text-slate-400' : 'text-orange-600'}`}>
+                                                    <p className={`text-[10px] mt-1 flex items-center gap-0.5 ${isSelected ? 'text-gray-400' : 'text-orange-600'}`}>
                                                         <Clock size={9} /> Prochain médicament : {nextMed.time}
                                                     </p>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-1.5 shrink-0">
                                                 {activeAlerts > 0 && (
-                                                    <span className="px-1.5 py-0.5 bg-red-600 text-white font-extrabold text-[10px] rounded-full animate-bounce">
+                                                    <span className="px-1.5 py-0.5 bg-red-600 text-white font-bold text-[10px] rounded-full animate-bounce">
                                                         {activeAlerts}
                                                     </span>
                                                 )}
-                                                <ChevronRight size={16} className={isSelected ? 'text-white' : 'text-slate-400'} />
+                                                <ChevronRight size={16} className={isSelected ? 'text-white' : 'text-gray-400'} />
                                             </div>
                                         </div>
                                     </div>
@@ -210,20 +210,20 @@ export default function NurseHospitalizedPage() {
                 </div>
 
                 {/* ── Fiche nurse — vue unique, tout lié sur un même écran ── */}
-                <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col min-h-0">
+                <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-0">
                     {selectedHosp ? (
                         <>
                             {/* Header fiche */}
-                            <div className="p-6 bg-slate-900 text-white rounded-t-3xl shrink-0">
+                            <div className="p-6 bg-primary-dark text-white rounded-t-2xl shrink-0">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h2 className="text-lg font-black">
+                                        <h2 className="text-lg font-bold">
                                             {selectedHosp.Patient?.prenom} {selectedHosp.Patient?.nom}
                                         </h2>
-                                        <p className="text-slate-400 text-xs mt-1">
+                                        <p className="text-gray-400 text-xs mt-1">
                                             Ch. {selectedHosp.Chambre?.numero || '—'} · {selectedHosp.lit || '—'} · {selectedHosp.diagnostic || '—'}
                                         </p>
-                                        <p className="text-slate-500 text-[10px] mt-0.5">
+                                        <p className="text-gray-500 text-[10px] mt-0.5">
                                             Médecin : Dr. {selectedHosp.Medecin?.User?.prenom} {selectedHosp.Medecin?.User?.nom}
                                         </p>
                                     </div>
@@ -249,12 +249,12 @@ export default function NurseHospitalizedPage() {
 
                                 {/* ── MÉDICAMENTS ── */}
                                 <section className="space-y-3">
-                                    <h3 className="font-bold text-sm text-slate-800">
+                                    <h3 className="font-bold text-sm text-gray-800">
                                         <Pill size={15} className="inline -mt-0.5 mr-1.5 text-primary" aria-hidden="true" />Médicaments à administrer
-                                        <span className="ml-2 text-xs font-normal text-slate-400">(remis par la pharmacie, prescrits par le médecin)</span>
+                                        <span className="ml-2 text-xs font-normal text-gray-400">(remis par la pharmacie, prescrits par le médecin)</span>
                                     </h3>
                                     {!selectedHosp.activePrescription ? (
-                                        <p className="text-xs text-slate-400 italic p-4 bg-slate-50 rounded-xl">
+                                        <p className="text-xs text-gray-400 italic p-4 bg-gray-50 rounded-xl">
                                             Aucun médicament prescrit — le médecin n'a pas encore défini le traitement.
                                         </p>
                                     ) : (
@@ -262,19 +262,19 @@ export default function NurseHospitalizedPage() {
                                             {selectedHosp.activePrescription.medicaments?.map((item, idx) => {
                                                 const slots = (selectedHosp.activePrescription.slots || []).filter(s => s.itemId === item.id);
                                                 return (
-                                                    <div key={item.id || idx} className="p-4 border border-slate-100 rounded-2xl bg-slate-50/50 space-y-3">
+                                                    <div key={item.id || idx} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/50 space-y-3">
                                                         <div className="flex items-center gap-3">
                                                             <span className="size-8 shrink-0 rounded-lg bg-primary-light text-primary flex items-center justify-center"><Pill size={16} aria-hidden="true" /></span>
                                                             <div>
-                                                                <span className="font-bold text-xs text-slate-900 block">{nomMedicament(item)}</span>
-                                                                <span className="text-[10px] text-slate-500">
+                                                                <span className="font-bold text-xs text-gray-900 block">{nomMedicament(item)}</span>
+                                                                <span className="text-[10px] text-gray-500">
                                                                     {posologieMedicament(item)} · {item.moment} · {item.timesPerDay}×/jour
                                                                 </span>
                                                             </div>
                                                         </div>
                                                         <div className="flex flex-wrap gap-2">
                                                             {slots.length === 0 && (
-                                                                <p className="text-[10px] text-slate-400 italic">Aucun créneau généré — en attente de remise pharmacie</p>
+                                                                <p className="text-[10px] text-gray-400 italic">Aucun créneau généré — en attente de remise pharmacie</p>
                                                             )}
                                                             {slots.map((slot, sIdx) => {
                                                                 const slotIndexInFullList = selectedHosp.activePrescription.slots.findIndex(
@@ -282,11 +282,11 @@ export default function NurseHospitalizedPage() {
                                                                 );
                                                                 return (
                                                                     <div key={sIdx} className={`p-3 border rounded-xl flex items-center gap-2 text-xs transition-all ${
-                                                                        slot.done ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'
+                                                                        slot.done ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
                                                                     }`}>
                                                                         <div>
                                                                             <span className="font-bold block">{slot.label}</span>
-                                                                            <span className="text-[9px] text-slate-400">{slot.time}</span>
+                                                                            <span className="text-[10px] text-gray-400">{slot.time}</span>
                                                                         </div>
                                                                         {!slot.done ? (
                                                                             <button
@@ -310,12 +310,12 @@ export default function NurseHospitalizedPage() {
                                     )}
                                 </section>
 
-                                <hr className="border-slate-100" />
+                                <hr className="border-gray-100" />
 
                                 {/* ── CONSTANTES ── */}
                                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <form onSubmit={submitVitals} className="space-y-4">
-                                        <h3 className="font-bold text-sm text-slate-800"><Stethoscope size={15} className="inline -mt-0.5 mr-1.5 text-primary" aria-hidden="true" />Saisir des constantes</h3>
+                                        <h3 className="font-bold text-sm text-gray-800"><Stethoscope size={15} className="inline -mt-0.5 mr-1.5 text-primary" aria-hidden="true" />Saisir des constantes</h3>
                                         <div className="grid grid-cols-2 gap-3">
                                             {[
                                                 { label: 'Température (°C)', val: temp, set: setTemp, ph: '37.2', icon: Thermometer },
@@ -326,7 +326,7 @@ export default function NurseHospitalizedPage() {
                                                 { label: 'Respiration (c/min)', val: resp, set: setResp, ph: '16', icon: Wind },
                                             ].map(({ label, val, set, ph, icon }) => (
                                                 <div key={label}>
-                                                    <label className="text-[10px] font-semibold text-slate-400 block mb-1">
+                                                    <label className="text-[10px] font-semibold text-gray-400 block mb-1">
                                                         {React.createElement(icon, { size: 11, className: "inline -mt-0.5 mr-1", "aria-hidden": true })}{label}
                                                     </label>
                                                     <input
@@ -334,7 +334,7 @@ export default function NurseHospitalizedPage() {
                                                         value={val}
                                                         onChange={e => set(e.target.value)}
                                                         placeholder={ph}
-                                                        className="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900"
+                                                        className="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/30"
                                                     />
                                                 </div>
                                             ))}
@@ -345,30 +345,30 @@ export default function NurseHospitalizedPage() {
                                         <button
                                             type="submit"
                                             disabled={submittingVitals}
-                                            className="w-full py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition disabled:opacity-60"
+                                            className="w-full py-2.5 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-hover transition disabled:opacity-60"
                                         >
                                             {submittingVitals ? 'Enregistrement...' : 'Enregistrer les constantes'}
                                         </button>
                                     </form>
 
                                     <div className="space-y-3">
-                                        <h3 className="font-bold text-sm text-slate-800">Prises récentes</h3>
+                                        <h3 className="font-bold text-sm text-gray-800">Prises récentes</h3>
                                         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                                             {(!selectedHosp.vitals || selectedHosp.vitals.length === 0) && (
-                                                <p className="text-xs text-slate-400 italic">Aucune constante encore saisie</p>
+                                                <p className="text-xs text-gray-400 italic">Aucune constante encore saisie</p>
                                             )}
                                             {selectedHosp.vitals?.slice(0, 8).map(v => (
-                                                <div key={v.id} className="p-3 border border-slate-100 rounded-xl text-xs bg-slate-50/50">
-                                                    <div className="flex justify-between text-[10px] text-slate-400 mb-1.5">
+                                                <div key={v.id} className="p-3 border border-gray-100 rounded-xl text-xs bg-gray-50/50">
+                                                    <div className="flex justify-between text-[10px] text-gray-400 mb-1.5">
                                                         <span>{new Date(v.prisAt).toLocaleString('fr-FR')}</span>
                                                     </div>
-                                                    <div className="grid grid-cols-3 gap-2 font-semibold text-slate-700">
-                                                        <span className="inline-flex items-center gap-1"><Thermometer size={12} className="text-slate-400" aria-hidden="true" />{v.temperature || '—'}°C</span>
-                                                        <span className="inline-flex items-center gap-1"><Activity size={12} className="text-slate-400" aria-hidden="true" />{v.tension || '—'}</span>
-                                                        <span className="inline-flex items-center gap-1"><Wind size={12} className="text-slate-400" aria-hidden="true" />{v.saturation || '—'}%</span>
-                                                        <span className="inline-flex items-center gap-1"><HeartPulse size={12} className="text-slate-400" aria-hidden="true" />{v.pouls || '—'} bpm</span>
-                                                        <span className="inline-flex items-center gap-1"><Droplet size={12} className="text-slate-400" aria-hidden="true" />{v.glycemie || '—'} g/L</span>
-                                                        <span className="inline-flex items-center gap-1"><Wind size={12} className="text-slate-400" aria-hidden="true" />{v.respiration || '—'} c/min</span>
+                                                    <div className="grid grid-cols-3 gap-2 font-semibold text-gray-700">
+                                                        <span className="inline-flex items-center gap-1"><Thermometer size={12} className="text-gray-400" aria-hidden="true" />{v.temperature || '—'}°C</span>
+                                                        <span className="inline-flex items-center gap-1"><Activity size={12} className="text-gray-400" aria-hidden="true" />{v.tension || '—'}</span>
+                                                        <span className="inline-flex items-center gap-1"><Wind size={12} className="text-gray-400" aria-hidden="true" />{v.saturation || '—'}%</span>
+                                                        <span className="inline-flex items-center gap-1"><HeartPulse size={12} className="text-gray-400" aria-hidden="true" />{v.pouls || '—'} bpm</span>
+                                                        <span className="inline-flex items-center gap-1"><Droplet size={12} className="text-gray-400" aria-hidden="true" />{v.glycemie || '—'} g/L</span>
+                                                        <span className="inline-flex items-center gap-1"><Wind size={12} className="text-gray-400" aria-hidden="true" />{v.respiration || '—'} c/min</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -376,18 +376,18 @@ export default function NurseHospitalizedPage() {
                                     </div>
                                 </section>
 
-                                <hr className="border-slate-100" />
+                                <hr className="border-gray-100" />
 
                                 {/* ── ALERTES ── */}
                                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-4">
-                                        <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                        <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
                                             <Bell size={14} className="text-red-600" />
                                             Alerter le médecin
                                         </h3>
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="text-xs font-semibold text-slate-400 block mb-1">Type de situation</label>
+                                                <label className="text-xs font-semibold text-gray-400 block mb-1">Type de situation</label>
                                                 <select
                                                     value={alertType}
                                                     onChange={e => setAlertType(e.target.value)}
@@ -403,7 +403,7 @@ export default function NurseHospitalizedPage() {
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="text-xs font-semibold text-slate-400 block mb-1">Niveau d'urgence</label>
+                                                <label className="text-xs font-semibold text-gray-400 block mb-1">Niveau d'urgence</label>
                                                 <select
                                                     value={alertUrgency}
                                                     onChange={e => setAlertUrgency(e.target.value)}
@@ -415,7 +415,7 @@ export default function NurseHospitalizedPage() {
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="text-xs font-semibold text-slate-400 block mb-1">Observation *</label>
+                                                <label className="text-xs font-semibold text-gray-400 block mb-1">Observation *</label>
                                                 <textarea
                                                     value={alertDesc}
                                                     onChange={e => setAlertDesc(e.target.value)}
@@ -435,22 +435,22 @@ export default function NurseHospitalizedPage() {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <h3 className="font-bold text-sm text-slate-800">Suivi des alertes</h3>
+                                        <h3 className="font-bold text-sm text-gray-800">Suivi des alertes</h3>
                                         <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
                                             {(!selectedHosp.alertes || selectedHosp.alertes.length === 0) && (
-                                                <p className="text-xs text-slate-400 italic">Aucune alerte</p>
+                                                <p className="text-xs text-gray-400 italic">Aucune alerte</p>
                                             )}
                                             {selectedHosp.alertes?.map(a => (
                                                 <div key={a.id} className={`p-3 border rounded-xl text-xs flex justify-between items-start transition ${
-                                                    a.statut === 'active' ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-100'
+                                                    a.statut === 'active' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-100'
                                                 }`}>
                                                     <div>
                                                         <span className={`font-bold uppercase tracking-wider block mb-0.5 ${
-                                                            a.statut === 'active' ? 'text-red-800' : 'text-slate-500'
+                                                            a.statut === 'active' ? 'text-red-800' : 'text-gray-500'
                                                         }`}>
                                                             {(() => { const AlertIcon = alertTypeIcons[a.typeAlerte] || TriangleAlert; return <AlertIcon size={12} className="inline -mt-0.5 mr-1" aria-hidden="true" />; })()}{a.typeAlerte}
                                                         </span>
-                                                        <span className={a.statut === 'active' ? 'text-red-700' : 'text-slate-500'}>
+                                                        <span className={a.statut === 'active' ? 'text-red-700' : 'text-gray-500'}>
                                                             {a.description}
                                                         </span>
                                                     </div>
@@ -465,7 +465,7 @@ export default function NurseHospitalizedPage() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col justify-center items-center text-slate-400 py-20">
+                        <div className="flex-1 flex flex-col justify-center items-center text-gray-400 py-20">
                             <UserRound size={44} strokeWidth={1.5} className="mb-3" aria-hidden="true" />
                             <p className="text-sm font-semibold">Sélectionnez un patient</p>
                             <p className="text-xs mt-1">pour voir médicaments, constantes et alertes</p>

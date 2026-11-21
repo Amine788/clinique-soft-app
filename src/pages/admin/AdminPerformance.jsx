@@ -37,7 +37,7 @@ export default function AdminPerformance() {
     const kpis = overview ? [
         {
             label: 'Consultations', value: overview.consultationsJour, sub: "aujourd'hui",
-            icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50',
+            icon: Activity, color: 'text-brand-600', bg: 'bg-brand-50',
             trend: `${overview.consultationsPeriode} / ${period}`, up: true
         },
         {
@@ -106,7 +106,7 @@ export default function AdminPerformance() {
                             <div className={`w-9 h-9 ${k.bg} rounded-xl flex items-center justify-center mb-3`}>
                                 <Icon size={18} className={k.color} />
                             </div>
-                            <div className="text-2xl font-black text-gray-900">{k.value}</div>
+                            <div className="text-2xl font-bold text-gray-900">{k.value}</div>
                             <div className="text-xs text-gray-400 mt-0.5">{k.sub}</div>
                             {k.trend && <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${k.up ? 'text-emerald-600' : 'text-amber-600'}`}>
                                 {k.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
@@ -178,7 +178,7 @@ export default function AdminPerformance() {
                     <div className="mt-6 p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/10">
                         <div className="text-xs font-bold text-gray-500 uppercase mb-1">Satisfaction NPS</div>
                         <div className="flex items-end gap-1">
-                            <span className="text-3xl font-black text-gray-900">{overview?.satisfaction || '—'}</span>
+                            <span className="text-3xl font-bold text-gray-900">{overview?.satisfaction || '—'}</span>
                             <span className="text-sm text-gray-400 mb-1">/5</span>
                         </div>
                         <div className="flex gap-0.5 mt-2">
@@ -208,7 +208,7 @@ export default function AdminPerformance() {
                                             style={{ width: `${ind.pct ?? 0}%` }} />
                                     </div>
                                 </div>
-                                <div className={`text-xs font-black w-10 text-right ${ind.pct == null ? 'text-gray-400' : ind.pct >= 90 ? 'text-emerald-600' : ind.pct >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
+                                <div className={`text-xs font-bold w-10 text-right ${ind.pct == null ? 'text-gray-400' : ind.pct >= 90 ? 'text-emerald-600' : ind.pct >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                                     {ind.pct == null ? '—' : `${ind.pct}%`}
                                 </div>
                             </div>
@@ -223,7 +223,7 @@ export default function AdminPerformance() {
                         <div className="space-y-3">
                             {finance.medecins.slice(0, 5).map((m, i) => (
                                 <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
                                         {i + 1}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -244,7 +244,7 @@ export default function AdminPerformance() {
                     {finance && (
                         <div className="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex justify-between text-sm">
                             <span className="text-emerald-700 font-semibold">Taux recouvrement</span>
-                            <span className="font-black text-emerald-800">{finance.tauxRecouvrement}%</span>
+                            <span className="font-bold text-emerald-800">{finance.tauxRecouvrement}%</span>
                         </div>
                     )}
                 </div>

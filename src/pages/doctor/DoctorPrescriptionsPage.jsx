@@ -8,7 +8,7 @@ import { generatePrescriptionPDF } from '../../utils/pdfGenerator';
 
 const STATUT_LABELS = {
     en_attente: { label: 'En attente pharmacie', cls: 'bg-amber-100 text-amber-700' },
-    en_preparation: { label: 'En préparation', cls: 'bg-blue-100 text-blue-700' },
+    en_preparation: { label: 'En préparation', cls: 'bg-brand-100 text-brand-700' },
     preparee: { label: 'Prête (à récupérer)', cls: 'bg-green-100 text-green-700' },
     remise: { label: 'Remise au patient', cls: 'bg-gray-100 text-gray-500' },
 };

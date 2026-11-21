@@ -96,7 +96,10 @@ export default function App() {
     return (
         <>
             <Toaster position="top-right" toastOptions={{
-                style: { borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px' },
+                style: {
+                    borderRadius: '12px', fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", fontSize: '14px',
+                    color: '#0f172a', border: '1px solid #e6eaf0', boxShadow: '0 12px 32px -12px rgb(15 23 42 / 0.25)',
+                },
                 success: { iconTheme: { primary: '#10b981', secondary: '#ecfdf5' } },
                 error: { iconTheme: { primary: '#ef4444', secondary: '#fef2f2' } },
             }} />

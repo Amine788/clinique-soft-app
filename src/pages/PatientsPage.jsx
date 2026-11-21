@@ -20,7 +20,7 @@ const StatCard = ({ label, value, trend, icon, accent }) => (
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+        boxShadow: '0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.05)',
         transition: 'box-shadow 0.2s, transform 0.2s',
         cursor: 'default',
     }}
@@ -55,7 +55,7 @@ const StatCard = ({ label, value, trend, icon, accent }) => (
             <p style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>
                 {label}
             </p>
-            <h3 style={{ fontSize: '28px', fontWeight: 800, color: '#111827', lineHeight: 1 }}>
+            <h3 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', lineHeight: 1 }}>
                 {value}
             </h3>
         </div>
@@ -134,7 +134,7 @@ export default function PatientsPage() {
     if (loading) return <LoadingScreen message="Chargement du registre médical..." />;
 
     return (
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* ── Header ── */}
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
@@ -142,7 +142,7 @@ export default function PatientsPage() {
                     <p style={{ fontSize: '11px', fontWeight: 700, color: '#004AAD', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '6px' }}>
                         NextClinic · Registre Médical
                     </p>
-                    <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#111827', margin: 0, lineHeight: 1.2 }}>
+                    <h1 className="page-title">
                         Dossiers Patients
                     </h1>
                     <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
@@ -153,7 +153,7 @@ export default function PatientsPage() {
                     <button
                         style={{
                             display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                            padding: '10px 18px', borderRadius: '12px', fontSize: '13px', fontWeight: 600,
                             border: '1px solid #e5e7eb', background: '#fff', color: '#374151',
                             cursor: 'pointer', transition: 'all 0.2s',
                         }}
@@ -166,7 +166,7 @@ export default function PatientsPage() {
                         onClick={() => navigate('/patients/create')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '10px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                            padding: '10px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 700,
                             border: 'none', background: '#004AAD', color: '#fff',
                             cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,74,173,0.25)',
                             transition: 'all 0.2s',
@@ -190,9 +190,9 @@ export default function PatientsPage() {
             {/* ── Table Card ── */}
             <div style={{
                 background: '#fff',
-                border: '1px solid #e5e7eb',
+                border: '1px solid #e6eaf0',
                 borderRadius: '16px',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                boxShadow: '0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.05)',
                 overflow: 'hidden',
             }}>
 
@@ -213,7 +213,7 @@ export default function PatientsPage() {
                             onChange={e => setSearchQuery(e.target.value)}
                             style={{
                                 width: '100%', paddingLeft: '42px', paddingRight: '16px',
-                                height: '40px', borderRadius: '10px', fontSize: '13px', fontWeight: 500,
+                                height: '40px', borderRadius: '12px', fontSize: '13px', fontWeight: 500,
                                 border: '1px solid #e5e7eb', background: '#fff', color: '#111827',
                                 outline: 'none', boxSizing: 'border-box',
                             }}
@@ -222,7 +222,7 @@ export default function PatientsPage() {
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <button style={{
                             display: 'flex', alignItems: 'center', gap: '6px',
-                            padding: '8px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                            padding: '8px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 600,
                             border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer',
                         }}>
                             <Filter size={15} /> Filtrer
@@ -267,7 +267,7 @@ export default function PatientsPage() {
                                                 onClick={() => navigate('/patients/create')}
                                                 style={{
                                                     display: 'flex', alignItems: 'center', gap: '6px',
-                                                    padding: '9px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                                                    padding: '9px 18px', borderRadius: '12px', fontSize: '13px', fontWeight: 700,
                                                     background: '#004AAD', color: '#fff', border: 'none', cursor: 'pointer',
                                                     marginTop: '4px',
                                                 }}
@@ -300,10 +300,10 @@ export default function PatientsPage() {
                                             <td style={{ padding: '14px 20px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                     <div style={{
-                                                        width: '38px', height: '38px', borderRadius: '10px',
+                                                        width: '38px', height: '38px', borderRadius: '12px',
                                                         background: color + '15', color: color,
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                        fontWeight: 800, fontSize: '13px', flexShrink: 0,
+                                                        fontWeight: 700, fontSize: '13px', flexShrink: 0,
                                                     }}>
                                                         {initials}
                                                     </div>

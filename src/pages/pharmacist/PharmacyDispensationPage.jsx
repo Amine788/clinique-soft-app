@@ -7,7 +7,7 @@ import { generatePrescriptionPDF } from '../../utils/pdfGenerator';
 
 const STATUT_LABELS = {
     en_attente: { label: '⏳ En attente', cls: 'bg-amber-100 text-amber-700' },
-    en_preparation: { label: '🔄 En préparation', cls: 'bg-blue-100 text-blue-700' },
+    en_preparation: { label: '🔄 En préparation', cls: 'bg-brand-100 text-brand-700' },
     preparee: { label: '✅ Prête', cls: 'bg-green-100 text-green-700' },
     remise: { label: '💊 Remise', cls: 'bg-gray-100 text-gray-500' },
 };
@@ -70,7 +70,7 @@ export default function PharmacyDispensationPage() {
                         </div>
                     )}
                     {enPrepCount > 0 && (
-                        <div className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-sm font-semibold">
+                        <div className="px-3 py-1.5 bg-brand-100 text-brand-700 rounded-xl text-sm font-semibold">
                             {enPrepCount} en préparation
                         </div>
                     )}
@@ -93,9 +93,9 @@ export default function PharmacyDispensationPage() {
                         const loading = actionLoading[p.id];
                         const statut = STATUT_LABELS[p.statut] || STATUT_LABELS.en_attente;
                         return (
-                            <div key={p.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${p.statut === 'en_attente' ? 'border-amber-200' : p.statut === 'en_preparation' ? 'border-blue-200' : 'border-gray-100'}`}>
+                            <div key={p.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${p.statut === 'en_attente' ? 'border-amber-200' : p.statut === 'en_preparation' ? 'border-brand-200' : 'border-gray-100'}`}>
                                 {/* En-tête ordonnance */}
-                                <div className={`px-5 py-3 flex items-center justify-between ${p.statut === 'en_attente' ? 'bg-amber-50' : p.statut === 'en_preparation' ? 'bg-blue-50' : 'bg-gray-50'}`}>
+                                <div className={`px-5 py-3 flex items-center justify-between ${p.statut === 'en_attente' ? 'bg-amber-50' : p.statut === 'en_preparation' ? 'bg-brand-50' : 'bg-gray-50'}`}>
                                     <div className="flex items-center gap-3">
                                         <div className="font-mono font-bold text-sm text-gray-900">{p.numero}</div>
                                         <span className={`text-xs rounded-full px-2.5 py-0.5 font-semibold ${statut.cls}`}>{statut.label}</span>
@@ -147,7 +147,7 @@ export default function PharmacyDispensationPage() {
                                         <div className="flex gap-2 pt-1">
                                             {p.statut === 'en_attente' && (
                                                 <button onClick={() => setStatut(p.id, 'en_preparation')} disabled={loading}
-                                                    className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50">
+                                                    className="flex-1 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50">
                                                     {loading ? <Loader size={14} className="animate-spin" /> : <Clock size={14} />} Prendre en charge
                                                 </button>
                                             )}

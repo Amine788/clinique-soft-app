@@ -66,13 +66,13 @@ function QrModal({ data, onClose }) {
     return (
         <div
             onClick={onClose}
-            style={{ position: "fixed", inset: 0, background: "rgba(15,15,35,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, borderRadius: 12 }}
+            style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, borderRadius: 12 }}
         >
-            <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 18, padding: "26px 24px", width: 300, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.25)" }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 16, padding: "26px 24px", width: 300, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.25)" }}>
                 {/* Header */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
                     <div style={{ textAlign: "left" }}>
-                        <p style={{ fontSize: 15, fontWeight: 700, color: "#1E293B", margin: 0 }}>QR Code</p>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>QR Code</p>
                         <p style={{ fontSize: 12, color: "#64748B", margin: "3px 0 0" }}>{data.label}</p>
                     </div>
                     <button onClick={onClose} style={{ background: "#F1F5F9", border: "none", borderRadius: 8, width: 30, height: 30, fontSize: 18, color: "#64748B", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>×</button>
@@ -84,11 +84,11 @@ function QrModal({ data, onClose }) {
                 </div>
 
                 {/* Data preview */}
-                <div style={{ background: "#EEF2FF", borderRadius: 8, padding: "8px 12px", marginBottom: 14, textAlign: "left" }}>
-                    <p style={{ fontSize: 10, color: "#4F46E5", fontWeight: 600, margin: 0, wordBreak: "break-all", lineHeight: 1.5 }}>{data.text}</p>
+                <div style={{ background: "#EEF4FC", borderRadius: 8, padding: "8px 12px", marginBottom: 14, textAlign: "left" }}>
+                    <p style={{ fontSize: 10, color: "#004AAD", fontWeight: 600, margin: 0, wordBreak: "break-all", lineHeight: 1.5 }}>{data.text}</p>
                 </div>
 
-                <button onClick={handleDownload} style={{ width: "100%", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 10, padding: 10, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                <button onClick={handleDownload} style={{ width: "100%", background: "#004AAD", color: "#fff", border: "none", borderRadius: 10, padding: 10, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                     ⬇ Télécharger PNG
                 </button>
             </div>
@@ -204,19 +204,19 @@ export default function RoomsPage() {
     const capitalizedDate = currentDate.charAt(0).toUpperCase() + currentDate.slice(1);
 
     return (
-        <div style={{ padding: "24px 0", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             {/* Title */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#1E293B" }}>Chambres</h1>
+                    <h1 className="page-title">Chambres</h1>
                     <p style={{ margin: "3px 0 0", color: "#64748B", fontSize: 13 }}>{capitalizedDate}</p>
                 </div>
-                {canManageRooms && <button onClick={() => setShowModal(true)} style={{ background: "#4F46E5", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Nouvelle chambre</button>}
+                {canManageRooms && <button onClick={() => setShowModal(true)} style={{ background: "#004AAD", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>+ Nouvelle chambre</button>}
             </div>
 
             {/* Stats */}
             <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap" }}>
-                <StatCard icon="🛏" label="Total" value={rooms.length} color="#4F46E5" />
+                <StatCard icon="🛏" label="Total" value={rooms.length} color="#004AAD" />
                 <StatCard icon="✅" label="Disponibles" value={dispo} color="#10B981" />
                 <StatCard icon="🔵" label="Occupées" value={occ} color="#3B82F6" />
                 <StatCard icon="⚠️" label="Maintenance" value={maint} color="#F59E0B" />
@@ -234,7 +234,7 @@ export default function RoomsPage() {
                             style={{
                                 padding: "7px 14px", borderRadius: 20,
                                 border: active ? "none" : "1px solid #E2E8F0",
-                                background: active ? "#4F46E5" : "#fff",
+                                background: active ? "#004AAD" : "#fff",
                                 color: active ? "#fff" : "#64748B",
                                 fontWeight: active ? 600 : 400,
                                 fontSize: 13, cursor: "pointer",
@@ -255,7 +255,7 @@ export default function RoomsPage() {
             {loading ? (
                 <div className="py-12"><LoadingScreen message="Chargement des chambres..." /></div>
             ) : filteredRooms.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#94A3B8', padding: '3rem', background: '#fff', borderRadius: 13, border: "1px solid #E2E8F0" }}>Aucune chambre trouvée.</div>
+                <div style={{ textAlign: 'center', color: '#94A3B8', padding: '3rem', background: '#fff', borderRadius: 16, border: "1px solid #E2E8F0" }}>Aucune chambre trouvée.</div>
             ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 13 }}>
                     {filteredRooms.map(c => {
@@ -267,18 +267,18 @@ export default function RoomsPage() {
                         const labelStatut = STATUTS.find(s => s.val === c.status)?.label || 'Inconnu';
 
                         return (
-                            <div key={c.id} style={{ background: "#fff", borderRadius: 13, border: sel ? "2px solid #4F46E5" : "1px solid #E2E8F0", padding: 16 }}>
+                            <div key={c.id} style={{ background: "#fff", borderRadius: 16, border: sel ? "2px solid #004AAD" : "1px solid #E2E8F0", padding: 16 }}>
                                 {/* Top row */}
                                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                                     <div onClick={toggle} style={{ cursor: "pointer" }}>
-                                        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#1E293B" }}>Chambre {c.number}</p>
+                                        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0f172a" }}>Chambre {c.number}</p>
                                         <p style={{ margin: "2px 0 0", color: "#94A3B8", fontSize: 11 }}>{TYPE_LABELS[c.type]}</p>
                                     </div>
                                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                                         <button
                                             onClick={(e) => openQr(c.id, c.number, txt, e)}
                                             title="QR Code"
-                                            style={{ background: "#EEF2FF", border: "none", borderRadius: 7, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#4F46E5", cursor: "pointer" }}
+                                            style={{ background: "#EEF4FC", border: "none", borderRadius: 8, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#004AAD", cursor: "pointer" }}
                                         >
                                             <QrIcon />
                                         </button>
@@ -309,14 +309,14 @@ export default function RoomsPage() {
                                 {sel && (canChangeStatus || canManageRooms) && (
                                     <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #E2E8F0", display: "flex", gap: 6 }}>
                                         {canChangeStatus && <>
-                                        {c.status === "available" && <button onClick={(e) => handleStatusChange(c.id, 'occupee', e)} style={{ flex: 1, background: "#4F46E5", color: "#fff", border: "none", borderRadius: 7, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Marquer occupée</button>}
-                                        {c.status === "occupied" && <button onClick={(e) => handleStatusChange(c.id, 'disponible', e)} style={{ flex: 1, background: "#FEF2F2", color: "#DC2626", border: "none", borderRadius: 7, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Libérer</button>}
+                                        {c.status === "available" && <button onClick={(e) => handleStatusChange(c.id, 'occupee', e)} style={{ flex: 1, background: "#004AAD", color: "#fff", border: "none", borderRadius: 8, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Marquer occupée</button>}
+                                        {c.status === "occupied" && <button onClick={(e) => handleStatusChange(c.id, 'disponible', e)} style={{ flex: 1, background: "#FEF2F2", color: "#DC2626", border: "none", borderRadius: 8, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Libérer</button>}
                                         
-                                        {c.status !== "maintenance" && <button onClick={(e) => handleStatusChange(c.id, 'hors_service', e)} style={{ flex: 1, background: "#FFFBEB", color: "#92400E", border: "none", borderRadius: 7, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Maintenance</button>}
-                                        {c.status === "maintenance" && <button onClick={(e) => handleStatusChange(c.id, 'disponible', e)} style={{ flex: 1, background: "#ECFDF5", color: "#065F46", border: "none", borderRadius: 7, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Fin maint.</button>}
+                                        {c.status !== "maintenance" && <button onClick={(e) => handleStatusChange(c.id, 'hors_service', e)} style={{ flex: 1, background: "#FFFBEB", color: "#92400E", border: "none", borderRadius: 8, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Maintenance</button>}
+                                        {c.status === "maintenance" && <button onClick={(e) => handleStatusChange(c.id, 'disponible', e)} style={{ flex: 1, background: "#ECFDF5", color: "#065F46", border: "none", borderRadius: 8, padding: 7, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Fin maint.</button>}
                                         </>}
 
-                                        {canManageRooms && <button onClick={(e) => handleDelete(c, e)} style={{ background: "#FEF2F2", color: "#DC2626", border: "none", borderRadius: 7, padding: "7px 10px", fontWeight: 600, fontSize: 12, cursor: "pointer" }} title="Supprimer">
+                                        {canManageRooms && <button onClick={(e) => handleDelete(c, e)} style={{ background: "#FEF2F2", color: "#DC2626", border: "none", borderRadius: 8, padding: "7px 10px", fontWeight: 600, fontSize: 12, cursor: "pointer" }} title="Supprimer">
                                             <Trash2 size={14} />
                                         </button>}
                                     </div>
@@ -330,17 +330,17 @@ export default function RoomsPage() {
             {/* Modal création chambre */}
             {showModal && (
                 <div style={{
-                    position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)',
+                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)',
                     zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                     <div style={{
-                        backgroundColor: 'white', borderRadius: '20px', padding: '2rem',
+                        backgroundColor: 'white', borderRadius: '16px', padding: '2rem',
                         width: '100%', maxWidth: '440px', boxShadow: 'var(--shadow-xl)',
                         position: 'relative',
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', color: '#1E293B' }}>
-                                <Bed size={20} style={{ color: '#4F46E5' }} /> Nouvelle chambre
+                            <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', color: '#0f172a' }}>
+                                <Bed size={20} style={{ color: '#004AAD' }} /> Nouvelle chambre
                             </h2>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}>
                                 <X size={22} />
@@ -371,9 +371,9 @@ export default function RoomsPage() {
                                     {TYPES.map(t => (
                                         <label key={t} style={{
                                             padding: '0.5rem', borderRadius: '8px', border: '1px solid',
-                                            borderColor: form.typeChambre === t ? '#4F46E5' : '#E2E8F0',
-                                            backgroundColor: form.typeChambre === t ? '#EEF2FF' : 'transparent',
-                                            color: form.typeChambre === t ? '#4F46E5' : '#64748B',
+                                            borderColor: form.typeChambre === t ? '#004AAD' : '#E2E8F0',
+                                            backgroundColor: form.typeChambre === t ? '#EEF4FC' : 'transparent',
+                                            color: form.typeChambre === t ? '#004AAD' : '#64748B',
                                             cursor: 'pointer', textAlign: 'center', fontSize: '0.8rem', fontWeight: 600,
                                             transition: 'all 0.15s',
                                         }}>
@@ -417,7 +417,7 @@ export default function RoomsPage() {
                                 <button type="button" onClick={() => setShowModal(false)} style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontWeight: 600, cursor: 'pointer' }}>
                                     Annuler
                                 </button>
-                                <button type="submit" disabled={saving} style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <button type="submit" disabled={saving} style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: 'none', background: '#004AAD', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     {saving ? '⏳ Création...' : <><Plus size={16} /> Créer</>}
                                 </button>
                             </div>

@@ -15,11 +15,11 @@ const ICONS = {
 };
 
 const COLORS = {
-    appointment_created: 'text-blue-500 bg-blue-50',
+    appointment_created: 'text-brand-500 bg-brand-50',
     patient_arrived: 'text-green-500 bg-green-50',
     new_prescription: 'text-purple-500 bg-purple-50',
     prescription_ready: 'text-green-600 bg-green-50',
-    consultation_done: 'text-blue-600 bg-blue-50',
+    consultation_done: 'text-brand-600 bg-brand-50',
     stock_alert: 'text-red-500 bg-red-50',
     absence_request: 'text-orange-500 bg-orange-50',
     absence_decision: 'text-indigo-500 bg-indigo-50',
@@ -151,7 +151,7 @@ export default function NotificationCenter() {
                                     return (
                                         <div
                                             key={n.id}
-                                            className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition ${!n.read ? 'bg-blue-50/30' : ''} ${n.urgent ? 'border-l-2 border-l-red-400' : ''}`}
+                                            className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition ${!n.read ? 'bg-brand-50/30' : ''} ${n.urgent ? 'border-l-2 border-l-red-400' : ''}`}
                                         >
                                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass}`}>
                                                 <Icon size={14} />

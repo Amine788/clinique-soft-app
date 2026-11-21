@@ -108,7 +108,7 @@ export default function LaboratoryPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-gray-900 font-medium">{parsedDate.toLocaleDateString('fr-FR')}</div>
                                             <div className="text-xs text-muted">{parsedDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-                                            <div className="text-xs text-indigo-400 font-mono mt-1">#{ex.id}</div>
+                                            <div className="text-xs text-brand-400 font-mono mt-1">#{ex.id}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="font-semibold text-gray-900">{ex.Patient?.prenom} {ex.Patient?.nom}</div>
@@ -117,11 +117,11 @@ export default function LaboratoryPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                {isLabo ? <Activity size={16} className="text-blue-500" /> : <Activity size={16} className="text-purple-500" />}
+                                                {isLabo ? <Activity size={16} className="text-brand-500" /> : <Activity size={16} className="text-purple-500" />}
                                                 <div>
                                                     <div className="font-medium text-gray-900">{ex.examenDetails?.nom || 'Inconnu'}</div>
                                                     <div className="flex gap-2 text-xs mt-1">
-                                                        <span className={`px-2 py-0.5 rounded border ${isLabo ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
+                                                        <span className={`px-2 py-0.5 rounded border ${isLabo ? 'bg-brand-50 text-brand-700 border-brand-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
                                                             {isLabo ? 'Laboratoire' : 'Radiologie'}
                                                         </span>
                                                         <span className="text-muted">{ex.examenDetails?.categorie}</span>
@@ -150,7 +150,7 @@ export default function LaboratoryPage() {
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
                                                 ${ex.statut === 'en_attente' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                                                     ex.statut === 'preleve' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                                                    ex.statut === 'en_cours' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                    ex.statut === 'en_cours' ? 'bg-brand-50 text-brand-700 border-brand-200' :
                                                         ex.statut === 'termine' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                                                             'bg-red-50 text-red-700 border-red-200'}`}
                                             >
@@ -172,7 +172,7 @@ export default function LaboratoryPage() {
                                         </td>
                                         <td className="px-6 py-4 text-right space-y-2">
                                             {isLabo && ex.statut === 'en_attente' && (
-                                                <div className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl p-3 flex items-center gap-2 justify-end">
+                                                <div className="text-xs bg-brand-50 text-brand-700 border border-brand-100 rounded-xl p-3 flex items-center gap-2 justify-end">
                                                     <Droplet size={14} /> En attente de prélèvement (infirmier)
                                                 </div>
                                             )}
@@ -263,7 +263,7 @@ export default function LaboratoryPage() {
                                                         <button
                                                             type="button"
                                                             onClick={() => ouvrirFichierProtege(`/examens/${ex.id}/fichier`)}
-                                                            className="mt-2 flex w-full items-center gap-2 p-2 bg-indigo-50 text-indigo-700 rounded border border-indigo-100 hover:bg-indigo-100 transition"
+                                                            className="mt-2 flex w-full items-center gap-2 p-2 bg-brand-50 text-brand-700 rounded border border-brand-100 hover:bg-brand-100 transition"
                                                         >
                                                             <FileText size={14} /> Voir le fichier (Scan/Radio)
                                                         </button>
