@@ -59,6 +59,8 @@ export default function SuperAdminPage() {
     const [userSearch, setUserSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    // '' : toutes les cliniques ; 'none' : comptes plateforme sans clinique ; sinon id de la clinique
+    const [clinicFilter, setClinicFilter] = useState('');
     const [extendingId, setExtendingId] = useState(null);
     // Heure courante pour le décompte des essais, rafraîchie chaque minute
     const [now, setNow] = useState(() => Date.now());
@@ -149,6 +151,7 @@ export default function SuperAdminPage() {
                 toast.success(`Clinique "${clinicName}" supprimée avec succès`);
                 setClinics(prev => prev.filter(c => c.id !== clinicId));
                 setAllUsers(prev => prev.filter(u => u.clinic_id !== clinicId));
+                if (clinicFilter === String(clinicId)) setClinicFilter('');
                 // Rafraîchir les stats
                 const statsRes = await api.get('/super-admin/stats');
                 setStats(statsRes.data);
@@ -178,8 +181,19 @@ export default function SuperAdminPage() {
         c.email?.toLowerCase().includes(clinicSearch.toLowerCase())
     );
 
-    const filteredUsers = allUsers.filter(u => {
-        const matchesSearch = 
+    const clinicUsers = clinicFilter === ''
+        ? allUsers
+        : allUsers.filter(u => clinicFilter === 'none' ? !u.clinic_id : String(u.clinic_id) === clinicFilter);
+
+    const sortedClinics = [...clinics].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+
+    const showClinicUsers = (clinicId) => {
+        setClinicFilter(String(clinicId));
+        setActiveTab('users');
+    };
+
+    const filteredUsers = clinicUsers.filter(u => {
+        const matchesSearch =
             `${u.prenom} ${u.nom}`.toLowerCase().includes(userSearch.toLowerCase()) ||
             u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
             u.clinicName.toLowerCase().includes(userSearch.toLowerCase());
@@ -305,7 +319,7 @@ export default function SuperAdminPage() {
                         onClick={() => setActiveTab('users')}
                         className={`pb-4 text-sm font-bold border-b-2 transition-all ${activeTab === 'users' ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-950'}`}
                     >
-                        Utilisateurs Globaux ({allUsers.length})
+                        Utilisateurs Globaux ({clinicUsers.length})
                     </button>
                 </div>
 
@@ -411,7 +425,16 @@ export default function SuperAdminPage() {
                                                 <td className="px-6 py-4 font-bold text-gray-900">{c.name}</td>
                                                 <td className="px-6 py-4 text-gray-500">{c.email || 'Non renseigné'}</td>
                                                 <td className="px-6 py-4 text-gray-500">{new Date(c.createdAt).toLocaleDateString('fr-FR')}</td>
-                                                <td className="px-6 py-4 font-semibold text-gray-700">{c.userCount} comptes</td>
+                                                <td className="px-6 py-4 font-semibold text-gray-700">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => showClinicUsers(c.id)}
+                                                        title={`Voir les utilisateurs de ${c.name}`}
+                                                        className="whitespace-nowrap text-brand-700 hover:underline"
+                                                    >
+                                                        {c.userCount} comptes
+                                                    </button>
+                                                </td>
                                                 <td className="px-6 py-4">
                                                     <span className="px-2 py-1 bg-gray-100 text-gray-700 font-semibold rounded-lg text-xs">
                                                         {c.type || 'Starter'}
@@ -487,9 +510,24 @@ export default function SuperAdminPage() {
                                 />
                             </div>
 
-                            <div className="flex gap-3 w-full md:w-auto">
-                                <select 
-                                    value={roleFilter} 
+                            <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                                <select
+                                    value={clinicFilter}
+                                    onChange={e => setClinicFilter(e.target.value)}
+                                    aria-label="Filtrer par clinique"
+                                    className="px-3 py-2 border border-gray-200 rounded-xl text-sm outline-none bg-white text-gray-700 max-w-xs"
+                                >
+                                    <option value="">Toutes les cliniques</option>
+                                    {sortedClinics.map(c => (
+                                        <option key={c.id} value={String(c.id)}>
+                                            {c.name} ({allUsers.filter(u => u.clinic_id === c.id).length})
+                                        </option>
+                                    ))}
+                                    <option value="none">Plateforme (sans clinique)</option>
+                                </select>
+
+                                <select
+                                    value={roleFilter}
                                     onChange={e => setRoleFilter(e.target.value)}
                                     className="px-3 py-2 border border-gray-200 rounded-xl text-sm outline-none bg-white text-gray-700"
                                 >
